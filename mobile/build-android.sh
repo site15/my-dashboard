@@ -30,10 +30,10 @@ npx cap sync android
 if [ ! -f "my-dashboard.jks" ]; then
   echo "Warning: Keystore file not found. Building debug APK instead."
   echo "Building Android app (debug)..."
-  npx cap build android --no-prompt
+  npx cap build android
 else
   echo "Building Android app (release)..."
-  npx cap build android --no-prompt
+  npx cap build android
 fi
 
 echo "Build process completed!"
