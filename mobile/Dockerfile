@@ -3,7 +3,6 @@ FROM ubuntu:22.04
 LABEL MAINTAINER="Ilshat Khamitov <ilshat.m.khamitov@gmail.com>"
 
 ARG JAVA_VERSION=21
-ARG NODEJS_VERSION=20
 # See https://developer.android.com/studio/index.html#command-tools
 ARG ANDROID_SDK_VERSION=11076708
 # See https://developer.android.com/tools/releases/build-tools
@@ -19,6 +18,7 @@ ARG CAPACITOR_VERSION=6.0.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=en_US.UTF-8
+ENV NODE_VERSION=23.11.0
 
 WORKDIR /tmp
 
@@ -59,7 +59,6 @@ RUN curl -sL https://dl.google.com/android/repository/commandlinetools-linux-${A
 ENV PATH=$PATH:${ANDROID_HOME}/cmdline-tools:${ANDROID_HOME}/platform-tools
 
 ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=20.6.0
 
 # Install NodeJS
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.6/install.sh | bash \

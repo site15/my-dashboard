@@ -15,7 +15,7 @@ fi
 # Check if www directory exists, if not build the project
 if [ ! -d "www" ] || [ -z "$(ls -A www)" ]; then
   echo "Building web assets..."
-  ./mobile/node_modules/.bin/ionic build --prod
+  ./node_modules/.bin/ionic build --prod
 fi
 
 echo "Adding Android platform..."
