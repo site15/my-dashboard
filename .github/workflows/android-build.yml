@@ -2,15 +2,15 @@ name: Build Android APK
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
-    branches: ['main']
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,32 +18,32 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-#      - name: Login to Docker Hub
-#        if: github.event_name != 'pull_request'
-#        uses: docker/login-action@v3
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_TOKEN }}
-#
-#      - name: Build Docker image
-#        uses: docker/build-push-action@v5
-#        with:
-#          context: ./mobile
-#          push: false
-#          load: true
-#          tags: endykaufman/ionic-capacitor:latest
-#
-#      - name: Create keystore directory
-#        run: mkdir -p ${{ github.workspace }}/keystore
-#
-#      - name: Generate keystore
-#        run: |
-#          keytool -genkey -v -keystore ${{ github.workspace }}/keystore/my-dashboard.jks -keyalg RSA -keysize 2048 -storepass 12345678 -keypass 12345678 -validity 10000 -alias my-dashboard -dname "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown"
-#
-#      - name: Copy keystore to app directory
-#        run: |
-#          cp ${{ github.workspace }}/keystore/my-dashboard.jks ${{ github.workspace }}/mobile/my-dashboard.jks
-#
+      #     - name: Login to Docker Hub
+      #       if: github.event_name != 'pull_request'
+      #       uses: docker/login-action@v3
+      #       with:
+      #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #
+      #     - name: Build Docker image
+      #       uses: docker/build-push-action@v5
+      #       with:
+      #         context: ./mobile
+      #         push: false
+      #         load: true
+      #         tags: endykaufman/ionic-capacitor:latest
+      #
+      #     - name: Create keystore directory
+      #       run: mkdir -p ${{ github.workspace }}/keystore
+      #
+      #     - name: Generate keystore
+      #       run: |
+      #         keytool -genkey -v -keystore ${{ github.workspace }}/keystore/my-dashboard.jks -keyalg RSA -keysize 2048 -storepass 12345678 -keypass 12345678 -validity 10000 -alias my-dashboard -dname "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown"
+      #
+      #     - name: Copy keystore to app directory
+      #       run: |
+      #         cp ${{ github.workspace }}/keystore/my-dashboard.jks ${{ github.workspace }}/mobile/my-dashboard.jks
+      #
       - name: Run Android build in Docker container
         run: |
           docker run --rm \
@@ -60,7 +60,6 @@ jobs:
           name: android-apk-release
           path: ${{ github.workspace }}/mobile/android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
-
 #      - name: Push Docker image to Docker Hub
 #        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
 #        uses: docker/build-push-action@v5

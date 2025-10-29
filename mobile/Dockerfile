@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-LABEL MAINTAINER="Robin Genz <mail@robingenz.dev>"
+LABEL MAINTAINER="Ilshat Khamitov <ilshat.m.khamitov@gmail.com>"
 
 ARG JAVA_VERSION=21
 ARG NODEJS_VERSION=20
@@ -90,4 +90,5 @@ RUN apt-get autoremove -y \
 
 WORKDIR /app
 
+# Default command
 ENTRYPOINT ["/usr/local/bin/build-android.sh"]
