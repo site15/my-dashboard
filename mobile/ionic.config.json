@@ -1,0 +1,7 @@
+{
+  "name": "MyDashboard",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
