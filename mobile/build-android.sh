@@ -6,6 +6,18 @@ cd /app
 # Disable telemetry
 npx cap telemetry off
 
+# Check if node_modules exists, if not install dependencies
+if [ ! -d "node_modules" ]; then
+  echo "Installing npm dependencies..."
+  npm install
+fi
+
+# Check if www directory exists, if not build the project
+if [ ! -d "www" ] || [ -z "$(ls -A www)" ]; then
+  echo "Building web assets..."
+  npm run build
+fi
+
 echo "Adding Android platform..."
 # Add Android platform (this is safe even if already added)
 npx cap add android || echo "Android platform may already be added"
@@ -14,8 +26,18 @@ echo "Syncing web code to Android platform..."
 # Sync the web code to the Android platform
 npx cap sync android
 
-echo "Building Android app..."
-# Build the Android app
-npx cap build android
+# Check if keystore exists
+if [ ! -f "my-dashboard.jks" ]; then
+  echo "Warning: Keystore file not found. Building debug APK instead."
+  echo "Building Android app (debug)..."
+  npx cap build android --no-prompt
+else
+  echo "Building Android app (release)..."
+  npx cap build android --no-prompt
+fi
 
 echo "Build process completed!"
+
+# List the output files
+echo "APK files generated:"
+ls -la android/app/build/outputs/apk/release/
