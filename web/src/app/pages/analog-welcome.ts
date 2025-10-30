@@ -1,15 +1,20 @@
 import { waitFor } from '@analogjs/trpc';
+import { AsyncPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { shareReplay, Subject, switchMap, take } from 'rxjs';
+import { NgxTelegramWidgetComponent } from '../components/telegram/ngx-telegram-widget.component';
 import { injectTrpcClient } from '../trpc-client';
-import { AsyncPipe, NgFor, DatePipe, NgIf } from '@angular/common';
-import { Prisma } from '../generated/prisma/browser';
-
-
 
 @Component({
-  imports: [AsyncPipe, FormsModule, NgFor, DatePipe, NgIf],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    NgFor,
+    DatePipe,
+    NgxTelegramWidgetComponent,
+    NgIf,
+  ],
   selector: 'app-analog-welcome',
   styles: [
     `
@@ -211,7 +216,8 @@ import { Prisma } from '../generated/prisma/browser';
       }
       .count {
         margin-left: 0.25rem;
-        font-family: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        font-family: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+          monospace;
       }
     `,
   ],
@@ -239,6 +245,11 @@ import { Prisma } from '../generated/prisma/browser';
             <br />Powered by Vite.
           </p>
           <div class="btn-container">
+            <ngx-telegram-widget
+              ngSkipHydration
+              botName="site15_my_dashboard_bot"
+              redirectURL="https://site15-my-dashboard.vercel.app/auth/login"
+            ></ngx-telegram-widget>
             <a class="darkBtn" href="https://analogjs.org">Read the docs</a>
             <a
               target="_blank"
@@ -250,7 +261,7 @@ import { Prisma } from '../generated/prisma/browser';
           </div>
         </div>
       </section>
-    <section id="counter-demo" class="section">
+      <section id="counter-demo" class="section">
         <div class="counter-container">
           <h2 class="counter-heading">Counter</h2>
           <p class="counter-description">
@@ -262,7 +273,7 @@ import { Prisma } from '../generated/prisma/browser';
         </div>
       </section>
 
-<section id="trpc-demo" class="py-8 md:py-12 lg:py-24">
+      <section id="trpc-demo" class="py-8 md:py-12 lg:py-24">
         <div
           class="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center"
         >
@@ -325,6 +336,15 @@ import { Prisma } from '../generated/prisma/browser';
           <p class="text-center mt-4">Loading...</p>
         </ng-template>
       </section>
+
+      <script
+        async
+        src="https://telegram.org/js/telegram-widget.js?8"
+        data-telegram-login="site15-my-dashboard="
+        data-size="large"
+        data-auth-url="https://site15-my-dashboard.vercel.app/login"
+        data-request-access="write"
+      ></script>
     </main>
   `,
 })
