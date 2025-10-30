@@ -13,6 +13,27 @@ The Docker image is hosted on Docker Hub:
 docker build -t endykaufman/ionic-capacitor .
 ```
 
+## Publishing the Docker Image
+
+To publish the Docker image to Docker Hub:
+
+1. Login to Docker Hub:
+   ```bash
+   docker login
+   ```
+
+2. Tag the image with your Docker Hub username:
+   ```bash
+   docker tag endykaufman/ionic-capacitor
+   ```
+
+3. Push the image to Docker Hub:
+   ```bash
+   docker push endykaufman/ionic-capacitor:latest
+   ```
+
+For automated builds, you can also use Docker Hub's automated build feature by connecting your GitHub repository.
+
 ## Running the Build with Volume Mounting
 
 To build the Android APK using Docker with volume mounting:
