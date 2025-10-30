@@ -9,7 +9,8 @@
     "ng": "ng",
     "dev": "vite",
     "start": "npm run dev",
-    "build": "vite build",
+    "build": 
+    "npx prisma generate && sed -i 's/process/processLocal/g' ./src/app/generated/prisma/client.ts && sed -i 's/process/processLocal/g' ./src/server/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/app/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/server/generated/prisma/client.ts && vite build",
     "watch": "vite build --watch",
     "test": "vitest",
     "preview": "node dist/analog/server/index.mjs"
