@@ -248,7 +248,7 @@ import { Component } from '@angular/core';
             This is a simple interactive counter. Powered by Angular.
           </p>
           <button (click)="increment()" class="lightBtn">
-            Count: <span class="count">{{ count }}</span>
+            Counter: <span class="count">{{ count }}</span>
           </button>
         </div>
       </section>
