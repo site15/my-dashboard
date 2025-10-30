@@ -31,11 +31,8 @@ const config: runtime.GetPrismaClientConfig = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x"
-      },
-      {
-        "fromEnvVar": null,
-        "value": "rhel-openssl-3.0.x"
+        "value": "debian-openssl-3.0.x",
+        "native": true
       }
     ],
     "previewFeatures": [],
@@ -58,8 +55,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client1 {\n  provider      = \"prisma-client\"\n  output        = \"../src/app/generated/prisma\"\n  binaryTargets = [\"debian-openssl-3.0.x\", \"rhel-openssl-3.0.x\"]\n  engineType    = \"client\"\n}\n\ngenerator client2 {\n  provider      = \"prisma-client\"\n  output        = \"../src/server/generated/prisma\"\n  binaryTargets = [\"debian-openssl-3.0.x\", \"rhel-openssl-3.0.x\"]\n  engineType    = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MY_DASHBOARD_DATABASE_POSTGRES_URL\")\n}\n\nmodel User {\n  id         String   @id @default(uuid())\n  externalId String?\n  createdAt  DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "45e64891cc77e08d00a2b016844f01d6bdb4aa1ffd567c057419d42589f1b27f",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client1 {\n  provider   = \"prisma-client\"\n  output     = \"../src/app/generated/prisma\"\n  engineType = \"client\"\n}\n\ngenerator client2 {\n  provider   = \"prisma-client\"\n  output     = \"../src/server/generated/prisma\"\n  engineType = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MY_DASHBOARD_DATABASE_POSTGRES_URL\")\n}\n\nmodel User {\n  id         String   @id @default(uuid())\n  externalId String?\n  createdAt  DateTime @default(now())\n}\n",
+  "inlineSchemaHash": "03438971091dc503d64fe3b5be24004cdf99067f1e40f5a2f5baf49bafe7bd76",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},

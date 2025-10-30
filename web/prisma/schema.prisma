@@ -5,17 +5,15 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client1 {
-  provider      = "prisma-client"
-  output        = "../src/app/generated/prisma"
-  binaryTargets = ["debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
-  engineType    = "client"
+  provider   = "prisma-client"
+  output     = "../src/app/generated/prisma"
+  engineType = "client"
 }
 
 generator client2 {
-  provider      = "prisma-client"
-  output        = "../src/server/generated/prisma"
-  binaryTargets = ["debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
-  engineType    = "client"
+  provider   = "prisma-client"
+  output     = "../src/server/generated/prisma"
+  engineType = "client"
 }
 
 datasource db {
