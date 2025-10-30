@@ -32,6 +32,7 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/platform-server": "^20.0.0",
     "@angular/router": "^20.0.0",
+    "@prisma/adapter-pg": "^6.18.0",
     "@prisma/client": "^6.18.0",
     "@tailwindcss/vite": "^4.1.4",
     "@trpc/client": "^10.45.2",

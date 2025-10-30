@@ -31,11 +31,8 @@ const config: runtime.GetPrismaClientConfig = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x"
-      },
-      {
-        "fromEnvVar": null,
-        "value": "rhel-openssl-3.0.x"
+        "value": "debian-openssl-3.0.x",
+        "native": true
       }
     ],
     "previewFeatures": [],
@@ -58,8 +55,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client1 {\n  provider      = \"prisma-client\"\n  output        = \"../src/app/generated/prisma\"\n  binaryTargets = [\"debian-openssl-3.0.x\", \"rhel-openssl-3.0.x\"]\n}\n\ngenerator client2 {\n  provider      = \"prisma-client\"\n  output        = \"../src/server/generated/prisma\"\n  binaryTargets = [\"debian-openssl-3.0.x\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MY_DASHBOARD_DATABASE_POSTGRES_URL\")\n}\n\nmodel User {\n  id         String   @id @default(uuid())\n  externalId String?\n  createdAt  DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "8d8ec0ea87f12e6bc8a1c0e3dbc6ac0b0b0ce363522f01badd62ea22a70194b4",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client1 {\n  provider = \"prisma-client\"\n  output   = \"../src/app/generated/prisma\"\n}\n\ngenerator client2 {\n  provider = \"prisma-client\"\n  output   = \"../src/server/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MY_DASHBOARD_DATABASE_POSTGRES_URL\")\n}\n\nmodel User {\n  id         String   @id @default(uuid())\n  externalId String?\n  createdAt  DateTime @default(now())\n}\n",
+  "inlineSchemaHash": "325c204213ba08d022649de8c2946200b05d2e2908c12563808d772e9b89b76e",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},
