@@ -5,12 +5,16 @@
   "engines": {
     "node": "22.x"
   },
+  "pkg": {
+    "assets": [
+      "node_modules/.prisma/client/*.node"
+    ]
+  },
   "scripts": {
     "ng": "ng",
     "dev": "vite",
     "start": "npm run dev",
-    "build": 
-    "npx prisma generate && sed -i 's/process/processLocal/g' ./src/app/generated/prisma/client.ts && sed -i 's/process/processLocal/g' ./src/server/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/app/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/server/generated/prisma/client.ts && vite build",
+    "build": "npx prisma generate && sed -i 's/process/processLocal/g' ./src/app/generated/prisma/client.ts && sed -i 's/process/processLocal/g' ./src/server/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/app/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/server/generated/prisma/client.ts && vite build",
     "watch": "vite build --watch",
     "test": "vitest",
     "preview": "node dist/analog/server/index.mjs"
@@ -37,6 +41,7 @@
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.1.4",
     "tslib": "^2.3.0",
+    "vite-plugin-static-copy": "^3.1.4",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
