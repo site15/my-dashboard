@@ -4,64 +4,32 @@
 
 The application is deployed and available at: https://site15-my-dashboard.vercel.app
 
-## Building the Mobile Web of Mobile App
+## Project Overview
 
-```bash
-./node_modules/.bin/ionic build --prod
-```
+This repository contains two main components:
+- [Mobile Application](./mobile) - An Ionic-Angular mobile app with Android build capabilities
+- [Web Application](./web) - An AnalogJS (Angular-based) fullstack web application
 
-## Generating Keystore for Android Build
+## Quick Start
 
-```bash
-keytool -genkey -v -keystore my-dashboard.jks -alias my-dashboard -keyalg RSA -keysize 2048 -validity 10000
-```
-
-## Building Android APK with Docker
-
-### Using Pre-built Docker Image
-
+### Mobile App
 ```bash
 cd mobile
-docker run --rm -v "$(pwd)":/app endykaufman/ionic-capacitor:latest
+npm install
+ionic serve
 ```
 
-### Building and Using Custom Docker Image
-
+### Web App
 ```bash
-cd mobile
-docker build -t endykaufman/ionic-capacitor .
-docker run --rm -v "$(pwd)":/app endykaufman/ionic-capacitor
+cd web
+npm install
+npm start
 ```
 
-The APK will be generated at: `mobile/android/app/build/outputs/apk/release/app-release.apk`
+## Documentation
 
-## Database Setup
-
-This project uses a PostgreSQL database with Prisma as the ORM. We recommend using [Neon](https://neon.tech/) for cloud hosting as it provides a generous free tier and doesn't go to sleep like some other free options.
-
-To set up the database:
-
-1. Create a database in the cloud with [Neon](https://neon.tech/)
-2. Copy the connection string to your `.env` file in the `web` directory:
-   ```
-   MY_DASHBOARD_DATABASE_POSTGRES_URL=your_neon_connection_string_here
-   ```
-
-Alternative database options:
-- [Supabase](https://supabase.com/) - Can go to sleep on the free tier
-- [CockroachCloud](https://www.cockroachlabs.com/) - Has a trial period
-
-Neon is recommended because it provides a good balance of features, performance, and cost for development.
-
-## Prisma Engines Mirror
-
-When installing Node.js dependencies, you may encounter issues with Prisma engines being blocked by firewalls or region restrictions. To resolve this, set the following environment variable before installing dependencies:
-
-```bash
-export PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
-```
-
-This will redirect Prisma engine downloads to a mirror that is more accessible from certain regions.
+- [Mobile App Documentation](./mobile/README.md) ([Russian version](./mobile/README_RU.md))
+- [Web App Documentation](./web/README.md) ([Russian version](./web/README_RU.md))
 
 ## GitHub Actions Workflow
 
