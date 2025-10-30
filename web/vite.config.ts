@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => ({
     alias: {
       'node-fetch': 'isomorphic-fetch',
     },
+  }, 
+  replace: {
+    'import * as process': 'import * as processUnused',
   },
   ssr: {
     noExternal: ['@analogjs/trpc', '@trpc/server', '@analog-tools/auth'],
