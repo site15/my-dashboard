@@ -2,6 +2,10 @@
 
 This project was generated with [Analog](https://analogjs.org), the fullstack meta-framework for Angular.
 
+## Live Demo
+
+The application is deployed and available at: https://site15-my-dashboard.vercel.app
+
 ## Setup
 
 Run `npm install` to install the application dependencies.

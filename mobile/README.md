@@ -2,6 +2,10 @@
 
 This directory contains the configuration for building the Android APK using Docker.
 
+## Live Demo
+
+The web application is deployed and available at: https://site15-my-dashboard.vercel.app
+
 ## Docker Hub Repository
 
 The Docker image is hosted on Docker Hub:

@@ -3,9 +3,6 @@
 # Navigate to the app directory
 cd /app
 
-# Disable telemetry
-npx cap telemetry off
-
 # Set Prisma engines mirror to avoid blocking issues
 export PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
 
@@ -14,6 +11,9 @@ if [ ! -d "node_modules" ]; then
   echo "Installing npm dependencies..."
   npm install
 fi
+
+# Disable telemetry
+npx cap telemetry off
 
 # Update capacitor config with environment variables if available
 # if [ -n "$KEYSTORE_PASSWORD" ] || [ -n "$KEYSTORE_ALIAS" ] || [ -n "$KEYSTORE_ALIAS_PASSWORD" ]; then
