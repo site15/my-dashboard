@@ -9,17 +9,17 @@ npx cap telemetry off
 # Set Prisma engines mirror to avoid blocking issues
 export PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
 
-# Update capacitor config with environment variables if available
-if [ -n "$KEYSTORE_PASSWORD" ] || [ -n "$KEYSTORE_ALIAS" ] || [ -n "$KEYSTORE_ALIAS_PASSWORD" ]; then
-  echo "Updating capacitor.config.ts with environment variables..."
-  node update-capacitor-config.js
-fi
-
 # Check if node_modules exists, if not install dependencies
 if [ ! -d "node_modules" ]; then
   echo "Installing npm dependencies..."
   npm install
 fi
+
+# Update capacitor config with environment variables if available
+# if [ -n "$KEYSTORE_PASSWORD" ] || [ -n "$KEYSTORE_ALIAS" ] || [ -n "$KEYSTORE_ALIAS_PASSWORD" ]; then
+  echo "Updating capacitor.config.ts with environment variables..."
+  node update-capacitor-config.js
+# fi
 
 # Check if www directory exists, if not build the project
 if [ ! -d "www" ] || [ -z "$(ls -A www)" ]; then
