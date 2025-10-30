@@ -31,16 +31,29 @@ The GitHub Actions workflow automatically:
 The APK files will be available in the GitHub Actions artifacts at:
 `/app/android/app/build/outputs/apk/release/`
 
+To use GitHub secrets for keystore parameters, you need to set the following secrets in your repository:
+- `KEYSTORE` - Base64 encoded keystore file
+- `KEYSTORE_PASSWORD` - Password for the keystore
+- `KEYSTORE_ALIAS` - Alias for the keystore
+- `KEYSTORE_ALIAS_PASSWORD` - Password for the keystore alias
+
+To generate the base64 encoded keystore:
+```bash
+base64 my-dashboard.jks > keystore.txt
+```
+
+Then copy the contents of keystore.txt to the `KEYSTORE` secret in your GitHub repository settings.
+
 ## Manual Build Process
 
 1. Generate a keystore (if you don't have one):
    ```bash
-   keytool -genkey -v -keystore my-dashboard.jks -keyalg RSA -keysize 2048 -storepass 12345678 -keypass 12345678 -validity 10000 -alias my-dashboard -dname "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown"
+   keytool -genkey -v -keystore my-dashboard.jks -keyalg RSA -keysize 2048 -storepass 12345678 -keypass 12345678 -validity 10000 -alias my-dashboard -dname "CN=Ilshat Khamitov, OU=My Dashboard, O=Site15, L=Ufa, ST=Unknown, C=ru"
    ```
 
 2. Run the Docker container:
    ```bash
-   docker run --rm -v "$(pwd)":/app endykaufman/ionic-capacitor:latest /usr/local/bin/build-android.sh
+   docker run --rm -v "$(pwd)":/app endykaufman/ionic-capacitor:latest
    ```
 
 3. The APK will be generated at:

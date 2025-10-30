@@ -6,6 +6,12 @@ cd /app
 # Disable telemetry
 npx cap telemetry off
 
+# Update capacitor config with environment variables if available
+if [ -n "$KEYSTORE_PASSWORD" ] || [ -n "$KEYSTORE_ALIAS" ] || [ -n "$KEYSTORE_ALIAS_PASSWORD" ]; then
+  echo "Updating capacitor.config.ts with environment variables..."
+  node update-capacitor-config.js
+fi
+
 # Check if node_modules exists, if not install dependencies
 if [ ! -d "node_modules" ]; then
   echo "Installing npm dependencies..."
