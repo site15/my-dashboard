@@ -9,7 +9,7 @@
  * 🟢 You can import this file directly.
  */
 
-import * as processUnused from 'node:process'
+import * as processLocal from 'node:process'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 globalThis['__dirname'] = path.dirname(fileURLToPath(import.meta.url))
@@ -41,7 +41,7 @@ export { Prisma }
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node")
-path.join(process.cwd(), "src/server/generated/prisma/libquery_engine-debian-openssl-3.0.x.so.node")
+path.join(processLocal.cwd(), "src/server/generated/prisma/libquery_engine-debian-openssl-3.0.x.so.node")
 
 /**
  * Model User
