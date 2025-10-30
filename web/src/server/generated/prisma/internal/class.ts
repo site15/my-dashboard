@@ -10,7 +10,7 @@
  * Please import the `PrismaClient` class from the `client.ts` file instead.
  */
 
-import * as runtime from "@prisma/client/runtime/library"
+import * as runtime from "@prisma/client/runtime/client"
 import type * as Prisma from "./prismaNamespace"
 
 
@@ -26,13 +26,16 @@ const config: runtime.GetPrismaClientConfig = {
       "fromEnvVar": null
     },
     "config": {
-      "engineType": "library"
+      "engineType": "client"
     },
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
-        "native": true
+        "value": "debian-openssl-3.0.x"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -55,8 +58,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client1 {\n  provider = \"prisma-client\"\n  output   = \"../src/app/generated/prisma\"\n}\n\ngenerator client2 {\n  provider = \"prisma-client\"\n  output   = \"../src/server/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MY_DASHBOARD_DATABASE_POSTGRES_URL\")\n}\n\nmodel User {\n  id         String   @id @default(uuid())\n  externalId String?\n  createdAt  DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "325c204213ba08d022649de8c2946200b05d2e2908c12563808d772e9b89b76e",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client1 {\n  provider      = \"prisma-client\"\n  output        = \"../src/app/generated/prisma\"\n  binaryTargets = [\"debian-openssl-3.0.x\", \"rhel-openssl-3.0.x\"]\n  engineType    = \"client\"\n}\n\ngenerator client2 {\n  provider      = \"prisma-client\"\n  output        = \"../src/server/generated/prisma\"\n  binaryTargets = [\"debian-openssl-3.0.x\", \"rhel-openssl-3.0.x\"]\n  engineType    = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MY_DASHBOARD_DATABASE_POSTGRES_URL\")\n}\n\nmodel User {\n  id         String   @id @default(uuid())\n  externalId String?\n  createdAt  DateTime @default(now())\n}\n",
+  "inlineSchemaHash": "45e64891cc77e08d00a2b016844f01d6bdb4aa1ffd567c057419d42589f1b27f",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},
@@ -66,9 +69,23 @@ const config: runtime.GetPrismaClientConfig = {
   "dirname": ""
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"String\",\"nativeType\":null,\"default\":{\"name\":\"uuid\",\"args\":[4]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"externalId\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"nativeType\":null,\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"externalId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 config.engineWasm = undefined
-config.compilerWasm = undefined
+
+async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
+  const { Buffer } = await import('node:buffer')
+  const wasmArray = Buffer.from(wasmBase64, 'base64')
+  return new WebAssembly.Module(wasmArray)
+}
+
+config.compilerWasm = {
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
+
+  getQueryCompilerWasmModule: async () => {
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs")
+    return await decodeBase64AsWasm(wasm)
+  }
+}
 
 
 

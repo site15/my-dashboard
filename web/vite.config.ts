@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
         preset: 'vercel',
       },
     }),
-    tailwindcss(), viteStaticCopy({
+    tailwindcss(), /*viteStaticCopy({
       targets: [
         {
           src: "./src/app/generated/prisma/*.node",
@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => ({
           dest: "./",
         }
       ]
-    })
+    })*/
   ],
   test: {
     globals: true,
