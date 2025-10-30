@@ -1,6 +1,15 @@
+import { waitFor } from '@analogjs/trpc';
 import { Component } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { shareReplay, Subject, switchMap, take } from 'rxjs';
+import { injectTrpcClient } from '../trpc-client';
+import { AsyncPipe, NgFor, DatePipe, NgIf } from '@angular/common';
+import { Prisma } from '../generated/prisma/browser';
+
+
 
 @Component({
+  imports: [AsyncPipe, FormsModule, NgFor, DatePipe, NgIf],
   selector: 'app-analog-welcome',
   styles: [
     `
@@ -252,11 +261,114 @@ import { Component } from '@angular/core';
           </button>
         </div>
       </section>
+
+<section id="trpc-demo" class="py-8 md:py-12 lg:py-24">
+        <div
+          class="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center"
+        >
+          <h2 class="text-[#DD0031] font-medium text-3xl leading-[1.1]">
+            Leave a user
+          </h2>
+          <p class="max-w-[85%] leading-normal sm:text-lg sm:leading-7">
+            This is an example of how to you can use tRPC to superpower you
+            client server interaction.
+          </p>
+        </div>
+        <form
+          class="mt-8 pb-2 flex items-center"
+          #f="ngForm"
+          (ngSubmit)="addUser(f)"
+        >
+          <label class="sr-only" for="newUser"> User </label>
+          <input
+            required
+            autocomplete="off"
+            name="newUser"
+            [(ngModel)]="newUserExternalId"
+            class="w-full inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input hover:text-zinc-950 h-11 px-2 rounded-md"
+          />
+          <button
+            class="ml-2 inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input hover:bg-zinc-100 hover:text-zinc-950 h-11 px-8 rounded-md"
+          >
+            +
+          </button>
+        </form>
+        <div class="mt-4" *ngIf="users$ | async as users; else loading">
+          <div
+            class="user mb-4 p-4 font-normal border border-input rounded-md"
+            *ngFor="let user of users; trackBy: userTrackBy; let i = index"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-zinc-400">{{ user.createdAt | date }}</p>
+              <button
+                [attr.data-testid]="'removeUserAtIndexBtn' + i"
+                class="text-xs inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-zinc-100 hover:text-zinc-950 h-6 w-6 rounded-md"
+                (click)="removeUser(user.id)"
+              >
+                x
+              </button>
+            </div>
+            <p class="mb-4">{{ user.externalId }}</p>
+          </div>
+
+          <div
+            class="no-users text-center rounded-xl p-20"
+            *ngIf="users.length === 0"
+          >
+            <h3 class="text-xl font-medium">No users yet!</h3>
+            <p class="text-zinc-400">
+              Add a new one and see them appear here...
+            </p>
+          </div>
+        </div>
+        <ng-template #loading>
+          <p class="text-center mt-4">Loading...</p>
+        </ng-template>
+      </section>
     </main>
   `,
 })
 export class AnalogWelcome {
+  private _trpc = injectTrpcClient();
+
   count = 0;
+  public triggerRefresh$ = new Subject<void>();
+
+  public users$ = this.triggerRefresh$.pipe(
+    switchMap(() => this._trpc.users.list.query()),
+    shareReplay(1)
+  );
+  public newUserExternalId = '';
+
+  constructor() {
+    void waitFor(this.users$);
+    this.triggerRefresh$.next();
+  }
+
+  public userTrackBy = (index: number, user: any) => {
+    return user.createdAt;
+  };
+
+  public addUser(form: NgForm) {
+    if (!form.valid) {
+      form.form.markAllAsTouched();
+      return;
+    }
+    this._trpc.users.create
+      .mutate({ externalId: this.newUserExternalId })
+      .pipe(take(1))
+      .subscribe(() => this.triggerRefresh$.next());
+    this.newUserExternalId = '';
+    form.form.reset();
+  }
+
+  public removeUser(id: string) {
+    this._trpc.users.remove
+      .mutate({ id })
+      .pipe(take(1))
+      .subscribe(() => this.triggerRefresh$.next());
+  }
+
   increment() {
     this.count++;
   }

@@ -11,6 +11,12 @@ export default defineConfig(({ mode }) => ({
   },
   resolve: {
     mainFields: ['module'],
+    alias: {
+      'node-fetch': 'isomorphic-fetch',
+    },
+  },
+  ssr: {
+    noExternal: ['@analogjs/trpc', '@trpc/server', '@analog-tools/auth'],
   },
   plugins: [
     analog({
@@ -28,6 +34,6 @@ export default defineConfig(({ mode }) => ({
     reporters: ['default'],
   },
   define: {
-    'import.meta.vitest': mode !== 'production',
+    'import.meta.vitest': mode !== 'production', global: {},
   },
 }));

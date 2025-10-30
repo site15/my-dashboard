@@ -44,6 +44,16 @@ base64 my-dashboard.jks > keystore.txt
 
 Then copy the contents of keystore.txt to the `KEYSTORE` secret in your GitHub repository settings.
 
+## Prisma Engines Mirror
+
+When installing Node.js dependencies, you may encounter issues with Prisma engines being blocked by firewalls or region restrictions. To resolve this, set the following environment variable before installing dependencies:
+
+```bash
+export PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
+```
+
+This will redirect Prisma engine downloads to a mirror that is more accessible from certain regions.
+
 ## Manual Build Process
 
 1. Generate a keystore (if you don't have one):

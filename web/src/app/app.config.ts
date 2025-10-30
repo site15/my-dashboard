@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideFileRouter, requestContextInterceptor } from '@analogjs/router';
+import { provideTrpcClient } from './trpc-client';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,5 +22,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([requestContextInterceptor])
     ),
     provideClientHydration(withEventReplay()),
+
+    provideTrpcClient()
   ],
 };

@@ -19,6 +19,7 @@ ARG CAPACITOR_VERSION=6.0.0
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=en_US.UTF-8
 ENV NODE_VERSION=23.11.0
+ENV PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
 
 WORKDIR /tmp
 

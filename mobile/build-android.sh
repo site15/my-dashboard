@@ -6,6 +6,9 @@ cd /app
 # Disable telemetry
 npx cap telemetry off
 
+# Set Prisma engines mirror to avoid blocking issues
+export PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
+
 # Update capacitor config with environment variables if available
 if [ -n "$KEYSTORE_PASSWORD" ] || [ -n "$KEYSTORE_ALIAS" ] || [ -n "$KEYSTORE_ALIAS_PASSWORD" ]; then
   echo "Updating capacitor.config.ts with environment variables..."
