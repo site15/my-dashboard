@@ -28,6 +28,16 @@ Alternative database options:
 
 Neon is recommended because it provides a good balance of features, performance, and cost for development.
 
+## Database Migrations
+
+Database migrations are generated based on changes to the Prisma schema and applied from the local developer's computer:
+
+1. Modify the `prisma/schema.prisma` file to make changes to your database structure
+2. Run `./node_modules/.bin/prisma migrate dev` to generate and apply migrations locally
+3. Commit the generated migration files to version control
+
+Note: Migrations must be applied locally by the developer and are not automatically applied by Vercel during deployment.
+
 ## Prisma Setup
 
 This project uses Prisma as the ORM. After setting up your database:
@@ -65,6 +75,8 @@ This project can be deployed to Vercel. Vercel has a native integration with Neo
 1. Connect your GitHub repository to Vercel
 2. During the setup process, Vercel will automatically detect the environment variables
 3. Add your `MY_DASHBOARD_DATABASE_POSTGRES_URL` as an environment variable in the Vercel project settings
+
+Vercel is configured to automatically listen for changes and redeploy the site whenever changes are pushed to the repository.
 
 ## Development
 

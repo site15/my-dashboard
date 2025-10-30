@@ -35,9 +35,17 @@ npm start
 
 The repository includes a GitHub Actions workflow that automatically builds the Android APK and uploads it as an artifact.
 
+## Vercel Integration
+
+The web application is deployed to Vercel, which is configured to automatically listen for changes and redeploy the site whenever changes are pushed to the repository. Vercel has a native integration with Neon for database connectivity.
+
+## Database Migrations
+
+Database migrations are generated based on changes to the Prisma schema and applied from the local developer's computer. Migrations must be applied locally by the developer and are not automatically applied by Vercel during deployment.
+
 ## Deploying to Vercel
 
-This project can be deployed to Vercel. Vercel has a native integration with Neon, making it easy to connect your database:
+To deploy this project to Vercel:
 
 1. Connect your GitHub repository to Vercel
 2. During the setup process, Vercel will automatically detect the environment variables
