@@ -37,7 +37,6 @@ jobs:
           }
           trap 'notify_error "$BASH_COMMAND failed"' ERR
 
-      # 🔍 Проверяем наличие [need ci]
       - name: Check if [need ci] present
         id: need_ci
         run: |
@@ -47,18 +46,25 @@ jobs:
             echo "force_run=false" >> $GITHUB_OUTPUT
           fi
 
-      # 🔍 Определяем изменённые проекты
+      - name: Check if [skip android] present
+        id: skip_android
+        run: |
+          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[skip android\]"; then
+            echo "skip_android=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip_android=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Detect changed projects
         id: detect
         run: |
           PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
-            if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
+            [ -f "$d/package.json" ] && echo "$(basename "$d")"
           done)
           CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq)
           CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
           echo "changed_projects=$CHANGED_PROJECTS" >> $GITHUB_OUTPUT
 
-      # 🧩 Определяем тип bump'а
       - name: Determine bump type
         id: bump_type
         run: |
@@ -74,7 +80,6 @@ jobs:
           fi
           echo "bump=$BUMP" >> $GITHUB_OUTPUT
 
-      # 🚀 Bump, Build & Docker
       - name: Bump, Build & Docker
         if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != '')
         id: bump_versions
@@ -82,18 +87,16 @@ jobs:
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          sudo apt-get install -y jq
+          sudo apt-get install -y jq zip
           npm install -g conventional-changelog-cli
-          if [ -n "${DOCKERHUB_USER}" ] && [ -n "${DOCKERHUB_TOKEN}" ]; then
-            echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
-          fi
+          [ -n "${DOCKERHUB_USER}" ] && [ -n "${DOCKERHUB_TOKEN}" ] && echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
 
           BUMP=${{ steps.bump_type.outputs.bump }}
           TAGS=""
-
+          CHANGED_PROJECTS=""
           if [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
             CHANGED_PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
-              if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
+              [ -f "$d/package.json" ] && echo "$(basename "$d")"
             done)
           else
             CHANGED_PROJECTS=${{ steps.detect.outputs.changed_projects }}
@@ -114,6 +117,11 @@ jobs:
               npm run build || echo "⚠️ Build failed for $project"
             fi
 
+            if [ -f "capacitor.config.ts" ] && [ "${{ steps.skip_android.outputs.skip_android }}" != "true" ]; then
+              mkdir -p artifacts
+              echo "⚡ Android build skipped or completed for $project"
+            fi
+
             if [ -f "Dockerfile" ]; then
               IMAGE_NAME="${DOCKERHUB_USER}/${NAME}"
               docker build -t "$IMAGE_NAME:$NEW_VERSION" -t "$IMAGE_NAME:latest" \
@@ -126,15 +134,16 @@ jobs:
             fi
 
             cd -
-
-            # 🏷️ Тег idempotent
             git rev-parse "$project@$NEW_VERSION" >/dev/null 2>&1 || git tag "$project@$NEW_VERSION"
             TAGS="$TAGS $project@$NEW_VERSION"
           done
 
+          mkdir -p pipeline_artifacts
+          find . -name "artifacts" -type d -exec cp -r {}/* pipeline_artifacts/ \; || true
+          [ -d pipeline_artifacts ] && zip -r pipeline_artifacts.zip pipeline_artifacts
+
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
 
-      # 💾 Commit & push changes
       - name: Commit and push changes
         if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != '')
         run: |
@@ -145,7 +154,6 @@ jobs:
           git push origin main
           git push origin --tags
 
-      # 📦 Upload artifacts
       - name: Upload artifacts
         if: steps.need_ci.outputs.force_run == 'true' || steps.bump_versions.outputs.tags != ''
         uses: actions/upload-artifact@v4
@@ -154,7 +162,6 @@ jobs:
           path: "**/artifacts/**"
           if-no-files-found: ignore
 
-      # 🏷️ Create releases & Telegram
       - name: Create releases & send Telegram message
         if: steps.need_ci.outputs.force_run == 'true' || steps.bump_versions.outputs.tags != ''
         env:
@@ -163,14 +170,16 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
-            SKIP_TELEGRAM=1
-          else
-            SKIP_TELEGRAM=0
-          fi
+          SKIP_TELEGRAM=0
+          git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]" && SKIP_TELEGRAM=1
 
           TAGS="${{ steps.bump_versions.outputs.tags }}"
           PIPELINE_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          ARTIFACT_ZIP_URL="https://github.com/${GITHUB_REPOSITORY}/suites/${GITHUB_RUN_ID}/artifacts/$(ls -1 pipeline_artifacts.zip | head -n1)"
+
+          escape_markdown() {
+            echo "$1" | sed -e 's/\*/\\*/g' -e 's/_/\\_/g' -e 's/\[/\\[/g' -e 's/\]/\\]/g' -e 's/`/\\`/g' -e 's/>/\\>/g'
+          }
 
           for TAG in $TAGS; do
             PROJECT=$(echo "$TAG" | cut -d@ -f1)
@@ -180,29 +189,26 @@ jobs:
             DESC=$(jq -r '.description // "No description"' "$PKG")
             VERSION=$(jq -r '.version' "$PKG")
             CHANGELOG_PATH="$PROJECT/CHANGELOG.md"
-            ARTIFACTS_PATH="$PROJECT/artifacts"
             RELEASE_URL="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
             PROJECT_URL="https://github.com/${GITHUB_REPOSITORY}/tree/main/${PROJECT}"
 
-            NOTES="📢 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
+            NOTES="📢 *$(escape_markdown "$NAME") v$VERSION released!*%0A%0A_$(escape_markdown "$DESC")_%0A%0A"
+
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(awk '/^##/{i++}i==1' "$CHANGELOG_PATH" | head -n 20)
-              NOTES+="*Changelog:*%0A$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')%0A%0A"
+              BODY=$(escape_markdown "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
+              NOTES+="*Changelog:*%0A$BODY%0A%0A"
             fi
 
-            FILES=""
-            [ -d "$ARTIFACTS_PATH" ] && FILES=$(find "$ARTIFACTS_PATH" -type f)
-
-            # 🏷️ Idempotent release
-            if gh release view "$TAG" >/dev/null 2>&1; then
-              echo "ℹ️ Release $TAG already exists"
-            else
+            if ! gh release view "$TAG" >/dev/null 2>&1; then
+              FILES=""
+              [ -f pipeline_artifacts.zip ] && FILES="pipeline_artifacts.zip"
               gh release create "$TAG" --title "$TAG" --notes "$NOTES" $FILES || echo "⚠️ Release creation failed but continuing"
             fi
 
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
               BUTTONS="["
-              BUTTONS="${BUTTONS}[{\"text\":\"💾 Download all artifacts\",\"url\":\"${PIPELINE_URL}\"}],"
+              [ -f pipeline_artifacts.zip ] && BUTTONS="${BUTTONS}[{\"text\":\"💾 Download all artifacts\",\"url\":\"${ARTIFACT_ZIP_URL}\"}],"
               [ -f "$PROJECT/Dockerfile" ] && BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
               BUTTONS="${BUTTONS}[{\"text\":\"🧱 Project folder\",\"url\":\"${PROJECT_URL}\"}],"
               BUTTONS="${BUTTONS}[{\"text\":\"🔗 View release\",\"url\":\"${RELEASE_URL}\"}]"
