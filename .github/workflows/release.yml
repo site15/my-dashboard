@@ -222,21 +222,11 @@ jobs:
             fi
 
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
-              BUTTONS="["
-              BUTTONS="${BUTTONS}[{\"text\":\"💾 Download all artifacts\",\"url\":\"${PIPELINE_URL}\"}],"
-              if [ -f "$PROJECT/Dockerfile" ]; then
-                BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
-              fi
-              BUTTONS="${BUTTONS}[{\"text\":\"🧱 Project folder\",\"url\":\"${PROJECT_URL}\"}],"
-              BUTTONS="${BUTTONS}[{\"text\":\"🔗 View release\",\"url\":\"${RELEASE_URL}\"}]"
-              BUTTONS="${BUTTONS}]"
-              BUTTONS=$(echo "$BUTTONS" | sed 's/,]/]/')
 
               curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
                 -d "chat_id=${TELEGRAM_CHAT_ID}" \
                 -d "parse_mode=Markdown" \
                 -d "disable_web_page_preview=true" \
-                -d "text=${NOTES}" \
-                -d "reply_markup={\"inline_keyboard\":${BUTTONS}}" >/dev/null 2>&1
+                -d "text=${NOTES}"
             fi
           done
