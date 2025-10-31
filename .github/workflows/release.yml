@@ -72,7 +72,8 @@ jobs:
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          npm install -g conventional-changelog-cli jq
+          apt-get install -y jq
+          npm install -g conventional-changelog-cli
           echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
 
           BUMP=${{ steps.bump_type.outputs.bump }}
