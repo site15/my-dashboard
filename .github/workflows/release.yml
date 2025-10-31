@@ -228,13 +228,6 @@ jobs:
 
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
               BUTTONS="["
-              if [ -d "$ARTIFACTS_PATH" ]; then
-                for FILE in $(find "$ARTIFACTS_PATH" -type f); do
-                  FILE_NAME=$(basename "$FILE")
-                  FILE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${FILE_NAME}"
-                  BUTTONS="${BUTTONS}[{\"text\":\"💾 ${FILE_NAME}\",\"url\":\"${FILE_URL}\"}],"
-                done
-              fi
               if [ -f "$PROJECT/Dockerfile" ]; then
                 BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
               fi
