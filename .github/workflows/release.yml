@@ -132,7 +132,7 @@ jobs:
 
                 ls -la ${{ github.workspace }}/$project/android/app/build/outputs/apk/release/
                 mkdir -p ${{ github.workspace }}/$project/artifacts
-                cp -R "${{ github.workspace }}/$project/android/app/build/outputs/apk/release/*.apk" "${{ github.workspace }}/$project/artifacts/"
+                cp -R ${{ github.workspace }}/$project/android/app/build/outputs/apk/release/* ${{ github.workspace }}/$project/artifacts/
               fi
 
               cd -
