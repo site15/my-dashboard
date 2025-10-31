@@ -4,37 +4,11 @@
 
 Веб-приложение развернуто и доступно по адресу: https://site15-my-dashboard.vercel.app
 
-## Репозиторий Docker Hub
+## Docker контейнер
 
-Образ Docker размещен на Docker Hub:
-[endykaufman/ionic-capacitor](https://hub.docker.com/repository/docker/endykaufman/ionic-capacitor/tags/latest)
-
-## Сборка образа Docker
-
-```bash
-docker build -t endykaufman/ionic-capacitor .
-```
-
-## Публикация образа Docker
-
-Чтобы опубликовать образ Docker на Docker Hub:
-
-1. Войдите в Docker Hub:
-   ```bash
-   docker login
-   ```
-
-2. Пометьте образ вашим именем пользователя на Docker Hub:
-   ```bash
-   docker tag endykaufman/ionic-capacitor
-   ```
-
-3. Отправьте образ в Docker Hub:
-   ```bash
-   docker push endykaufman/ionic-capacitor:latest
-   ```
-
-Для автоматических сборок вы также можете использовать функцию автоматической сборки Docker Hub, подключив репозиторий GitHub.
+Документация по сборке Docker контейнера была перенесена в каталог [ionic_capacitor](../ionic_capacitor):
+- [Документация по сборке Docker контейнера (на английском)](../ionic_capacitor/README.md)
+- [Документация по сборке Docker контейнера (на русском)](../ionic_capacitor/README_RU.md)
 
 ## Запуск сборки с монтированием тома
 

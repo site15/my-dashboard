@@ -4,37 +4,11 @@
 
 The web application is deployed and available at: https://site15-my-dashboard.vercel.app
 
-## Docker Hub Repository
+## Docker Container
 
-The Docker image is hosted on Docker Hub:
-[endykaufman/ionic-capacitor](https://hub.docker.com/repository/docker/endykaufman/ionic-capacitor/tags/latest)
-
-## Building the Docker Image
-
-```bash
-docker build -t endykaufman/ionic-capacitor .
-```
-
-## Publishing the Docker Image
-
-To publish the Docker image to Docker Hub:
-
-1. Login to Docker Hub:
-   ```bash
-   docker login
-   ```
-
-2. Tag the image with your Docker Hub username:
-   ```bash
-   docker tag endykaufman/ionic-capacitor
-   ```
-
-3. Push the image to Docker Hub:
-   ```bash
-   docker push endykaufman/ionic-capacitor:latest
-   ```
-
-For automated builds, you can also use Docker Hub's automated build feature by connecting your GitHub repository.
+Docker container build documentation has been moved to the [ionic_capacitor](../ionic_capacitor) directory:
+- [Docker Container Build Documentation (English)](../ionic_capacitor/README.md)
+- [Docker Container Build Documentation (Russian)](../ionic_capacitor/README_RU.md)
 
 ## Running the Build with Volume Mounting
 
