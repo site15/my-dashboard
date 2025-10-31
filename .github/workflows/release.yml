@@ -8,41 +8,46 @@ on:
 jobs:
   bump:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
       packages: write
 
     steps:
-      # 1️⃣ Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2️⃣ Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 23.11.0
 
-      # 3️⃣ Detect changed projects automatically
+      # 🔍 Определяем, есть ли флаг [need ci]
+      - name: Check if [need ci] present
+        id: need_ci
+        run: |
+          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[need ci\]"; then
+            echo "force_run=true" >> $GITHUB_OUTPUT
+            echo "✅ Found [need ci] — forcing full pipeline"
+          else
+            echo "force_run=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No [need ci] found"
+          fi
+
+      # 🔍 Определяем изменённые проекты
       - name: Detect changed projects
         id: detect
         run: |
-          # Все директории в корне с package.json
           PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
             if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
           done)
-
-          # Только изменённые директории
           CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq)
           CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
-
           echo "changed_projects=$CHANGED_PROJECTS" >> $GITHUB_OUTPUT
           echo "Changed projects: $CHANGED_PROJECTS"
 
-      # 4️⃣ Determine bump type
+      # 🧩 Определяем тип версии
       - name: Determine bump type
         id: bump_type
         run: |
@@ -59,27 +64,38 @@ jobs:
           echo "bump=$BUMP" >> $GITHUB_OUTPUT
           echo "Detected bump type: $BUMP"
 
-      # 5️⃣ Bump versions, build, Docker
+      # 🚀 Bump, Build & Docker
       - name: Bump, Build & Docker
-        if: steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != ''
+        if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != '')
         id: bump_versions
         env:
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          npm install -g conventional-changelog-cli jq commander
+          npm install -g conventional-changelog-cli jq
           echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
 
           BUMP=${{ steps.bump_type.outputs.bump }}
           TAGS=""
 
-          for project in ${{ steps.detect.outputs.changed_projects }}; do
+          # Если [need ci], прогоняем все проекты
+          if [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
+            CHANGED_PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
+              if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
+            done)
+          else
+            CHANGED_PROJECTS=${{ steps.detect.outputs.changed_projects }}
+          fi
+
+          for project in $CHANGED_PROJECTS; do
             if [ -f "$project/package.json" ]; then
               cd $project
               NAME=$(jq -r '.name' package.json)
               DESC=$(jq -r '.description // "No description"' package.json)
               OLD_VERSION=$(jq -r '.version' package.json)
-              npm version $BUMP --no-git-tag-version
+              if [ "$BUMP" != "none" ]; then
+                npm version $BUMP --no-git-tag-version
+              fi
               NEW_VERSION=$(jq -r '.version' package.json)
 
               conventional-changelog -p angular -i CHANGELOG.md -s -r 1 || echo "No changelog generated"
@@ -125,64 +141,67 @@ jobs:
           done
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
 
-      # 6️⃣ Commit & push
+      # 💾 Commit and push changes
       - name: Commit and push changes
-        if: steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != ''
+        if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != '')
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add */package.json */CHANGELOG.md
-          git commit -m "chore: auto bump ${{ steps.bump_type.outputs.bump }} version [skip ci]" || echo "No changes to commit"
+          git add */package.json */CHANGELOG.md || true
+          git commit -m "chore: auto bump version [skip ci]" || echo "No changes"
           git push origin main
           git push origin --tags
 
-      # 7️⃣ Upload artifacts
+      # 📦 Upload artifacts
       - name: Upload artifacts
-        if: steps.bump_versions.outputs.tags != ''
+        if: steps.need_ci.outputs.force_run == 'true' || steps.bump_versions.outputs.tags != ''
         uses: actions/upload-artifact@v4
         with:
           name: project-builds
-          path: |
-            **/artifacts/**
+          path: "**/artifacts/**"
           if-no-files-found: ignore
 
-      # 8️⃣ Create release & Telegram notification
+      # 🏷️ Create release & Telegram
       - name: Create releases & send Telegram message
-        if: steps.bump_versions.outputs.tags != ''
+        if: steps.need_ci.outputs.force_run == 'true' || steps.bump_versions.outputs.tags != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          # 🔒 skip Telegram if commit has [hidden]
           if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
-            echo "🔒 '[hidden]' found in commits — skipping Telegram notification"
+            echo "🔒 '[hidden]' found — skipping Telegram"
             SKIP_TELEGRAM=1
           else
             SKIP_TELEGRAM=0
           fi
 
-          for TAG in ${{ steps.bump_versions.outputs.tags }}; do
+          TAGS="${{ steps.bump_versions.outputs.tags }}"
+          if [ -z "$TAGS" ] && [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
+            TAGS=$(find . -maxdepth 1 -type d ! -path . -exec bash -c 'cd {} && if [ -f package.json ]; then NAME=$(jq -r .name package.json); VER=$(jq -r .version package.json); echo "$(basename "$PWD")@$VER"; fi' \;)
+          fi
+
+          for TAG in $TAGS; do
             PROJECT=$(echo "$TAG" | cut -d@ -f1)
-            CHANGELOG_PATH="$PROJECT/CHANGELOG.md"
-            ARTIFACTS_PATH="$PROJECT/artifacts"
             PKG="$PROJECT/package.json"
+            [ ! -f "$PKG" ] && continue
 
             NAME=$(jq -r '.name' "$PKG")
             DESC=$(jq -r '.description // "No description"' "$PKG")
             VERSION=$(jq -r '.version' "$PKG")
+            CHANGELOG_PATH="$PROJECT/CHANGELOG.md"
+            ARTIFACTS_PATH="$PROJECT/artifacts"
+
             RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${TAG}"
             PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
 
             NOTES="📢 *${NAME} v${VERSION} released!*\n\n_${DESC}_\n\n"
-
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(awk '/^##/{i++}i==1' "$CHANGELOG_PATH" | head -n 20)
               NOTES+="*Changelog:*\n\`\`\`\n$BODY\n\`\`\`\n"
             fi
 
-            # Create GitHub release
             if [ -d "$ARTIFACTS_PATH" ]; then
               FILES=$(find "$ARTIFACTS_PATH" -type f)
               gh release create "$TAG" --title "$TAG" --notes "$NOTES" $FILES || echo "Release exists"
@@ -190,7 +209,6 @@ jobs:
               gh release create "$TAG" --title "$TAG" --notes "$NOTES" || echo "Release exists"
             fi
 
-            # Telegram
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
               BUTTONS="["
               if [ -d "$ARTIFACTS_PATH" ]; then
@@ -206,7 +224,7 @@ jobs:
               BUTTONS="${BUTTONS}[{\"text\":\"🧱 Project folder\",\"url\":\"${PROJECT_URL}\"}],"
               BUTTONS="${BUTTONS}[{\"text\":\"🔗 View release\",\"url\":\"${RELEASE_URL}\"}]"
               BUTTONS="${BUTTONS}]"
-              BUTTONS=$(echo "$BUTTONS" | sed 's/,]/]/') # cleanup trailing commas
+              BUTTONS=$(echo "$BUTTONS" | sed 's/,]/]/')
 
               curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
                 -H "Content-Type: application/json" \
