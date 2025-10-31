@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: "Force run all projects"
+        required: false
+        default: 'false'
 
 jobs:
   bump:
@@ -37,14 +43,19 @@ jobs:
           }
           trap 'notify_error "$BASH_COMMAND failed"' ERR
 
-      - name: Check if [need ci] present
+      - name: Check if [need ci] present or manual trigger
         id: need_ci
         run: |
-          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[need ci\]"; then
+          FORCE_PARAM="${{ github.event.inputs.force_run }}"
+          if [ "$FORCE_PARAM" = "true" ]; then
             echo "force_run=true" >> $GITHUB_OUTPUT
+            echo "✅ Manual trigger — forcing full pipeline"
+          elif git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[need ci\]"; then
+            echo "force_run=true" >> $GITHUB_OUTPUT
+            echo "✅ [need ci] found — forcing full pipeline"
           else
             echo "force_run=false" >> $GITHUB_OUTPUT
-          fi
+            echo "ℹ️ No [need ci] found"
 
       - name: Check if [skip android] present
         id: skip_android
@@ -53,7 +64,6 @@ jobs:
             echo "skip_android=true" >> $GITHUB_OUTPUT
           else
             echo "skip_android=false" >> $GITHUB_OUTPUT
-          fi
 
       - name: Detect changed projects
         id: detect
@@ -170,16 +180,18 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          SKIP_TELEGRAM=0
-          git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]" && SKIP_TELEGRAM=1
-
-          TAGS="${{ steps.bump_versions.outputs.tags }}"
-          PIPELINE_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          ARTIFACT_ZIP_URL="https://github.com/${GITHUB_REPOSITORY}/suites/${GITHUB_RUN_ID}/artifacts/$(ls -1 pipeline_artifacts.zip | head -n1)"
-
           escape_markdown() {
             echo "$1" | sed -e 's/\*/\\*/g' -e 's/_/\\_/g' -e 's/\[/\\[/g' -e 's/\]/\\]/g' -e 's/`/\\`/g' -e 's/>/\\>/g'
           }
+
+          SKIP_TELEGRAM=0
+          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
+            SKIP_TELEGRAM=1
+          fi
+
+          TAGS="${{ steps.bump_versions.outputs.tags }}"
+          PIPELINE_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          ARTIFACT_ZIP_URL="${PIPELINE_URL}?check_suite_focus=true"
 
           for TAG in $TAGS; do
             PROJECT=$(echo "$TAG" | cut -d@ -f1)
@@ -200,9 +212,9 @@ jobs:
               NOTES+="*Changelog:*%0A$BODY%0A%0A"
             fi
 
+            [ -f pipeline_artifacts.zip ] && FILES="pipeline_artifacts.zip" || FILES=""
+
             if ! gh release view "$TAG" >/dev/null 2>&1; then
-              FILES=""
-              [ -f pipeline_artifacts.zip ] && FILES="pipeline_artifacts.zip"
               gh release create "$TAG" --title "$TAG" --notes "$NOTES" $FILES || echo "⚠️ Release creation failed but continuing"
             fi
 
