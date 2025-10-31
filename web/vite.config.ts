@@ -52,4 +52,4 @@ export default defineConfig(({ mode }) => ({
     allowedHosts: ['9b3dar-46-191-177-220.ru.tuna.am', 'localhost'],
   },
 }));
-// fake changes
+// fake changes 2

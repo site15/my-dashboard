@@ -184,12 +184,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
-            echo "🔒 '[hidden]' found — skipping Telegram"
-            SKIP_TELEGRAM=1
-          else
-            SKIP_TELEGRAM=0
-          fi
+          SKIP_TELEGRAM=0
 
           TAGS="${{ steps.bump_versions.outputs.tags }}"
           if [ -z "$TAGS" ] && [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
