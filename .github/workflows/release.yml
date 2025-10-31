@@ -35,6 +35,18 @@ jobs:
             echo "ℹ️ No [need ci] found"
           fi
 
+      # 🔍 Проверяем, есть ли флаг [skip android]
+      - name: Check if [skip android] present
+        id: skip_android
+        run: |
+          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[skip android\]"; then
+            echo "skip_build=true" >> $GITHUB_OUTPUT
+            echo "🚫 Found [skip android] — skipping Android build"
+          else
+            echo "skip_build=false" >> $GITHUB_OUTPUT
+            echo "✅ No [skip android] found — proceeding with Android build"
+          fi
+
       # 🔍 Определяем изменённые проекты
       - name: Detect changed projects
         id: detect
@@ -118,7 +130,8 @@ jobs:
                 docker push "$IMAGE_NAME:latest"
               fi
 
-              if [ -f "capacitor.config.ts" ]; then
+              # Skip Android build if [skip android] flag is present
+              if [ -f "capacitor.config.ts" ] && [ "${{ steps.skip_android.outputs.skip_build }}" = "false" ]; then
                 echo "${{ secrets.KEYSTORE }}" | base64 --decode > "${{ github.workspace }}/$project/my-dashboard.jks"
                 ls "${{ github.workspace }}/$project"
 
@@ -133,6 +146,8 @@ jobs:
                 ls -la ${{ github.workspace }}/$project/android/app/build/outputs/apk/release/
                 mkdir -p ${{ github.workspace }}/$project/artifacts
                 cp -R ${{ github.workspace }}/$project/android/app/build/outputs/apk/release/* ${{ github.workspace }}/$project/artifacts/
+              elif [ -f "capacitor.config.ts" ] && [ "${{ steps.skip_android.outputs.skip_build }}" = "true" ]; then
+                echo "⏭️ Skipping Android build for $project due to [skip android] flag"
               fi
 
               cd -
