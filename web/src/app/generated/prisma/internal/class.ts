@@ -55,8 +55,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client1 {\n  provider   = \"prisma-client\"\n  output     = \"../src/app/generated/prisma\"\n  engineType = \"client\"\n}\n\ngenerator client2 {\n  provider   = \"prisma-client\"\n  output     = \"../src/server/generated/prisma\"\n  engineType = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MY_DASHBOARD_DATABASE_POSTGRES_URL\")\n}\n\nmodel User {\n  id         String   @id @default(uuid())\n  externalId String?\n  createdAt  DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "03438971091dc503d64fe3b5be24004cdf99067f1e40f5a2f5baf49bafe7bd76",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client1 {\n  provider   = \"prisma-client\"\n  output     = \"../src/app/generated/prisma\"\n  engineType = \"client\"\n}\n\ngenerator client2 {\n  provider   = \"prisma-client\"\n  output     = \"../src/server/generated/prisma\"\n  engineType = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MY_DASHBOARD_DATABASE_POSTGRES_URL\")\n}\n\nmodel User {\n  id               String    @id(map: \"PK_USER\") @default(uuid()) @db.Uuid\n  telegramUserId   String?\n  telegramUserData Json?\n  createdAt        DateTime  @default(now())\n  Session          Session[]\n\n  @@unique([telegramUserId], map: \"UQ_USER\")\n}\n\nmodel Session {\n  id        String    @id(map: \"PK_SESSION\") @default(uuid()) @db.Uuid\n  userId    String    @db.Uuid\n  User      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"FK_SESSION__USER_ID\")\n  createdAt DateTime  @default(now())\n  deletedAt DateTime?\n\n  @@index([userId], map: \"IDX_SESSION__USER_ID\")\n}\n",
+  "inlineSchemaHash": "f454c44eea7d7cce5a8e923139d2ef10ea4b282c93e209b4270489baff68eda2",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},
@@ -66,7 +66,7 @@ const config: runtime.GetPrismaClientConfig = {
   "dirname": ""
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"externalId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"telegramUserId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"telegramUserData\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Session\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"}],\"dbName\":null},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"User\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 config.engineWasm = undefined
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
@@ -224,6 +224,16 @@ export interface PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.session`: Exposes CRUD operations for the **Session** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Sessions
+    * const sessions = await prisma.session.findMany()
+    * ```
+    */
+  get session(): Prisma.SessionDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(dirname: string): PrismaClientConstructor {

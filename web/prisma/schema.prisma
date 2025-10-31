@@ -22,7 +22,21 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  externalId String?
-  createdAt  DateTime @default(now())
+  id               String    @id(map: "PK_USER") @default(uuid()) @db.Uuid
+  telegramUserId   String?
+  telegramUserData Json?
+  createdAt        DateTime  @default(now())
+  Session          Session[]
+
+  @@unique([telegramUserId], map: "UQ_USER")
+}
+
+model Session {
+  id        String    @id(map: "PK_SESSION") @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  User      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_SESSION__USER_ID")
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  @@index([userId], map: "IDX_SESSION__USER_ID")
 }

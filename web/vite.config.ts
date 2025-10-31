@@ -48,4 +48,7 @@ export default defineConfig(({ mode }) => ({
     'import.meta.vitest': mode !== 'production',
     global: {},
   },
+  server: {
+    allowedHosts: ['9b3dar-46-191-177-220.ru.tuna.am', 'localhost'],
+  },
 }));

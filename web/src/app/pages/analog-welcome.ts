@@ -1,8 +1,10 @@
 import { waitFor } from '@analogjs/trpc';
-import { AsyncPipe, DatePipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, DatePipe, JsonPipe, NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { shareReplay, Subject, switchMap, take } from 'rxjs';
+import { first, of, shareReplay, Subject, switchMap, take, tap } from 'rxjs';
+import { TelegramUserDataType } from '../../server/types/TelegramUserDataSchema';
+import { LOCAL_STORAGE } from '../browser/local-storage';
 import { NgxTelegramWidgetComponent } from '../components/telegram/ngx-telegram-widget.component';
 import { injectTrpcClient } from '../trpc-client';
 
@@ -14,6 +16,7 @@ import { injectTrpcClient } from '../trpc-client';
     DatePipe,
     NgxTelegramWidgetComponent,
     NgIf,
+    JsonPipe,
   ],
   selector: 'app-analog-welcome',
   styles: [
@@ -245,19 +248,17 @@ import { injectTrpcClient } from '../trpc-client';
             <br />Powered by Vite.
           </p>
           <div class="btn-container">
+            @if (profile$|async;as profile){
+            {{ profile | json }}
+            <br />
+            <a class="darkBtn" (click)="onSignOut()">Sign-out</a>
+            } @else{ @if (telegramSettings$|async;as telegramSettings) {
             <ngx-telegram-widget
               ngSkipHydration
-              botName="site15_my_dashboard_bot"
-              redirectURL="https://site15-my-dashboard.vercel.app/auth/login"
+              [botName]="telegramSettings.authBotName"
+              (onAuth)="onTelegramLogin($event)"
             ></ngx-telegram-widget>
-            <a class="darkBtn" href="https://analogjs.org">Read the docs</a>
-            <a
-              target="_blank"
-              rel="noreferrer"
-              class="lightBtn"
-              href="https://github.com/analogjs/analog"
-              >Star on GitHub</a
-            >
+            } }
           </div>
         </div>
       </section>
@@ -319,7 +320,7 @@ import { injectTrpcClient } from '../trpc-client';
                 x
               </button>
             </div>
-            <p class="mb-4">{{ user.externalId }}</p>
+            <p class="mb-4">{{ user.telegramUserId }}</p>
           </div>
 
           <div
@@ -336,15 +337,6 @@ import { injectTrpcClient } from '../trpc-client';
           <p class="text-center mt-4">Loading...</p>
         </ng-template>
       </section>
-
-      <script
-        async
-        src="https://telegram.org/js/telegram-widget.js?8"
-        data-telegram-login="site15-my-dashboard="
-        data-size="large"
-        data-auth-url="https://site15-my-dashboard.vercel.app/login"
-        data-request-access="write"
-      ></script>
     </main>
   `,
 })
@@ -353,6 +345,24 @@ export class AnalogWelcome {
 
   count = 0;
   public triggerRefresh$ = new Subject<void>();
+  public telegramSettings$ = this.triggerRefresh$.pipe(
+    switchMap(() => this._trpc.telegram.settings.query()),
+    // tap((settings) => WINDOW['Telegram'].),
+    shareReplay(1)
+  );
+  public profile$ = this.triggerRefresh$.pipe(
+    switchMap(() => {
+      const sessionId = LOCAL_STORAGE?.getItem('sessionId');
+      if (sessionId) {
+        return this._trpc.auth.profile.query({
+          sessionId,
+        });
+      } else {
+        return of(null);
+      }
+    }),
+    shareReplay(1)
+  );
 
   public users$ = this.triggerRefresh$.pipe(
     switchMap(() => this._trpc.users.list.query()),
@@ -362,6 +372,8 @@ export class AnalogWelcome {
 
   constructor() {
     void waitFor(this.users$);
+    void waitFor(this.telegramSettings$);
+    void waitFor(this.profile$);
     this.triggerRefresh$.next();
   }
 
@@ -391,5 +403,24 @@ export class AnalogWelcome {
 
   increment() {
     this.count++;
+  }
+
+  onSignOut() {
+    LOCAL_STORAGE?.removeItem('sessionId');
+    this.triggerRefresh$.next();
+  }
+
+  onTelegramLogin(telegramUser: unknown) {
+    console.log({ telegramUser });
+    this._trpc.telegram.signIn
+      .mutate(telegramUser as TelegramUserDataType)
+      .pipe(
+        first(),
+        tap((result) => {
+          LOCAL_STORAGE?.setItem('sessionId', result.sessionId);
+          this.triggerRefresh$.next();
+        })
+      )
+      .subscribe();
   }
 }

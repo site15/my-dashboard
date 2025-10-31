@@ -9,7 +9,7 @@
  * 🟢 You can import this file directly.
  */
 
-import * as processLocal from 'node:process'
+import * as process from 'node:process'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 globalThis['__dirname'] = path.dirname(fileURLToPath(import.meta.url))
@@ -45,3 +45,8 @@ export { Prisma }
  * 
  */
 export type User = Prisma.UserModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel

@@ -68,6 +68,35 @@ export PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
 
 This will redirect Prisma engine downloads to a mirror that is more accessible from certain regions.
 
+## Telegram Authentication
+
+This application uses Telegram authentication with the redirect method and hash verification on the server side. The implementation follows the approach described in [Telegram Login with Node.js](https://edisonchee.com/writing/telegram-login-with-node.js/).
+
+There are several ways to implement Telegram login:
+1. **Telegram Login Widget** - Provides a "Log in with Telegram" button which triggers a pop-up for the OAuth flow
+2. **Seamless Web Bots** - Allows login by tapping an inline keyboard button from a bot
+3. **Redirect URL method** - Uses data-auth-url instead of data-onauth to receive data on a backend server
+
+This application uses the Redirect URL method. The authentication flow works as follows:
+1. User clicks the Telegram Login button on the website
+2. User is redirected to Telegram for authentication
+3. After successful authentication, Telegram redirects back to the application with user data and a hash
+4. The server verifies the hash to ensure the data is authentic using cryptographic verification:
+   - Create a hash of a secret (bot token) known to both the application and Telegram
+   - Sort the user data parameters and create a data check string
+   - Run a cryptographic hash function over the data check string and the secret
+   - Compare the calculated hash with the hash received from Telegram
+5. If verification is successful, user data is stored in the database
+
+Since Telegram requires a domain for this authentication to work, you need to use a tunneling service like [ngrok](https://ngrok.com/) or [tuna](https://tuna.am/) for local development. The current project uses [tuna](https://tuna.am/) for this purpose.
+
+To use tuna for local development with Telegram authentication:
+```bash
+tuna http 5173
+```
+
+This command will create a tunnel to your local development server running on port 5173, providing you with a public URL that can be used with Telegram's authentication system.
+
 ## Deploying to Vercel
 
 This project can be deployed to Vercel. Vercel has a native integration with Neon, making it easy to connect your database:

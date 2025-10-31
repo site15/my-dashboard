@@ -5,9 +5,13 @@ import {
   ElementRef,
   Input,
   OnInit,
+  output,
   Renderer2,
   ViewChild,
 } from '@angular/core';
+import { WINDOW } from '../../browser/window';
+
+export const NgxTelegramWidgetCallback = 'NgxTelegramWidgetCallback';
 
 @Component({
   selector: 'ngx-telegram-widget',
@@ -16,7 +20,7 @@ import {
   styles: [],
 })
 export class NgxTelegramWidgetComponent implements OnInit, AfterViewInit {
-  @Input() botName = 'SampleBot';
+  @Input({ required: true }) botName = 'SampleBot';
 
   @Input() buttonSize: string = 'large';
   @Input() showUserPhoto: boolean = false;
@@ -24,6 +28,7 @@ export class NgxTelegramWidgetComponent implements OnInit, AfterViewInit {
   @Input() cornerRadius: number = 20;
   @Input() requestMessageAccess: boolean = false;
   @Input() redirectURL: string = '';
+  onAuth = output<unknown>();
 
   @ViewChild('button', { static: true })
   button!: ElementRef;
@@ -40,21 +45,40 @@ export class NgxTelegramWidgetComponent implements OnInit, AfterViewInit {
     s.type = 'text/javascript';
     s.src = 'https://telegram.org/js/telegram-widget.js?122';
     s.setAttribute('data-telegram-login', this.botName);
-    s.setAttribute('data-size', this.buttonSize);
-    s.setAttribute('data-userpic', this.showUserPhoto);
-    s.setAttribute('data-auth-url', this.redirectURL);
+    if (this.buttonSize) {
+      s.setAttribute('data-size', this.buttonSize);
+    }
+
+    if (this.showUserPhoto) {
+      s.setAttribute('data-userpic', this.showUserPhoto);
+    }
+
+    if (this.redirectURL) {
+      s.setAttribute('data-auth-url', this.redirectURL);
+    }
+
     s.setAttribute(
       'data-request-access',
       this.requestMessageAccess ? 'write' : null
     );
+
     s.setAttribute(
       'data-radius',
       this.useCustomCorners ? this.cornerRadius : 20
     );
+
+    if (this.onAuth !== undefined) {
+      WINDOW[NgxTelegramWidgetCallback] = (params: unknown) =>
+        this.onAuth && this.onAuth.emit(params);
+
+      s.setAttribute('data-onauth', 'NgxTelegramWidgetCallback(user)');
+    }
+
     this.button.nativeElement.parentElement.replaceChild(
       s,
       this.button.nativeElement
     );
+
     this.changeDetectorRef.markForCheck();
   }
 }
