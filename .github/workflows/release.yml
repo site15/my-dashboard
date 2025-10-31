@@ -23,16 +23,28 @@ jobs:
         with:
           node-version: 23.11.0
 
+      - name: Set error trap for Telegram
+        shell: bash
+        run: |
+          set -e
+          function notify_error {
+            ERR_MSG="$1"
+            PIPELINE_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+              -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+              -d "parse_mode=Markdown" \
+              -d "text=⚠️ *Pipeline failed*%0A%0AError:%0A$ERR_MSG%0A%0APipeline: $PIPELINE_URL" >/dev/null 2>&1
+          }
+          trap 'notify_error "$BASH_COMMAND failed"' ERR
+
       # 🔍 Проверяем наличие [need ci]
       - name: Check if [need ci] present
         id: need_ci
         run: |
           if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[need ci\]"; then
             echo "force_run=true" >> $GITHUB_OUTPUT
-            echo "✅ Found [need ci] — forcing full pipeline"
           else
             echo "force_run=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No [need ci] found"
           fi
 
       # 🔍 Определяем изменённые проекты
@@ -45,7 +57,6 @@ jobs:
           CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq)
           CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
           echo "changed_projects=$CHANGED_PROJECTS" >> $GITHUB_OUTPUT
-          echo "Changed projects: $CHANGED_PROJECTS"
 
       # 🧩 Определяем тип bump'а
       - name: Determine bump type
@@ -62,7 +73,6 @@ jobs:
             BUMP=none
           fi
           echo "bump=$BUMP" >> $GITHUB_OUTPUT
-          echo "Detected bump type: $BUMP"
 
       # 🚀 Bump, Build & Docker
       - name: Bump, Build & Docker
@@ -74,11 +84,8 @@ jobs:
         run: |
           sudo apt-get install -y jq
           npm install -g conventional-changelog-cli
-
           if [ -n "${DOCKERHUB_USER}" ] && [ -n "${DOCKERHUB_TOKEN}" ]; then
             echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
-          else
-            echo "⚠️ DockerHub credentials missing — skipping Docker publish"
           fi
 
           BUMP=${{ steps.bump_type.outputs.bump }}
@@ -92,70 +99,42 @@ jobs:
             CHANGED_PROJECTS=${{ steps.detect.outputs.changed_projects }}
           fi
 
-          if [ -z "$CHANGED_PROJECTS" ]; then
-            echo "ℹ️ No changed projects detected. Exiting."
-            exit 0
-          fi
-
           for project in $CHANGED_PROJECTS; do
-            if [ -f "$project/package.json" ]; then
-              cd $project
-              NAME=$(jq -r '.name' package.json)
-              DESC=$(jq -r '.description // "No description"' package.json)
-              OLD_VERSION=$(jq -r '.version' package.json)
+            [ -f "$project/package.json" ] || continue
+            cd $project
+            NAME=$(jq -r '.name' package.json)
+            DESC=$(jq -r '.description // "No description"' package.json)
+            OLD_VERSION=$(jq -r '.version' package.json)
+            [ "$BUMP" != "none" ] && npm version $BUMP --no-git-tag-version
+            NEW_VERSION=$(jq -r '.version' package.json)
+            conventional-changelog -p angular -i CHANGELOG.md -s -r 1 || true
 
-              if [ "$BUMP" != "none" ]; then
-                npm version $BUMP --no-git-tag-version
-              fi
-
-              NEW_VERSION=$(jq -r '.version' package.json)
-              conventional-changelog -p angular -i CHANGELOG.md -s -r 1 || true
-
-              if jq -e '.scripts.build' package.json >/dev/null; then
-                npm ci
-                npm run build || echo "⚠️ Build failed for $project"
-              fi
-
-              if [ -f "Dockerfile" ] && [ -n "${DOCKERHUB_USER}" ]; then
-                IMAGE_NAME="${DOCKERHUB_USER}/${NAME}"
-                docker build -t "$IMAGE_NAME:$NEW_VERSION" -t "$IMAGE_NAME:latest" \
-                  --label "org.opencontainers.image.title=$NAME" \
-                  --label "org.opencontainers.image.description=$DESC" \
-                  --label "org.opencontainers.image.version=$NEW_VERSION" \
-                  --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
-                  . || true
-                docker push "$IMAGE_NAME:$NEW_VERSION" || true
-                docker push "$IMAGE_NAME:latest" || true
-              fi
-
-              if [ -f "capacitor.config.ts" ]; then
-                echo "${{ secrets.KEYSTORE }}" | base64 --decode > "${{ github.workspace }}/$project/my-dashboard.jks"
-
-                docker run --rm \
-                  -e KEYSTORE_PASSWORD="${{ secrets.KEYSTORE_PASSWORD }}" \
-                  -e KEYSTORE_ALIAS="${{ secrets.KEYSTORE_ALIAS }}" \
-                  -e KEYSTORE_ALIAS_PASSWORD="${{ secrets.KEYSTORE_ALIAS_PASSWORD }}" \
-                  -e PRISMA_ENGINES_MIRROR="https://registry.npmmirror.com/-/binary/prisma" \
-                  -v "${{ github.workspace }}/$project:/app" \
-                  endykaufman/ionic-capacitor:latest
-
-                mkdir -p ${{ github.workspace }}/$project/artifacts
-                cp -R ${{ github.workspace }}/$project/android/app/build/outputs/apk/release/* ${{ github.workspace }}/$project/artifacts/
-              fi
-
-              cd -
-
-              # 🏷️ Создаём тег только если его нет
-              TAG="${project}@${NEW_VERSION}"
-              git rev-parse "$TAG" >/dev/null 2>&1 || git tag "$TAG"
-
-              TAGS="$TAGS $TAG"
+            if jq -e '.scripts.build' package.json >/dev/null; then
+              npm ci
+              npm run build || echo "⚠️ Build failed for $project"
             fi
+
+            if [ -f "Dockerfile" ]; then
+              IMAGE_NAME="${DOCKERHUB_USER}/${NAME}"
+              docker build -t "$IMAGE_NAME:$NEW_VERSION" -t "$IMAGE_NAME:latest" \
+                --label "org.opencontainers.image.title=$NAME" \
+                --label "org.opencontainers.image.description=$DESC" \
+                --label "org.opencontainers.image.version=$NEW_VERSION" \
+                --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" . || true
+              docker push "$IMAGE_NAME:$NEW_VERSION" || true
+              docker push "$IMAGE_NAME:latest" || true
+            fi
+
+            cd -
+
+            # 🏷️ Тег idempotent
+            git rev-parse "$project@$NEW_VERSION" >/dev/null 2>&1 || git tag "$project@$NEW_VERSION"
+            TAGS="$TAGS $project@$NEW_VERSION"
           done
 
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
 
-      # 💾 Commit and push changes
+      # 💾 Commit & push changes
       - name: Commit and push changes
         if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != '')
         run: |
@@ -175,7 +154,7 @@ jobs:
           path: "**/artifacts/**"
           if-no-files-found: ignore
 
-      # 🏷️ Create release & Telegram
+      # 🏷️ Create releases & Telegram
       - name: Create releases & send Telegram message
         if: steps.need_ci.outputs.force_run == 'true' || steps.bump_versions.outputs.tags != ''
         env:
@@ -185,53 +164,46 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
-            echo "🔒 '[hidden]' found — skipping Telegram"
             SKIP_TELEGRAM=1
           else
             SKIP_TELEGRAM=0
           fi
 
           TAGS="${{ steps.bump_versions.outputs.tags }}"
-          if [ -z "$TAGS" ] && [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
-            TAGS=$(find . -maxdepth 1 -type d ! -path . -exec bash -c 'cd {} && if [ -f package.json ]; then NAME=$(jq -r .name package.json); VER=$(jq -r .version package.json); echo "$(basename "$PWD")@$VER"; fi' \;)
-          fi
+          PIPELINE_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
           for TAG in $TAGS; do
             PROJECT=$(echo "$TAG" | cut -d@ -f1)
             PKG="$PROJECT/package.json"
             [ ! -f "$PKG" ] && continue
-
             NAME=$(jq -r '.name' "$PKG")
             DESC=$(jq -r '.description // "No description"' "$PKG")
             VERSION=$(jq -r '.version' "$PKG")
             CHANGELOG_PATH="$PROJECT/CHANGELOG.md"
             ARTIFACTS_PATH="$PROJECT/artifacts"
-
-            RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${TAG}"
-            PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
-            PIPELINE_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            RELEASE_URL="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+            PROJECT_URL="https://github.com/${GITHUB_REPOSITORY}/tree/main/${PROJECT}"
 
             NOTES="📢 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
-
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(awk '/^##/{i++}i==1' "$CHANGELOG_PATH" | head -n 20)
-              BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-              NOTES+="*Changelog:*%0A$BODY_ESCAPED%0A%0A"
+              NOTES+="*Changelog:*%0A$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')%0A%0A"
             fi
 
-            if [ -d "$ARTIFACTS_PATH" ]; then
-              FILES=$(find "$ARTIFACTS_PATH" -type f)
-              gh release create "$TAG" --title "$TAG" --notes "$NOTES" $FILES || echo "Release exists"
+            FILES=""
+            [ -d "$ARTIFACTS_PATH" ] && FILES=$(find "$ARTIFACTS_PATH" -type f)
+
+            # 🏷️ Idempotent release
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              echo "ℹ️ Release $TAG already exists"
             else
-              gh release create "$TAG" --title "$TAG" --notes "$NOTES" || echo "Release exists"
+              gh release create "$TAG" --title "$TAG" --notes "$NOTES" $FILES || echo "⚠️ Release creation failed but continuing"
             fi
 
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
               BUTTONS="["
               BUTTONS="${BUTTONS}[{\"text\":\"💾 Download all artifacts\",\"url\":\"${PIPELINE_URL}\"}],"
-              if [ -f "$PROJECT/Dockerfile" ]; then
-                BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
-              fi
+              [ -f "$PROJECT/Dockerfile" ] && BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
               BUTTONS="${BUTTONS}[{\"text\":\"🧱 Project folder\",\"url\":\"${PROJECT_URL}\"}],"
               BUTTONS="${BUTTONS}[{\"text\":\"🔗 View release\",\"url\":\"${RELEASE_URL}\"}]"
               BUTTONS="${BUTTONS}]"

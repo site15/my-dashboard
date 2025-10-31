@@ -1,8 +1,9 @@
 {
   "name": "MyDashboard",
   "version": "0.0.3",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "description": "An Ionic-Angular mobile application with Capacitor integration for Android deployment. Features a tabbed interface with explore container and dynamic routing.",
+  "author": "Ilshat Khamitov <ilshat.m.khamitov@gmail.com>",
+  "homepage": "https://site15-my-dashboard.vercel.app",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -61,6 +62,5 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.8.0"
-  },
-  "description": "An Ionic project"
+  }
 }
