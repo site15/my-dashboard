@@ -1,0 +1,220 @@
+name: Auto Bump Version, Build & Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      # 1️⃣ Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2️⃣ Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3️⃣ Detect changed projects automatically
+      - name: Detect changed projects
+        id: detect
+        run: |
+          # Все директории в корне с package.json
+          PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
+            if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
+          done)
+
+          # Только изменённые директории
+          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq)
+          CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
+
+          echo "changed_projects=$CHANGED_PROJECTS" >> $GITHUB_OUTPUT
+          echo "Changed projects: $CHANGED_PROJECTS"
+
+      # 4️⃣ Determine bump type
+      - name: Determine bump type
+        id: bump_type
+        run: |
+          MESSAGES=$(git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%n%b")
+          if echo "$MESSAGES" | grep -qi "BREAKING CHANGE"; then
+            BUMP=major
+          elif echo "$MESSAGES" | grep -Eqi "^feat"; then
+            BUMP=minor
+          elif echo "$MESSAGES" | grep -Eqi "^fix"; then
+            BUMP=patch
+          else
+            BUMP=none
+          fi
+          echo "bump=$BUMP" >> $GITHUB_OUTPUT
+          echo "Detected bump type: $BUMP"
+
+      # 5️⃣ Bump versions, build, Docker
+      - name: Bump, Build & Docker
+        if: steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != ''
+        id: bump_versions
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          npm install -g conventional-changelog-cli jq
+          echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
+
+          BUMP=${{ steps.bump_type.outputs.bump }}
+          TAGS=""
+
+          for project in ${{ steps.detect.outputs.changed_projects }}; do
+            if [ -f "$project/package.json" ]; then
+              cd $project
+              NAME=$(jq -r '.name' package.json)
+              DESC=$(jq -r '.description // "No description"' package.json)
+              OLD_VERSION=$(jq -r '.version' package.json)
+              npm version $BUMP --no-git-tag-version
+              NEW_VERSION=$(jq -r '.version' package.json)
+
+              conventional-changelog -p angular -i CHANGELOG.md -s -r 1 || echo "No changelog generated"
+
+              if jq -e '.scripts.build' package.json >/dev/null; then
+                npm ci
+                npm run build || echo "Build failed"
+              fi
+
+              if [ -f "Dockerfile" ]; then
+                IMAGE_NAME="${DOCKERHUB_USER}/${NAME}"
+                docker build -t "$IMAGE_NAME:$NEW_VERSION" -t "$IMAGE_NAME:latest" \
+                  --label "org.opencontainers.image.title=$NAME" \
+                  --label "org.opencontainers.image.description=$DESC" \
+                  --label "org.opencontainers.image.version=$NEW_VERSION" \
+                  --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+                  .
+                docker push "$IMAGE_NAME:$NEW_VERSION"
+                docker push "$IMAGE_NAME:latest"
+              fi
+
+              if [ -f "capacitor.config.ts" ]; then
+                echo "${{ secrets.KEYSTORE }}" | base64 --decode > "${{ github.workspace }}/$project/my-dashboard.jks"
+                ls "${{ github.workspace }}/$project"
+
+                docker run --rm \
+                  -e KEYSTORE_PASSWORD="${{ secrets.KEYSTORE_PASSWORD }}" \
+                  -e KEYSTORE_ALIAS="${{ secrets.KEYSTORE_ALIAS }}" \
+                  -e KEYSTORE_ALIAS_PASSWORD="${{ secrets.KEYSTORE_ALIAS_PASSWORD }}" \
+                  -e PRISMA_ENGINES_MIRROR="https://registry.npmmirror.com/-/binary/prisma" \
+                  -v "${{ github.workspace }}/$project:/app" \
+                  endykaufman/ionic-capacitor:latest
+
+                ls -la ${{ github.workspace }}/$project/android/app/build/outputs/apk/release/
+                cp "${{ github.workspace }}/$project/android/app/build/outputs/apk/release/*.apk" "${{ github.workspace }}/$project/artifacts/"
+              fi
+
+              cd -
+              TAG="${project}@${NEW_VERSION}"
+              TAGS="$TAGS $TAG"
+              git tag "$TAG"
+            fi
+          done
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+
+      # 6️⃣ Commit & push
+      - name: Commit and push changes
+        if: steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add */package.json */CHANGELOG.md
+          git commit -m "chore: auto bump ${{ steps.bump_type.outputs.bump }} version [skip ci]" || echo "No changes to commit"
+          git push origin main
+          git push origin --tags
+
+      # 7️⃣ Upload artifacts
+      - name: Upload artifacts
+        if: steps.bump_versions.outputs.tags != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-builds
+          path: |
+            **/artifacts/**
+          if-no-files-found: ignore
+
+      # 8️⃣ Create release & Telegram notification
+      - name: Create releases & send Telegram message
+        if: steps.bump_versions.outputs.tags != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # 🔒 skip Telegram if commit has [hidden]
+          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
+            echo "🔒 '[hidden]' found in commits — skipping Telegram notification"
+            SKIP_TELEGRAM=1
+          else
+            SKIP_TELEGRAM=0
+          fi
+
+          for TAG in ${{ steps.bump_versions.outputs.tags }}; do
+            PROJECT=$(echo "$TAG" | cut -d@ -f1)
+            CHANGELOG_PATH="$PROJECT/CHANGELOG.md"
+            ARTIFACTS_PATH="$PROJECT/artifacts"
+            PKG="$PROJECT/package.json"
+
+            NAME=$(jq -r '.name' "$PKG")
+            DESC=$(jq -r '.description // "No description"' "$PKG")
+            VERSION=$(jq -r '.version' "$PKG")
+            RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${TAG}"
+            PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
+
+            NOTES="📢 *${NAME} v${VERSION} released!*\n\n_${DESC}_\n\n"
+
+            if [ -f "$CHANGELOG_PATH" ]; then
+              BODY=$(awk '/^##/{i++}i==1' "$CHANGELOG_PATH" | head -n 20)
+              NOTES+="*Changelog:*\n\`\`\`\n$BODY\n\`\`\`\n"
+            fi
+
+            # Create GitHub release
+            if [ -d "$ARTIFACTS_PATH" ]; then
+              FILES=$(find "$ARTIFACTS_PATH" -type f)
+              gh release create "$TAG" --title "$TAG" --notes "$NOTES" $FILES || echo "Release exists"
+            else
+              gh release create "$TAG" --title "$TAG" --notes "$NOTES" || echo "Release exists"
+            fi
+
+            # Telegram
+            if [ "$SKIP_TELEGRAM" -eq 0 ]; then
+              BUTTONS="["
+              if [ -d "$ARTIFACTS_PATH" ]; then
+                for FILE in $(find "$ARTIFACTS_PATH" -type f); do
+                  FILE_NAME=$(basename "$FILE")
+                  FILE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${FILE_NAME}"
+                  BUTTONS="${BUTTONS}[{\"text\":\"💾 ${FILE_NAME}\",\"url\":\"${FILE_URL}\"}],"
+                done
+              fi
+              if [ -f "$PROJECT/Dockerfile" ]; then
+                BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
+              fi
+              BUTTONS="${BUTTONS}[{\"text\":\"🧱 Project folder\",\"url\":\"${PROJECT_URL}\"}],"
+              BUTTONS="${BUTTONS}[{\"text\":\"🔗 View release\",\"url\":\"${RELEASE_URL}\"}]"
+              BUTTONS="${BUTTONS}]"
+              BUTTONS=$(echo "$BUTTONS" | sed 's/,]/]/') # cleanup trailing commas
+
+              curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+                -H "Content-Type: application/json" \
+                -d "{
+                  \"chat_id\": \"${TELEGRAM_CHAT_ID}\",
+                  \"parse_mode\": \"Markdown\",
+                  \"text\": \"${NOTES}\",
+                  \"reply_markup\": {\"inline_keyboard\": ${BUTTONS}}
+                }" >/dev/null 2>&1
+            fi
+          done
