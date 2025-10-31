@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 23.11.0
 
       # 3️⃣ Detect changed projects automatically
       - name: Detect changed projects
@@ -67,7 +67,7 @@ jobs:
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          npm install -g conventional-changelog-cli jq
+          npm install -g conventional-changelog-cli jq commander
           echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
 
           BUMP=${{ steps.bump_type.outputs.bump }}
