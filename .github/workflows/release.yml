@@ -206,7 +206,7 @@ jobs:
             PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
             PIPELINE_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-            NOTES="📢 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
+            NOTES="� *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
 
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(awk '/^##/{i++}i==1' "$CHANGELOG_PATH" | head -n 20)
@@ -227,8 +227,8 @@ jobs:
               if [ -f "$PROJECT/Dockerfile" ]; then
                 BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
               fi
-              BUTTONS="${BUTTONS}[{\"text\":\"🧱 Project folder\",\"url\":\"${PROJECT_URL}\"}],"
-              BUTTONS="${BUTTONS}[{\"text\":\"🔗 View release\",\"url\":\"${RELEASE_URL}\"}]"
+              BUTTONS="${BUTTONS}[{\"text\":\"📂 Project folder\",\"url\":\"${PROJECT_URL}\"}],"
+              BUTTONS="${BUTTONS}[{\"text\":\"ℹ️ View release\",\"url\":\"${RELEASE_URL}\"}]"
               BUTTONS="${BUTTONS}]"
               BUTTONS=$(echo "$BUTTONS" | sed 's/,]/]/')
 
