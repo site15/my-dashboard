@@ -1,6 +1,5 @@
 {
   "name": "ionic-capacitor",
   "version": "0.0.2",
-  "description": "Docker image for building Ionic-Capacitor Android applications with automated APK generation and keystore management.",
-  "homepage": "https://site15-my-dashboard.vercel.app"
+  "description": "Ionic android builder"
 }
