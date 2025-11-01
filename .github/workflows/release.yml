@@ -211,12 +211,22 @@ jobs:
             TG_NOTES="🚀 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
 
             if [ -f "$CHANGELOG_PATH" ]; then
-              BODY=$(awk '/^##/{i++}i==1' "$CHANGELOG_PATH" | head -n 20)
+              BODY=$(awk '/^## /{flag=1;next}/^## /{flag=0}flag' "$CHANGELOG_PATH" | head -n 20)
+              if [ -z "$BODY" ]; then
+                BODY=$(git log -n 5 --pretty=format:"• %s")
+              fi
               BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/\\n/g')
               TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
               NOTES+="*Changelog:*\\n$BODY_ESCAPED\\n\\n"
               TG_NOTES+="*Changelog:*%0A$TG_BODY_ESCAPED%0A%0A"
+            else
+              BODY=$(git log -n 5 --pretty=format:"• %s")
+              BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/\\n/g')
+              TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
+              NOTES+="*Recent commits:*\\n$BODY_ESCAPED\\n\\n"
+              TG_NOTES+="*Recent commits:*%0A$TG_BODY_ESCAPED%0A%0A"
             fi
+
 
             if [ -d "$ARTIFACTS_PATH" ]; then
               FILES=$(find "$ARTIFACTS_PATH" -type f)
