@@ -207,14 +207,14 @@ jobs:
             PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
             PIPELINE_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-            NOTES="🚀 *${NAME} v${VERSION} released!*\n\n_${DESC}_\n\n"
+            NOTES="🚀 *${NAME} v${VERSION} released!*\\n\\n_${DESC}_\\n\\n"
             TG_NOTES="🚀 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
 
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(awk '/^##/{i++}i==1' "$CHANGELOG_PATH" | head -n 20)
-              BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/\n/g')
+              BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/\\n/g')
               TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-              NOTES+="*Changelog:*\n$BODY_ESCAPED\n\n"
+              NOTES+="*Changelog:*\\n$BODY_ESCAPED\\n\\n"
               TG_NOTES+="*Changelog:*%0A$TG_BODY_ESCAPED%0A%0A"
             fi
 
