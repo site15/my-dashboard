@@ -183,6 +183,7 @@ jobs:
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_THREAD_ID: ${{ secrets.TELEGRAM_CHAT_THREAD_ID }}
         run: |
           SKIP_TELEGRAM=0
 
@@ -206,12 +207,15 @@ jobs:
             PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
             PIPELINE_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-            NOTES="� *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
+            NOTES="🚀 *${NAME} v${VERSION} released!*\n\n_${DESC}_\n\n"
+            TG_NOTES="🚀 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
 
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(awk '/^##/{i++}i==1' "$CHANGELOG_PATH" | head -n 20)
-              BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-              NOTES+="*Changelog:*%0A$BODY_ESCAPED%0A%0A"
+              BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/\n/g')
+              TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
+              NOTES+="*Changelog:*\n$BODY_ESCAPED\n\n"
+              TG_NOTES+="*Changelog:*%0A$TG_BODY_ESCAPED%0A%0A"
             fi
 
             if [ -d "$ARTIFACTS_PATH" ]; then
@@ -234,9 +238,10 @@ jobs:
 
               curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
                 -d "chat_id=${TELEGRAM_CHAT_ID}" \
+                -d "message_thread_id=${TELEGRAM_CHAT_THREAD_ID}" \
                 -d "parse_mode=Markdown" \
                 -d "disable_web_page_preview=true" \
-                -d "text=${NOTES}" \
+                -d "text=${TG_NOTES}" \
                 -d "reply_markup={\"inline_keyboard\":${BUTTONS}}"
             fi
           done
