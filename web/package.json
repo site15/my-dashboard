@@ -1,6 +1,6 @@
 {
   "name": "my-dashboard",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "A fullstack web application built with AnalogJS (Angular-based meta-framework) featuring Telegram authentication, Prisma ORM for database management, and tRPC for API communication. The application is deployed on Vercel with Neon PostgreSQL database integration.",
   "author": "Ilshat Khamitov <ilshat.m.khamitov@gmail.com>",
   "type": "module",
