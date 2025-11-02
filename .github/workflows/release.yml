@@ -255,16 +255,26 @@ jobs:
               if [ -f "$CHANGELOG_PATH" ]; then
                 BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
                 [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
-                TG_BODY+="*Changelog:*\n${BODY}\n"
+
+                # Заменяем переносы на %0A
+                NEW_TG_NOTES=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
+                # Экранирование спецсимволов
+                NEW_TG_NOTES=$(escape_markdown "$NEW_TG_NOTES")
+
+                TG_BODY+="*Changelog:*\n${NEW_TG_NOTES}\n"
               else
                 BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
-                TG_BODY+="*Recent commits:*\n${BODY}\n"
+
+                # Заменяем переносы на %0A
+                NEW_TG_NOTES=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
+                # Экранирование спецсимволов
+                NEW_TG_NOTES=$(escape_markdown "$NEW_TG_NOTES")
+
+                TG_BODY+="*Recent commits:*\n${NEW_TG_NOTES}\n"
               fi
 
-              # Экранирование спецсимволов
-              TG_NOTES=$(escape_markdown "$TG_BODY")
               # Заменяем переносы на %0A
-              TG_NOTES=$(echo "$TG_NOTES" | sed ':a;N;$!ba;s/\n/%0A/g')
+              TG_NOTES=$(echo "$TG_BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
 
               BUTTONS="["
               if [ -d "$ARTIFACTS_PATH" ]; then
