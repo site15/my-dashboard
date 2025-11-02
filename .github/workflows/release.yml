@@ -267,9 +267,6 @@ jobs:
                 TG_BODY+="*Recent commits:*%0A${NEW_TG_NOTES}%0A"
               fi
 
-              # Заменяем переносы на %0A
-              TG_NOTES=$(echo "$TG_BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-
               BUTTONS="["
               if [ -d "$ARTIFACTS_PATH" ]; then
                 while IFS= read -r FILE; do
@@ -302,10 +299,10 @@ jobs:
                   -d "message_thread_id=${{ vars.TELEGRAM_CHAT_THREAD_ID }}" \
                   -d "parse_mode=Markdown" \
                   -d "disable_web_page_preview=true" \
-                  -d "text=${TG_NOTES}" \
+                  -d "text=${TG_BODY}" \
                   -d "reply_markup={\"inline_keyboard\":${BUTTONS}}"; then
                   echo "⚠️ Telegram send failed!"
-                  echo "TG_NOTES: $TG_NOTES"
+                  echo "TG_BODY: $TG_BODY"
                   echo "BUTTONS: $BUTTONS"
               fi
             fi
