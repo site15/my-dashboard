@@ -10,5 +10,4 @@ export default defineConfig({
   datasource: {
     url: env("MY_DASHBOARD_DATABASE_POSTGRES_URL"),
   },
-}); 
-// fake changes 195
+});

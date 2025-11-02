@@ -16,4 +16,3 @@ const config: CapacitorConfig = {
 };
 
 export default config;
-// fake changes
