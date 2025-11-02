@@ -1,6 +1,6 @@
 {
   "name": "ionic-capacitor",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Docker image for building Ionic-Capacitor Android applications with automated APK generation and keystore management.",
   "author": "Ilshat Khamitov <ilshat.m.khamitov@gmail.com>"
 }
