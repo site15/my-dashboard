@@ -198,7 +198,6 @@ jobs:
             [ ! -f "$PKG" ] && continue
 
             NAME=$(jq -r '.name' "$PKG")
-            DESC=$(jq -r '.description // "No description"' "$PKG")
             VERSION=$(jq -r '.version' "$PKG")
             CHANGELOG_PATH="$PROJECT/CHANGELOG.md"
             ARTIFACTS_PATH="$PROJECT/artifacts"
@@ -207,37 +206,66 @@ jobs:
             PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
             PIPELINE_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-            NOTES="🚀 *${NAME} v${VERSION} released!*\\n\\n_${DESC}_\\n\\n"
+            # --- Формируем тело релиза (чистый текст без markdown и без DESC)
+            if [ -f "$CHANGELOG_PATH" ]; then
+              BODY=$(awk '/^## /{flag=1;next}/^## /{flag=0}flag' "$CHANGELOG_PATH" | head -n 20)
+              [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
+            else
+              BODY=$(git log -n 5 --pretty=format:"• %s")
+            fi
+
+            # Удаляем markdown-разметку и лишние символы
+            BODY_CLEAN=$(echo "$BODY" | sed 's/\*//g; s/_//g')
+
+            NOTES="🚀 ${NAME} v${VERSION} released!
+
+            Changelog:
+            ${BODY_CLEAN}
+
+            "
+
+            echo "$NOTES" > release_notes.txt
+
+            # --- Создание релиза в GitHub
+            if [ -d "$ARTIFACTS_PATH" ]; then
+              FILES=$(find "$ARTIFACTS_PATH" -type f)
+              gh release create "$TAG" --title "$TAG" --notes-file release_notes.txt $FILES || echo "Release exists"
+            else
+              gh release create "$TAG" --title "$TAG" --notes-file release_notes.txt || echo "Release exists"
+            fi
+
+            # --- Формируем сообщение для Telegram
+            DESC=$(jq -r '.description // "No description"' "$PKG")
             TG_NOTES="🚀 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
 
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(awk '/^## /{flag=1;next}/^## /{flag=0}flag' "$CHANGELOG_PATH" | head -n 20)
-              if [ -z "$BODY" ]; then
-                BODY=$(git log -n 5 --pretty=format:"• %s")
-              fi
-              BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/\\n/g')
+              [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
               TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-              NOTES+="*Changelog:*\\n$BODY_ESCAPED\\n\\n"
-              TG_NOTES+="*Changelog:*%0A$TG_BODY_ESCAPED%0A%0A"
+              TG_NOTES+="*Changelog:*%0A${TG_BODY_ESCAPED}%0A%0A"
             else
               BODY=$(git log -n 5 --pretty=format:"• %s")
-              BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/\\n/g')
               TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-              NOTES+="*Recent commits:*\\n$BODY_ESCAPED\\n\\n"
-              TG_NOTES+="*Recent commits:*%0A$TG_BODY_ESCAPED%0A%0A"
+              TG_NOTES+="*Recent commits:*%0A${TG_BODY_ESCAPED}%0A%0A"
             fi
 
-
-            if [ -d "$ARTIFACTS_PATH" ]; then
-              FILES=$(find "$ARTIFACTS_PATH" -type f)
-              gh release create "$TAG" --title "$TAG" --notes "$NOTES" $FILES || echo "Release exists"
-            else
-              gh release create "$TAG" --title "$TAG" --notes "$NOTES" || echo "Release exists"
-            fi
-
+            # --- Кнопки для Telegram
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
               BUTTONS="["
-              BUTTONS="${BUTTONS}[{\"text\":\"💾 Download all artifacts\",\"url\":\"${PIPELINE_URL}\"}],"
+              
+              # Генерация кнопок для артефактов с нужными расширениями
+              if [ -d "$ARTIFACTS_PATH" ]; then
+                while IFS= read -r FILE; do
+                  EXT="${FILE##*.}"
+                  if [[ "$EXT" =~ ^(apk|exe|zip|html)$ ]]; then
+                    BASENAME=$(basename "$FILE")
+                    FILE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${BASENAME}"
+                    BUTTONS="${BUTTONS}[{\"text\":\"💾 ${BASENAME}\",\"url\":\"${FILE_URL}\"}],"
+                  fi
+                done < <(find "$ARTIFACTS_PATH" -type f)
+              fi
+
+              # Остальные стандартные кнопки
               if [ -f "$PROJECT/Dockerfile" ]; then
                 BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
               fi
