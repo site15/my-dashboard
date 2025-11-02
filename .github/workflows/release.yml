@@ -39,20 +39,26 @@ jobs:
       - name: Detect changed projects
         id: detect
         run: |
+          # Список всех проектов с package.json в корне
           PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
             if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
           done)
 
+          # Определяем изменённые проекты
           if [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
-            # Если [need ci], считаем, что изменены все проекты
+            # Если [need ci] — считаем, что изменены все проекты
             CHANGED_PROJECTS="$PROJECTS"
           else
             CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq)
             CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
           fi
 
-          echo "changed_projects=$CHANGED_PROJECTS" >> $GITHUB_OUTPUT
           echo "Changed projects: $CHANGED_PROJECTS"
+
+          # --- безопасная запись в GITHUB_OUTPUT через base64 ---
+          CHANGED_PROJECTS_CLEAN=$(echo "$CHANGED_PROJECTS" | tr '\n' ' ' | sed 's/ $//')
+          ENCODED=$(echo -n "$CHANGED_PROJECTS_CLEAN" | base64)
+          echo "changed_projects_base64=$ENCODED" >> $GITHUB_OUTPUT
 
       # 🧩 Определяем тип bump'а
       - name: Determine bump type
@@ -73,7 +79,7 @@ jobs:
 
       # 🚀 Bump, Build & Docker
       - name: Bump, Build & Docker
-        if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != '')
+        if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects_base64 != '')
         id: bump_versions
         env:
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -89,7 +95,7 @@ jobs:
           fi
 
           BUMP=${{ steps.bump_type.outputs.bump }}
-          CHANGED_PROJECTS=${{ steps.detect.outputs.changed_projects }}
+          CHANGED_PROJECTS=$(echo "${{ steps.detect.outputs.changed_projects_base64 }}" | base64 --decode)
 
           if [ -z "$CHANGED_PROJECTS" ]; then
             echo "ℹ️ No changed projects detected. Exiting."
@@ -156,7 +162,7 @@ jobs:
 
       # 💾 Commit and push changes
       - name: Commit and push changes
-        if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects != '')
+        if: steps.need_ci.outputs.force_run == 'true' || (steps.bump_type.outputs.bump != 'none' && steps.detect.outputs.changed_projects_base64 != '')
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
