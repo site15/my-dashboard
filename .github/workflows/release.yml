@@ -245,7 +245,7 @@ jobs:
 
             # --- Telegram
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
-              TG_BODY=$(echo -e "🚀 ${NAME} v${VERSION} released!\n\n_${DESC}_\n\n")
+              TG_BODY=$(echo -e "🚀 ${NAME} v${VERSION} released!%0A%0A_${DESC}%0A")
               if [ -f "$CHANGELOG_PATH" ]; then
                 BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
                 [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
@@ -255,7 +255,7 @@ jobs:
                 # Экранирование спецсимволов
                 NEW_TG_NOTES=$(escape_markdown "$NEW_TG_NOTES")
 
-                TG_BODY+="*Changelog:*\n${NEW_TG_NOTES}\n"
+                TG_BODY+="*Changelog:*%0A${NEW_TG_NOTES}%0A"
               else
                 BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
 
@@ -264,7 +264,7 @@ jobs:
                 # Экранирование спецсимволов
                 NEW_TG_NOTES=$(escape_markdown "$NEW_TG_NOTES")
 
-                TG_BODY+="*Recent commits:*\n${NEW_TG_NOTES}\n"
+                TG_BODY+="*Recent commits:*%0A${NEW_TG_NOTES}%0A"
               fi
 
               # Заменяем переносы на %0A
