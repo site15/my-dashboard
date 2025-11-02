@@ -294,8 +294,8 @@ jobs:
 
               # Отправка Telegram с обработкой ошибок
               if ! curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-                  -d "chat_id=${{ env.TELEGRAM_CHAT_ID }}" \
-                  -d "message_thread_id=${{ env.TELEGRAM_CHAT_THREAD_ID }}" \
+                  -d "chat_id=${{ vars.TELEGRAM_CHAT_ID }}" \
+                  -d "message_thread_id=${{ vars.TELEGRAM_CHAT_THREAD_ID }}" \
                   -d "parse_mode=Markdown" \
                   -d "disable_web_page_preview=true" \
                   -d "text=${TG_NOTES}" \
