@@ -39,14 +39,11 @@ jobs:
       - name: Detect changed projects
         id: detect
         run: |
-          # Список всех проектов с package.json в корне
           PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
             if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
           done)
 
-          # Определяем изменённые проекты
           if [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
-            # Если [need ci] — считаем, что изменены все проекты
             CHANGED_PROJECTS="$PROJECTS"
           else
             CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq)
@@ -55,7 +52,6 @@ jobs:
 
           echo "Changed projects: $CHANGED_PROJECTS"
 
-          # --- безопасная запись в GITHUB_OUTPUT через base64 ---
           CHANGED_PROJECTS_CLEAN=$(echo "$CHANGED_PROJECTS" | tr '\n' ' ' | sed 's/ $//')
           ENCODED=$(echo -n "$CHANGED_PROJECTS_CLEAN" | base64)
           echo "changed_projects_base64=$ENCODED" >> $GITHUB_OUTPUT
@@ -192,7 +188,6 @@ jobs:
         run: |
           set -e
 
-          # --- Проверка на [hidden] в коммитах
           if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
             SKIP_TELEGRAM=1
           else
@@ -218,22 +213,20 @@ jobs:
             PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
             PIPELINE_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-            # --- Описание релиза для GitHub
+            # --- GitHub release через файл
             if [ -f "$CHANGELOG_PATH" ]; then
-              BODY=$(awk '/^## /{flag=1;next}/^## /{flag=0}flag' "$CHANGELOG_PATH" | head -n 20)
+              BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
               [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
             else
-              BODY=$(git log -n 5 --pretty=format:"• %s")
+              BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
             fi
-            BODY_CLEAN=$(echo "$BODY" | sed 's/\*//g; s/_//g')
             NOTES="🚀 ${NAME} v${VERSION} released!
 
             Changelog:
-            ${BODY_CLEAN}
+            ${BODY}
             "
             echo "$NOTES" > release_notes.txt
 
-            # --- Создаём релиз в GitHub
             if [ -d "$ARTIFACTS_PATH" ]; then
               FILES=$(find "$ARTIFACTS_PATH" -type f)
               gh release create "$TAG" --title "$TAG" --notes-file release_notes.txt $FILES || echo "Release exists"
@@ -247,12 +240,12 @@ jobs:
               TG_NOTES="🚀 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
 
               if [ -f "$CHANGELOG_PATH" ]; then
-                BODY=$(awk '/^## /{flag=1;next}/^## /{flag=0}flag' "$CHANGELOG_PATH" | head -n 20)
+                BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
                 [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
                 TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
                 TG_NOTES+="*Changelog:*%0A${TG_BODY_ESCAPED}%0A%0A"
               else
-                BODY=$(git log -n 5 --pretty=format:"• %s")
+                BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
                 TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
                 TG_NOTES+="*Recent commits:*%0A${TG_BODY_ESCAPED}%0A%0A"
               fi
@@ -268,9 +261,16 @@ jobs:
                   fi
                 done < <(find "$ARTIFACTS_PATH" -type f)
               fi
+
               if [ -f "$PROJECT/Dockerfile" ]; then
                 BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
               fi
+
+              HOMEPAGE=$(jq -r '.homepage // empty' "$PKG")
+              if [ -n "$HOMEPAGE" ]; then
+                BUTTONS="${BUTTONS}[{\"text\":\"🌐 Homepage\",\"url\":\"${HOMEPAGE}\"}],"
+              fi
+
               BUTTONS="${BUTTONS}[{\"text\":\"📂 Project folder\",\"url\":\"${PROJECT_URL}\"}],"
               BUTTONS="${BUTTONS}[{\"text\":\"ℹ️ View release\",\"url\":\"${RELEASE_URL}\"}]"
               BUTTONS="${BUTTONS}]"
