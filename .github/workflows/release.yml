@@ -176,18 +176,31 @@ jobs:
           path: "**/artifacts/**"
           if-no-files-found: ignore
 
-      # 🏷️ Create release & send Telegram
       - name: Create releases & send Telegram message
         if: steps.need_ci.outputs.force_run == 'true' || steps.bump_versions.outputs.tags != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ env.TELEGRAM_CHAT_ID }}
-          TELEGRAM_CHAT_THREAD_ID: ${{ env.TELEGRAM_CHAT_THREAD_ID }}
         run: |
           set -e
 
+          # --- функция для экранирования Markdown-спецсимволов
+          escape_markdown() {
+            local text="$1"
+            text="${text//\\/\\\\}"   # экранируем обратные слеши
+            text="${text//_/\\_}"
+            text="${text//\*/\\*}"
+            text="${text//\[/\\[}"
+            text="${text//\]/\\]}"
+            text="${text//\(/\\(}"
+            text="${text//\)/\\)}"
+            text="${text//~/\\~}"
+            text="${text//\`/\\\`}"
+            echo "$text"
+          }
+
+          # --- проверка [hidden]
           if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
             SKIP_TELEGRAM=1
           else
@@ -206,6 +219,7 @@ jobs:
 
             NAME=$(jq -r '.name' "$PKG")
             VERSION=$(jq -r '.version' "$PKG")
+            DESC=$(jq -r '.description // "No description"' "$PKG")
             CHANGELOG_PATH="$PROJECT/CHANGELOG.md"
             ARTIFACTS_PATH="$PROJECT/artifacts"
 
@@ -213,13 +227,14 @@ jobs:
             PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
             PIPELINE_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-            # --- GitHub release через файл
+            # --- GitHub release через файл с переносами
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
               [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
             else
               BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
             fi
+
             NOTES="🚀 ${NAME} v${VERSION} released!
 
             Changelog:
@@ -236,19 +251,20 @@ jobs:
 
             # --- Telegram
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
-              DESC=$(jq -r '.description // "No description"' "$PKG")
-              TG_NOTES="🚀 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
-
+              TG_BODY=$(echo -e "🚀 ${NAME} v${VERSION} released!\n\n_${DESC}_\n\n")
               if [ -f "$CHANGELOG_PATH" ]; then
                 BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
                 [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
-                TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-                TG_NOTES+="*Changelog:*%0A${TG_BODY_ESCAPED}%0A%0A"
+                TG_BODY+="*Changelog:*\n${BODY}\n"
               else
                 BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
-                TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-                TG_NOTES+="*Recent commits:*%0A${TG_BODY_ESCAPED}%0A%0A"
+                TG_BODY+="*Recent commits:*\n${BODY}\n"
               fi
+
+              # Экранирование спецсимволов
+              TG_NOTES=$(escape_markdown "$TG_BODY")
+              # Заменяем переносы на %0A
+              TG_NOTES=$(echo "$TG_NOTES" | sed ':a;N;$!ba;s/\n/%0A/g')
 
               BUTTONS="["
               if [ -d "$ARTIFACTS_PATH" ]; then
@@ -276,15 +292,17 @@ jobs:
               BUTTONS="${BUTTONS}]"
               BUTTONS=$(echo "$BUTTONS" | sed 's/,]/]/')
 
-              echo "TG_NOTES: $TG_NOTES"
-              echo "BUTTONS: $BUTTONS"
-              
-              curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-                -d "chat_id=${TELEGRAM_CHAT_ID}" \
-                -d "message_thread_id=${TELEGRAM_CHAT_THREAD_ID}" \
-                -d "parse_mode=Markdown" \
-                -d "disable_web_page_preview=true" \
-                -d "text=${TG_NOTES}" \
-                -d "reply_markup={\"inline_keyboard\":${BUTTONS}}"
+              # Отправка Telegram с обработкой ошибок
+              if ! curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+                  -d "chat_id=${env.TELEGRAM_CHAT_ID}" \
+                  -d "message_thread_id=${env.TELEGRAM_CHAT_THREAD_ID}" \
+                  -d "parse_mode=Markdown" \
+                  -d "disable_web_page_preview=true" \
+                  -d "text=${TG_NOTES}" \
+                  -d "reply_markup={\"inline_keyboard\":${BUTTONS}}"; then
+                  echo "⚠️ Telegram send failed!"
+                  echo "TG_NOTES: $TG_NOTES"
+                  echo "BUTTONS: $BUTTONS"
+              fi
             fi
           done
