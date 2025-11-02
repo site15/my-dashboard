@@ -245,7 +245,7 @@ jobs:
 
             # --- Telegram
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
-              TG_BODY=$(echo -e "🚀 ${NAME} v${VERSION} released!%0A%0A_${DESC}%0A")
+              TG_BODY=$(echo -e "🚀 ${NAME} v${VERSION} released!%0A%0A_${DESC}_%0A")
               if [ -f "$CHANGELOG_PATH" ]; then
                 BODY=$(git log --pretty=format:"• %s" ${{ github.event.before }}..${{ github.sha }} -- "$PROJECT")
                 [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
@@ -295,7 +295,7 @@ jobs:
 
               echo "TG_BODY: $TG_BODY"
               echo "BUTTONS: $BUTTONS"
-              
+
               # Отправка Telegram с обработкой ошибок
               if ! curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
                   -d "chat_id=${{ vars.TELEGRAM_CHAT_ID }}" \
