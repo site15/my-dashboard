@@ -188,15 +188,9 @@ jobs:
           # --- функция для экранирования Markdown-спецсимволов
           escape_markdown() {
             local text="$1"
-            text="${text//\\/\\\\}"   # экранируем обратные слеши
             text="${text//_/\\_}"
             text="${text//\*/\\*}"
-            text="${text//\[/\\[}"
-            text="${text//\]/\\]}"
-            text="${text//\(/\\(}"
-            text="${text//\)/\\)}"
             text="${text//~/\\~}"
-            text="${text//\`/\\\`}"
             echo "$text"
           }
 
