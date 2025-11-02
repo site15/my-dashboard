@@ -42,8 +42,15 @@ jobs:
           PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
             if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
           done)
-          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq)
-          CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
+
+          if [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
+            # Если [need ci], считаем, что изменены все проекты
+            CHANGED_PROJECTS="$PROJECTS"
+          else
+            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq)
+            CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
+          fi
+
           echo "changed_projects=$CHANGED_PROJECTS" >> $GITHUB_OUTPUT
           echo "Changed projects: $CHANGED_PROJECTS"
 
@@ -82,20 +89,14 @@ jobs:
           fi
 
           BUMP=${{ steps.bump_type.outputs.bump }}
-          TAGS=""
-
-          if [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
-            CHANGED_PROJECTS=$(find . -maxdepth 1 -type d ! -path . | while read d; do
-              if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
-            done)
-          else
-            CHANGED_PROJECTS=${{ steps.detect.outputs.changed_projects }}
-          fi
+          CHANGED_PROJECTS=${{ steps.detect.outputs.changed_projects }}
 
           if [ -z "$CHANGED_PROJECTS" ]; then
             echo "ℹ️ No changed projects detected. Exiting."
             exit 0
           fi
+
+          TAGS=""
 
           for project in $CHANGED_PROJECTS; do
             if [ -f "$project/package.json" ]; then
@@ -145,10 +146,8 @@ jobs:
 
               cd -
 
-              # 🏷️ Создаём тег только если его нет
               TAG="${project}@${NEW_VERSION}"
               git rev-parse "$TAG" >/dev/null 2>&1 || git tag "$TAG"
-
               TAGS="$TAGS $TAG"
             fi
           done
@@ -175,7 +174,7 @@ jobs:
           path: "**/artifacts/**"
           if-no-files-found: ignore
 
-      # 🏷️ Create release & Telegram
+      # 🏷️ Create release & send Telegram
       - name: Create releases & send Telegram message
         if: steps.need_ci.outputs.force_run == 'true' || steps.bump_versions.outputs.tags != ''
         env:
@@ -185,7 +184,14 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_CHAT_THREAD_ID: ${{ secrets.TELEGRAM_CHAT_THREAD_ID }}
         run: |
-          SKIP_TELEGRAM=0
+          set -e
+
+          # --- Проверка на [hidden] в коммитах
+          if git log ${{ github.event.before }}..${{ github.sha }} --pretty=format:"%s%b" | grep -q "\[hidden\]"; then
+            SKIP_TELEGRAM=1
+          else
+            SKIP_TELEGRAM=0
+          fi
 
           TAGS="${{ steps.bump_versions.outputs.tags }}"
           if [ -z "$TAGS" ] && [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
@@ -206,27 +212,22 @@ jobs:
             PROJECT_URL="https://github.com/${{ github.repository }}/tree/main/${PROJECT}"
             PIPELINE_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-            # --- Формируем тело релиза (чистый текст без markdown и без DESC)
+            # --- Описание релиза для GitHub
             if [ -f "$CHANGELOG_PATH" ]; then
               BODY=$(awk '/^## /{flag=1;next}/^## /{flag=0}flag' "$CHANGELOG_PATH" | head -n 20)
               [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
             else
               BODY=$(git log -n 5 --pretty=format:"• %s")
             fi
-
-            # Удаляем markdown-разметку и лишние символы
             BODY_CLEAN=$(echo "$BODY" | sed 's/\*//g; s/_//g')
-
             NOTES="🚀 ${NAME} v${VERSION} released!
 
             Changelog:
             ${BODY_CLEAN}
-
             "
-
             echo "$NOTES" > release_notes.txt
 
-            # --- Создание релиза в GitHub
+            # --- Создаём релиз в GitHub
             if [ -d "$ARTIFACTS_PATH" ]; then
               FILES=$(find "$ARTIFACTS_PATH" -type f)
               gh release create "$TAG" --title "$TAG" --notes-file release_notes.txt $FILES || echo "Release exists"
@@ -234,26 +235,23 @@ jobs:
               gh release create "$TAG" --title "$TAG" --notes-file release_notes.txt || echo "Release exists"
             fi
 
-            # --- Формируем сообщение для Telegram
-            DESC=$(jq -r '.description // "No description"' "$PKG")
-            TG_NOTES="🚀 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
-
-            if [ -f "$CHANGELOG_PATH" ]; then
-              BODY=$(awk '/^## /{flag=1;next}/^## /{flag=0}flag' "$CHANGELOG_PATH" | head -n 20)
-              [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
-              TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-              TG_NOTES+="*Changelog:*%0A${TG_BODY_ESCAPED}%0A%0A"
-            else
-              BODY=$(git log -n 5 --pretty=format:"• %s")
-              TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
-              TG_NOTES+="*Recent commits:*%0A${TG_BODY_ESCAPED}%0A%0A"
-            fi
-
-            # --- Кнопки для Telegram
+            # --- Telegram
             if [ "$SKIP_TELEGRAM" -eq 0 ]; then
+              DESC=$(jq -r '.description // "No description"' "$PKG")
+              TG_NOTES="🚀 *${NAME} v${VERSION} released!*%0A%0A_${DESC}_%0A%0A"
+
+              if [ -f "$CHANGELOG_PATH" ]; then
+                BODY=$(awk '/^## /{flag=1;next}/^## /{flag=0}flag' "$CHANGELOG_PATH" | head -n 20)
+                [ -z "$BODY" ] && BODY=$(git log -n 5 --pretty=format:"• %s")
+                TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
+                TG_NOTES+="*Changelog:*%0A${TG_BODY_ESCAPED}%0A%0A"
+              else
+                BODY=$(git log -n 5 --pretty=format:"• %s")
+                TG_BODY_ESCAPED=$(echo "$BODY" | sed ':a;N;$!ba;s/\n/%0A/g')
+                TG_NOTES+="*Recent commits:*%0A${TG_BODY_ESCAPED}%0A%0A"
+              fi
+
               BUTTONS="["
-              
-              # Генерация кнопок для артефактов с нужными расширениями
               if [ -d "$ARTIFACTS_PATH" ]; then
                 while IFS= read -r FILE; do
                   EXT="${FILE##*.}"
@@ -264,8 +262,6 @@ jobs:
                   fi
                 done < <(find "$ARTIFACTS_PATH" -type f)
               fi
-
-              # Остальные стандартные кнопки
               if [ -f "$PROJECT/Dockerfile" ]; then
                 BUTTONS="${BUTTONS}[{\"text\":\"🐳 Docker image\",\"url\":\"https://hub.docker.com/r/${DOCKERHUB_USER}/${NAME}\"}],"
               fi
