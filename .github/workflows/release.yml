@@ -183,8 +183,6 @@ jobs:
           DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
-          set -e
-
           # --- функция для экранирования Markdown-спецсимволов
           escape_markdown() {
             local text="$1"
@@ -236,8 +234,13 @@ jobs:
             "
             echo "$NOTES" > release_notes.txt
 
+            echo "ARTIFACTS_PATH: $ARTIFACTS_PATH"
+
             if [ -d "$ARTIFACTS_PATH" ]; then
               FILES=$(find "$ARTIFACTS_PATH" -type f)
+
+              echo "FILES: $FILES"
+
               gh release create "$TAG" --title "$TAG" --notes-file release_notes.txt $FILES || echo "Release exists"
             else
               gh release create "$TAG" --title "$TAG" --notes-file release_notes.txt || echo "Release exists"
