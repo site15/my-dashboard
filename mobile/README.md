@@ -10,6 +10,16 @@ Docker container build documentation has been moved to the [ionic_capacitor](../
 - [Docker Container Build Documentation (English)](../ionic_capacitor/README.md)
 - [Docker Container Build Documentation (Russian)](../ionic_capacitor/README_RU.md)
 
+## Community
+
+Join our Telegram developer community for discussions, updates, and support:
+- [Telegram Developer Chat](https://t.me/site15_community)
+
+## Release Notifications
+
+Release information and updates are automatically posted to our Telegram community chat:
+- [Telegram Release Notifications](https://t.me/site15_community/3)
+
 ## Running the Build with Volume Mounting
 
 To build the Android APK using Docker with volume mounting:

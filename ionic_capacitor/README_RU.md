@@ -7,6 +7,16 @@
 Образ Docker размещен на Docker Hub:
 [endykaufman/ionic-capacitor](https://hub.docker.com/repository/docker/endykaufman/ionic-capacitor/tags/latest)
 
+## Сообщество
+
+Присоединяйтесь к нашему Telegram-чату разработчиков для обсуждений, обновлений и поддержки:
+- [Telegram-чат разработчиков](https://t.me/site15_community)
+
+## Уведомления о релизах
+
+Информация о релизах и обновлениях автоматически публикуется в нашем Telegram-чате сообщества:
+- [Уведомления о релизах в Telegram](https://t.me/site15_community/3)
+
 ## Сборка образа Docker
 
 Для локальной сборки образа Docker выполните:

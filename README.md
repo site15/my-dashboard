@@ -31,9 +31,19 @@ npm start
 - [Mobile App Documentation](./mobile/README.md) ([Russian version](./mobile/README_RU.md))
 - [Web App Documentation](./web/README.md) ([Russian version](./web/README_RU.md))
 
+## Community
+
+Join our Telegram developer community for discussions, updates, and support:
+- [Telegram Developer Chat](https://t.me/site15_community)
+
 ## GitHub Actions Workflow
 
 The repository includes a GitHub Actions workflow that automatically builds the Android APK and uploads it as an artifact.
+
+## Release Notifications
+
+Release information and updates are automatically posted to our Telegram community chat:
+- [Telegram Release Notifications](https://t.me/site15_community/3)
 
 ## Vercel Integration
 

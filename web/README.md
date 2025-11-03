@@ -10,6 +10,16 @@ The application is deployed and available at: https://site15-my-dashboard.vercel
 
 Run `npm install` to install the application dependencies.
 
+## Community
+
+Join our Telegram developer community for discussions, updates, and support:
+- [Telegram Developer Chat](https://t.me/site15_community)
+
+## Release Notifications
+
+Release information and updates are automatically posted to our Telegram community chat:
+- [Telegram Release Notifications](https://t.me/site15_community/3)
+
 ## Database Setup
 
 This project uses a PostgreSQL database. We recommend using [Neon](https://neon.tech/) for cloud hosting as it provides a generous free tier and doesn't go to sleep like some other free options.

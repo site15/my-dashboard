@@ -273,7 +273,8 @@ jobs:
                   EXT="${FILE##*.}"
                   if [[ "$EXT" =~ ^(apk|exe|zip|html)$ ]]; then
                     BASENAME=$(basename "$FILE")
-                    FILE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${BASENAME}"
+                    SAFE_TAG=$(echo "$TAG" | sed 's/@/%40/g')  # <-- заменяем @ на %40
+                    FILE_URL="https://github.com/${{ github.repository }}/releases/download/${SAFE_TAG}/${BASENAME}"
                     BUTTONS="${BUTTONS}[{\"text\":\"💾 ${BASENAME}\",\"url\":\"${FILE_URL}\"}],"
                   fi
                 done < <(find "$ARTIFACTS_PATH" -type f)

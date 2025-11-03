@@ -7,6 +7,16 @@ This directory contains the Docker configuration for building the ionic-capacito
 The Docker image is hosted on Docker Hub:
 [endykaufman/ionic-capacitor](https://hub.docker.com/repository/docker/endykaufman/ionic-capacitor/tags/latest)
 
+## Community
+
+Join our Telegram developer community for discussions, updates, and support:
+- [Telegram Developer Chat](https://t.me/site15_community)
+
+## Release Notifications
+
+Release information and updates are automatically posted to our Telegram community chat:
+- [Telegram Release Notifications](https://t.me/site15_community/3)
+
 ## Building the Docker Image
 
 To build the Docker image locally:
