@@ -2,22 +2,18 @@ import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
 
 import { TRPCError } from '@trpc/server';
-import { UserSchema, UserType } from '../../types/UserSchema';
 import { ENVIRONMENTS } from '../../env';
 import { prisma } from '../../prisma';
+import { TelegramSettingsSchema } from '../../types/TelegramSettingsSchema';
 import { TelegramUserDataSchema } from '../../types/TelegramUserDataSchema';
+import { UserSchema, UserType } from '../../types/UserSchema';
 import { checkSignature } from '../../utils/check-signature';
 
 export const telegramRouter = router({
-  settings: publicProcedure
-    .output(
-      z.object({
-        authBotName: z.string(),
-      })
-    )
-    .query(() => ({
-      authBotName: ENVIRONMENTS.MY_DASHBOARD_TELEGRAM_AUTH_BOT_NAME,
-    })),
+  settings: publicProcedure.output(TelegramSettingsSchema).query(() => ({
+    authBotName: ENVIRONMENTS.MY_DASHBOARD_TELEGRAM_AUTH_BOT_NAME,
+    authBotId: ENVIRONMENTS.MY_DASHBOARD_TELEGRAM_AUTH_BOT_TOKEN?.split(':')[0],
+  })),
 
   signIn: publicProcedure
     .input(TelegramUserDataSchema)

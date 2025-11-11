@@ -49,6 +49,6 @@ export default defineConfig(({ mode }) => ({
     global: {},
   },
   server: {
-    allowedHosts: ['9b3dar-46-191-177-220.ru.tuna.am', 'localhost'],
+    allowedHosts: ['cpkeja-46-191-177-220.ru.tuna.am', 'localhost'],
   },
 }));

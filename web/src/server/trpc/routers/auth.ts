@@ -1,52 +1,48 @@
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
 
-import { TRPCError } from '@trpc/server';
-import { UserSchema, UserType } from '../../types/UserSchema';
 import { prisma } from '../../prisma';
+import { UserSchema, UserType } from '../../types/UserSchema';
+import { randomUUID } from 'crypto';
 
 export const authRouter = router({
   profile: publicProcedure
-    .input(
-      z.object({
-        sessionId: z.string().uuid(),
-      })
-    )
-    .output(UserSchema)
-    .query(async ({ input }) => {
-      const session = await prisma.session.findFirst({
-        include: { User: true },
-        where: { id: input.sessionId, deletedAt: null },
-      });
-      if (!session) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Session not found!',
-        });
-      }
-      return session.User as UserType;
+    .output(UserSchema.nullish())
+    .query(async ({ ctx }) => {
+      return ctx.user as UserType;
     }),
 
-  signOut: publicProcedure
+  signInAsAnonymous: publicProcedure
     .input(
+      z
+        .object({
+          anonymousId: z.string().nullish(),
+        })
+        .nullish()
+    )
+    .output(
       z.object({
         sessionId: z.string().uuid(),
+        user: UserSchema,
       })
     )
-    .mutation(async ({ input }) => {
-      const session = await prisma.session.findFirst({
-        include: { User: true },
-        where: { id: input.sessionId, deletedAt: null },
+    .mutation(async (options) => {
+      const user = await prisma.user.create({
+        data: {
+          anonymousId: options?.input?.anonymousId || randomUUID(),
+          createdAt: new Date(),
+        },
       });
-      if (!session) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Session not found!',
-        });
-      }
-      await prisma.session.update({
-        where: { id: session.id },
-        data: { deletedAt: new Date(0) },
+      const session = await prisma.session.create({
+        data: { userId: user.id },
       });
+      return { sessionId: session.id, user: user as UserType };
     }),
+
+  signOut: publicProcedure.mutation(async ({ ctx }) => {
+    await prisma.session.update({
+      where: { id: ctx.session?.id },
+      data: { deletedAt: new Date(0) },
+    });
+  }),
 });

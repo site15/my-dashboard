@@ -3,8 +3,8 @@ import { TelegramUserDataSchema } from './TelegramUserDataSchema';
 
 export const UserSchema = z.object({
   id: z.string().uuid(),
-  telegramUserId: z.string().optional().nullable(),
-  telegramUserData: TelegramUserDataSchema.optional().nullable(),
+  telegramUserId: z.string().optional().nullish(),
+  telegramUserData: TelegramUserDataSchema.optional().nullish(),
   createdAt: z.date(),
 });
 

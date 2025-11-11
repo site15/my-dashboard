@@ -1,15 +1,15 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
   Input,
-  OnInit,
   output,
   Renderer2,
   ViewChild,
 } from '@angular/core';
-import { WINDOW } from '../../browser/window';
+import { WINDOW } from '../../utils/window';
 
 export const NgxTelegramWidgetCallback = 'NgxTelegramWidgetCallback';
 
@@ -17,9 +17,9 @@ export const NgxTelegramWidgetCallback = 'NgxTelegramWidgetCallback';
   selector: 'ngx-telegram-widget',
   standalone: true,
   template: ` <span ngSkipHydration #button></span> `,
-  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NgxTelegramWidgetComponent implements OnInit, AfterViewInit {
+export class NgxTelegramWidgetComponent implements AfterViewInit {
   @Input({ required: true }) botName = 'SampleBot';
 
   @Input() buttonSize: string = 'large';
@@ -37,8 +37,6 @@ export class NgxTelegramWidgetComponent implements OnInit, AfterViewInit {
     private renderer: Renderer2,
     private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
-
-  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     const s = this.renderer.createElement('script');
@@ -68,10 +66,12 @@ export class NgxTelegramWidgetComponent implements OnInit, AfterViewInit {
     );
 
     if (this.onAuth !== undefined) {
-      WINDOW[NgxTelegramWidgetCallback] = (params: unknown) =>
-        this.onAuth && this.onAuth.emit(params);
+      if (WINDOW) {
+        WINDOW[NgxTelegramWidgetCallback] = (params: unknown) =>
+          this.onAuth && this.onAuth.emit(params);
 
-      s.setAttribute('data-onauth', 'NgxTelegramWidgetCallback(user)');
+        s.setAttribute('data-onauth', 'NgxTelegramWidgetCallback(user)');
+      }
     }
 
     this.button.nativeElement.parentElement.replaceChild(

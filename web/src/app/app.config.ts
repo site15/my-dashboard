@@ -23,7 +23,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([requestContextInterceptor])
     ),
     provideClientHydration(withEventReplay()),
-
     provideTrpcClient()
   ],
 };

@@ -22,11 +22,15 @@ datasource db {
 }
 
 model User {
-  id               String    @id(map: "PK_USER") @default(uuid()) @db.Uuid
+  id               String      @id(map: "PK_USER") @default(uuid()) @db.Uuid
+  anonymousId      String?
   telegramUserId   String?
   telegramUserData Json?
-  createdAt        DateTime  @default(now())
+  isBlackTheme     Boolean?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @default(now())
   Session          Session[]
+  Dashboard        Dashboard[]
 
   @@unique([telegramUserId], map: "UQ_USER")
 }
@@ -39,4 +43,65 @@ model Session {
   deletedAt DateTime?
 
   @@index([userId], map: "IDX_SESSION__USER_ID")
+}
+
+model Dashboard {
+  id           String    @id(map: "PK_DASHBOARD") @default(uuid()) @db.Uuid
+  name         String
+  deviceId     String?
+  userId       String    @db.Uuid
+  isBlackTheme Boolean?
+  User         User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_DASHBOARD__USER_ID")
+  Widget       Widget[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+  deletedAt    DateTime?
+
+  @@unique([userId, name], map: "UQ_DASHBOARD__USER_ID_NAME")
+  @@unique([deviceId], map: "UQ_DASHBOARD__DEVICE_ID")
+  @@index([userId], map: "IDX_DASHBOARD__USER_ID")
+}
+
+model Widget {
+  id          String @id(map: "PK_WIDGET") @default(uuid()) @db.Uuid
+  options     Json?
+  state       Json?
+  columnIndex Int?
+  rowIndex    Int?
+  columnCount Int?
+  rowCount    Int?
+
+  isBlackTheme    Boolean?
+  backgroundColor String?
+  primaryColor    String?
+  positiveColor   String?
+  negativeColor   String?
+  // contrastMultiplier       Float
+  // textSaturationMultiplier Float
+
+  dashboardId String      @db.Uuid
+  Dashboard   Dashboard   @relation(fields: [dashboardId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_WIDGET__DASHBOARD_ID")
+  WidgetLog   WidgetLog[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  @@index([dashboardId], map: "IDX_WIDGET__DASHBOARD_ID")
+}
+
+model WidgetLog {
+  id         String @id(map: "PK_WIDGET_LOG") @default(uuid()) @db.Uuid
+  oldOptions Json?
+  newOptions Json?
+  oldState   Json?
+  newState   Json?
+
+  widgetId  String    @db.Uuid
+  Widget    Widget    @relation(fields: [widgetId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_WIDGET_LOG__WIDGET_ID")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  @@index([widgetId], map: "IDX_WIDGET_LOG__WIDGET_ID")
 }
