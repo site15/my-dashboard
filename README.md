@@ -69,3 +69,7 @@ To deploy this project to Vercel:
 - Generate your app icon and splash screens using `cordova-res --skip-config --copy`
 - Explore the Ionic docs for components, tutorials, and more: https://ion.link/docs
 - Building an enterprise app? Ionic has Enterprise Support and Features: https://ion.link/enterprise-edition
+
+## Troubleshooting
+
+For common issues with the web application, including Telegram authentication problems, please refer to the [Web App Documentation](./web/README.md#troubleshooting).

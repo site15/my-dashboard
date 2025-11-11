@@ -107,6 +107,43 @@ tuna http 5173
 
 This command will create a tunnel to your local development server running on port 5173, providing you with a public URL that can be used with Telegram's authentication system.
 
+## Troubleshooting
+
+### "Bot domain invalid" Error with Telegram Login
+
+If the Telegram login button displays "Bot domain invalid" instead of showing the login dialog, you need to configure your bot's domain settings:
+
+1. Run the tunneling service using the command:
+   ```bash
+   tuna http 5173
+   ```
+   
+2. Once executed, the command will display a public URL (example: `https://3zpmpk-46-191-177-220.ru.tuna.am`)
+
+3. Take this URL and set it as your bot's domain using BotFather:
+   - Open a chat with [@BotFather](https://t.me/BotFather) in Telegram
+   - Send the `/setdomain` command
+   - Select your bot from the list
+   - Enter the public URL provided by the tuna command
+
+This configuration is necessary because Telegram requires a valid domain for the authentication mechanism to work properly during local development.
+
+### "Blocked request" Error with Vite Development Server
+
+If you see an error message like `Blocked request. This host ("3zpmpk-46-191-177-220.ru.tuna.am") is not allowed.` or a similar message when accessing your application through the tuna tunnel, it means you need to add the domain name to the Vite configuration.
+
+The Vite development server has a security feature that blocks requests from unknown hosts. When using a tunneling service like tuna, you need to explicitly allow the generated domain.
+
+This has already been configured in the [vite.config.ts](vite.config.ts) file with the following configuration:
+
+```javascript
+server: {
+  allowedHosts: ['3zpmpk-46-191-177-220.ru.tuna.am', 'localhost'],
+}
+```
+
+If you encounter this error with a different domain, you can add it to the `allowedHosts` array in the [vite.config.ts](vite.config.ts) file.
+
 ## Deploying to Vercel
 
 This project can be deployed to Vercel. Vercel has a native integration with Neon, making it easy to connect your database:
