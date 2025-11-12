@@ -10,6 +10,8 @@ This repository contains two main components:
 - [Mobile Application](./mobile) - An Ionic-Angular mobile app with Android build capabilities
 - [Web Application](./web) - An AnalogJS (Angular-based) fullstack web application
 
+For a detailed technical specification and implementation plan, see [Project Overview](./PROJECT_OVERVIEW.md).
+
 ## Quick Start
 
 ### Mobile App
@@ -28,6 +30,10 @@ npm start
 
 ## Documentation
 
+- [Project Overview and Technical Specification](./PROJECT_OVERVIEW.md)
+- [Project Tasks Tracking](./PROJECT_TASKS.md)
+- [AI Project Context](./AI_PROJECT_CONTEXT.md) ([Russian version](./AI_PROJECT_CONTEXT_RU.md))
+- [Technical Documentation](./web/TECHNICAL_DOCUMENTATION.md)
 - [Mobile App Documentation](./mobile/README.md) ([Russian version](./mobile/README_RU.md))
 - [Web App Documentation](./web/README.md) ([Russian version](./web/README_RU.md))
 
