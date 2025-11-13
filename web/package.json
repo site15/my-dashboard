@@ -6,7 +6,7 @@
   "homepage": "https://site15-my-dashboard.vercel.app",
   "type": "module",
   "engines": {
-    "node": "24.x"
+    "node": "22.x"
   },
   "pkg": {
     "assets": [
