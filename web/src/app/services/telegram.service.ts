@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { concatMap, from, mergeMap, Observable, tap } from 'rxjs';
+import { concatMap, from, mergeMap, Observable } from 'rxjs';
 import { TelegramUserDataType } from '../../server/types/TelegramUserDataSchema';
 import { User } from '../generated/prisma/browser';
 import { injectTrpcClient } from '../trpc-client';
+import { WINDOW } from '../utils/window';
 import { ProfileService } from './profile.service';
 import { SessionService } from './session.service';
 import { TelegramSettingsService } from './telegram-settings.service';
-import { WINDOW } from '../utils/window';
 
 @Injectable({
   providedIn: 'root',
