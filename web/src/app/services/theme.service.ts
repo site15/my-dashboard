@@ -1,53 +1,51 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { distinctUntilChanged, map, tap } from 'rxjs';
-import { isSSR } from '../utils/is-ssr';
+import { DOCUMENT, inject, Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { WINDOW } from '../utils/window';
-import { LocalStorageService } from './local-storage.service';
+import {
+  LocalStorageService,
+  StorageChangeType,
+} from './local-storage.service';
 
 export type ColorScheme = 'light' | 'dark';
 
-const htmlTag = !isSSR && document.querySelector('html');
-
-const defaultTheme: ColorScheme = WINDOW?.matchMedia?.(
-  '(prefers-color-scheme: dark)'
-).matches
-  ? 'dark'
-  : 'light';
-
 @Injectable({ providedIn: 'root' })
-export class ThemeService
-  extends LocalStorageService<ColorScheme>
-  implements OnDestroy
-{
+export class ThemeService extends LocalStorageService<ColorScheme> {
   override key = 'picoColorScheme';
+  private readonly document = inject(DOCUMENT);
 
-  stream$ = this.storageChanges.pipe(
-    map((e) => e.newValue),
-    tap((theme) => {
+  stream$ = this.storageChanges.pipe(map((e) => e.newValue));
+
+  override storageChangeCallbacks: ((
+    e: StorageChangeType<string>
+  ) => Promise<unknown>)[] = [
+    async (e) => {
+      const htmlTag = this.document.querySelector('html');
+
+      const theme = e.newValue;
       if (!theme) {
-        this.set('light');
+        await this.set('light');
       } else {
         if (htmlTag) {
           htmlTag.setAttribute('data-theme', theme);
         }
       }
-    })
-  );
+    },
+  ];
 
-  switchTheme(): void {
-    const currentTheme = this.get();
+  async switchTheme() {
+    const defaultTheme: ColorScheme = WINDOW?.matchMedia?.(
+      '(prefers-color-scheme: dark)'
+    ).matches
+      ? 'dark'
+      : 'light';
+
+    const currentTheme = await this.get();
     const newTheme = !currentTheme
       ? defaultTheme
       : currentTheme === 'light'
       ? 'dark'
       : 'light';
 
-    this.set(newTheme);
-  }
-
-  private streamRef = this.stream$.subscribe();
-
-  ngOnDestroy(): void {
-    this.streamRef.unsubscribe();
+    await this.set(newTheme);
   }
 }

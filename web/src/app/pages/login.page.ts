@@ -6,7 +6,6 @@ import { NgxTelegramWidgetComponent } from '../components/telegram/ngx-telegram-
 import { AuthService } from '../services/auth.service';
 import { TelegramSettingsService } from '../services/telegram-settings.service';
 import { TelegramService } from '../services/telegram.service';
-import { WINDOW } from '../utils/window';
 
 @Component({
   selector: 'login-page',
@@ -35,10 +34,14 @@ import { WINDOW } from '../utils/window';
         <ngx-telegram-widget
           ngSkipHydration
           [botName]="(telegramSettings$ | async)?.authBotName!"
-          (onAuth)="signInWithTelegramWidget($event)"
+          (onAuth)="signInWithTelegram($event)"
           hidden
         ></ngx-telegram-widget>
-        <button type="button" (click)="signInWithTelegram()" class="secondary">
+        <button
+          type="button"
+          (click)="signInWithTelegramSdk()"
+          class="secondary"
+        >
           Login with Telegram
         </button>
         <button type="button" (click)="signInAsAnonymous()" class="contrast">
@@ -69,7 +72,7 @@ export default class LoginPageComponent {
       .subscribe();
   }
 
-  signInWithTelegramWidget(telegramUser: unknown) {
+  signInWithTelegram(telegramUser: unknown) {
     this.telegramService
       .signInWithTelegram(telegramUser)
       .pipe(
@@ -79,21 +82,13 @@ export default class LoginPageComponent {
       .subscribe();
   }
 
-  signInWithTelegram() {
-    WINDOW?.Telegram?.Login.auth(
-      {
-        bot_id: this.telegramSettingsService.get()?.authBotId,
-        request_access: true,
-      },
-      (telegramUser: unknown) => {
-        this.telegramService
-          .signInWithTelegram(telegramUser)
-          .pipe(
-            first(),
-            tap(() => this.router.navigate(['/dashboards']))
-          )
-          .subscribe();
-      }
-    );
+  signInWithTelegramSdk() {
+    this.telegramService
+      .signInWithTelegramSdk()
+      .pipe(
+        first(),
+        tap(() => this.router.navigate(['/dashboards']))
+      )
+      .subscribe();
   }
 }

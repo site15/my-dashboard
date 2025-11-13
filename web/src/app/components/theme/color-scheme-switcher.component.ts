@@ -106,6 +106,6 @@ export class ColorSchemeSwitcherComponent {
   );
 
   switchTheme(): void {
-    this.themeService.switchTheme();
+    this.themeService.switchTheme().then();
   }
 }

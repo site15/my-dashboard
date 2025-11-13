@@ -1,12 +1,17 @@
 import { inferAsyncReturnType, TRPCError } from '@trpc/server';
+import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import * as trpcNext from '@trpc/server/adapters/next';
-import { prisma } from '../prisma';
+import { SerializeOptions } from 'cookie';
 import { X_SESSION_ID } from '../constants';
+import { prisma } from '../prisma';
+import { getCookie, getCookies, setCookie } from '../utils/cookie-utils';
+import { isSSR } from '../../app/utils/is-ssr';
 
 export const createContext = async ({
   req,
   res,
-}: trpcNext.CreateNextContextOptions) => {
+  resHeaders,
+}: trpcNext.CreateNextContextOptions & FetchCreateContextFnOptions) => {
   const getUserAndSessionFromHeader = async function () {
     if (req.headers[X_SESSION_ID]) {
       const result = await prisma.session.findFirst({
@@ -14,6 +19,9 @@ export const createContext = async ({
         where: { id: { equals: req.headers[X_SESSION_ID] }, deletedAt: null },
       });
       if (!result) {
+        if (isSSR) {
+          return null;
+        }
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'Session not found!',
@@ -25,11 +33,48 @@ export const createContext = async ({
   };
   const options = await getUserAndSessionFromHeader();
   if (!options) {
-    return {};
+    return {
+      setCookie: (
+        name: string,
+        value?: string | null,
+        options?: SerializeOptions
+      ) => {
+        setCookie(res, name, value, options);
+      },
+      getCookie: (name: string) => {
+        return getCookie(res.req, name);
+      },
+      clearCookies: (options?: SerializeOptions) => {
+        const items = Object.values(getCookies(res.req));
+        for (const item of items) {
+          if (item) {
+            setCookie(res.req, item[0], null, options);
+          }
+        }
+      },
+    };
   }
   return {
     user: options.user,
     session: options.session,
+    setCookie: (
+      name: string,
+      value?: string | null,
+      options?: SerializeOptions
+    ) => {
+      setCookie(res, name, value, options);
+    },
+    getCookie: (name: string) => {
+      return getCookie(res.req, name);
+    },
+    clearCookies: (options?: SerializeOptions) => {
+      const items = Object.values(getCookies(res.req));
+      for (const item of items) {
+        if (item) {
+          setCookie(res.req, item[0], null, options);
+        }
+      }
+    },
   };
 };
 

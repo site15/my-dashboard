@@ -1,13 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { first, forkJoin, merge, tap } from 'rxjs';
+import { first, tap } from 'rxjs';
 import { ColorSchemeSwitcherComponent } from './components/theme/color-scheme-switcher.component';
 import {
   IfLoggedDirective,
   IfNotLoggedDirective,
 } from './directives/ if-logged.directive';
 import { AuthService } from './services/auth.service';
-import { TelegramService } from './services/telegram.service';
 
 @Component({
   selector: 'app-root',
@@ -49,13 +48,6 @@ import { TelegramService } from './services/telegram.service';
 })
 export class AppComponent {
   private authService = inject(AuthService);
-  private telegramService = inject(TelegramService);
-
-  constructor() {
-    forkJoin([this.authService.profile(), this.telegramService.getSettings()])
-      .pipe(first())
-      .subscribe();
-  }
 
   private router = inject(Router);
 

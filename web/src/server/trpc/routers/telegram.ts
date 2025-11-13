@@ -10,10 +10,13 @@ import { UserSchema, UserType } from '../../types/UserSchema';
 import { checkSignature } from '../../utils/check-signature';
 
 export const telegramRouter = router({
-  settings: publicProcedure.output(TelegramSettingsSchema).query(() => ({
-    authBotName: ENVIRONMENTS.MY_DASHBOARD_TELEGRAM_AUTH_BOT_NAME,
-    authBotId: ENVIRONMENTS.MY_DASHBOARD_TELEGRAM_AUTH_BOT_TOKEN?.split(':')[0],
-  })),
+  settings: publicProcedure.output(TelegramSettingsSchema).query(({ ctx }) => {
+    return {
+      authBotName: ENVIRONMENTS.MY_DASHBOARD_TELEGRAM_AUTH_BOT_NAME,
+      authBotId:
+        ENVIRONMENTS.MY_DASHBOARD_TELEGRAM_AUTH_BOT_TOKEN?.split(':')[0],
+    };
+  }),
 
   signIn: publicProcedure
     .input(TelegramUserDataSchema)
