@@ -8,9 +8,9 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User'
-export type * from './models/Session'
-export type * from './models/Dashboard'
-export type * from './models/Widget'
-export type * from './models/WidgetLog'
-export type * from './commonInputTypes'
+export type * from './models/User.js'
+export type * from './models/Session.js'
+export type * from './models/Dashboard.js'
+export type * from './models/Widget.js'
+export type * from './models/WidgetLog.js'
+export type * from './commonInputTypes.js'
