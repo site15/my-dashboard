@@ -19,10 +19,7 @@ export default defineConfig(({ mode }) => ({
     noExternal: [
       'tslib',
       '@analogjs/trpc',
-      '@trpc/server',
-      '@analog-tools/auth',
-      '@analogjs/router',
-      '@analogjs/router/tokens',
+      '@trpc/server'
     ],
   },
   plugins: [
