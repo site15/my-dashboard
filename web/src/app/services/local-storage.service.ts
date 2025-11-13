@@ -1,11 +1,11 @@
 import { injectRequest } from '@analogjs/router/tokens';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { getCookie } from '../../server/utils/cookie-utils';
+import { isSSR } from '../../server/utils/is-ssr';
 import { injectTrpcClient } from '../trpc-client';
-import { isSSR } from '../utils/is-ssr';
 import { LOCAL_STORAGE } from '../utils/local-storage';
 import { Concurrency } from '../utils/p-concurrency';
-import { getCookie } from '../utils/cookie-utils';
 
 export type StorageChangeType<T> = {
   key: string | null;

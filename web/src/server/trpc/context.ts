@@ -1,11 +1,11 @@
 import { inferAsyncReturnType, TRPCError } from '@trpc/server';
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import * as trpcNext from '@trpc/server/adapters/next';
-import { SerializeOptions } from 'cookie';
 import { X_SESSION_ID } from '../constants';
 import { prisma } from '../prisma';
+import { SerializeOptions } from '../utils/cookie';
 import { getCookie, getCookies, setCookie } from '../utils/cookie-utils';
-import { isSSR } from '../../app/utils/is-ssr';
+import { isSSR } from '../utils/is-ssr';
 
 export const createContext = async ({
   req,
