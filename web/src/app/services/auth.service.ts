@@ -1,13 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import {
-  catchError,
-  concatMap,
-  firstValueFrom,
-  from,
-  mergeMap,
-  of,
-  tap,
-} from 'rxjs';
+import { catchError, concatMap, firstValueFrom, from, mergeMap } from 'rxjs';
 import { User } from '../generated/prisma/browser';
 import { injectTrpcClient } from '../trpc-client';
 import { ProfileService } from './profile.service';
