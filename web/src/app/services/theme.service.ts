@@ -10,10 +10,11 @@ export type ColorScheme = 'light' | 'dark';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService extends LocalStorageService<ColorScheme> {
-  override key = 'picoColorScheme';
-  private readonly document = inject(DOCUMENT);
+  override key = 'theme';
 
   stream$ = this.storageChanges.pipe(map((e) => e.newValue));
+
+  private readonly document = inject(DOCUMENT);
 
   override storageChangeCallbacks: ((
     e: StorageChangeType<string>

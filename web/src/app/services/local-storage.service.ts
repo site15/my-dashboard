@@ -5,6 +5,7 @@ import { getCookie } from '../../server/utils/cookie-utils';
 import { injectTrpcClient } from '../trpc-client';
 import { isSSR } from '../utils/is-ssr';
 import { LOCAL_STORAGE } from '../utils/local-storage';
+import { Concurrency } from '../utils/p-concurrency';
 
 export type StorageChangeType<T> = {
   key: string | null;
@@ -14,6 +15,11 @@ export type StorageChangeType<T> = {
   storageArea: Storage | null;
 };
 
+export enum LocalStorageEnum {
+  client = 'client',
+  server = 'server',
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,8 +27,8 @@ export class LocalStorageService<T = unknown> {
   private trpc = injectTrpcClient();
   private request = injectRequest();
 
+  type?: LocalStorageEnum = LocalStorageEnum.server;
   key?: string;
-  autoReloadAfterCreate?: boolean = true;
 
   storageChangeCallbacks: ((
     options: StorageChangeType<T>
@@ -39,7 +45,7 @@ export class LocalStorageService<T = unknown> {
   storageChanges = this.storageChangeSubject.asObservable();
 
   constructor() {
-    if (this.autoReloadAfterCreate && this.key) {
+    if (this.key) {
       this.reload().then();
     }
   }
@@ -73,22 +79,30 @@ export class LocalStorageService<T = unknown> {
     await this.removeItem(this.key);
   }
 
+  /**
+   * since the version of the trpc client in analogjs is old, batches cannot be selectively disabled,
+   * so we manually prevent two cookie modification methods from running concurrently,
+   * because if they are launched in parallel, they will overwrite each other
+   * https://github.com/trpc/trpc/blob/d6bb04dafc4f0a887ff1ab3002758ff424a8df17/packages/client/src/links/HTTPBatchLinkOptions.ts#L23
+   */
+  @Concurrency({ global: true, concurrency: 1 })
   private async setItem(key: string, value: T) {
     const newValue = JSON.stringify(value);
-    //const oldValueRaw = LOCAL_STORAGE?.getItem(key);
     const oldValueRaw = JSON.stringify(await this.getItem(key));
     const oldValue =
       oldValueRaw && oldValueRaw !== 'undefined'
         ? JSON.parse(oldValueRaw)
         : oldValueRaw;
-    // LOCAL_STORAGE?.setItem(key, newValue);
     if (newValue !== oldValueRaw) {
       if (isSSR && this.key) {
         //
       } else {
-        await firstValueFrom(
-          this.trpc.userStorage.set.mutate({ name: key, value: newValue })
-        );
+        LOCAL_STORAGE?.setItem(key, newValue);
+        if (this.type === 'server') {
+          await firstValueFrom(
+            this.trpc.userStorage.set.mutate({ name: key, value: newValue }, {})
+          );
+        }
       }
     }
 
@@ -113,17 +127,18 @@ export class LocalStorageService<T = unknown> {
 
   private async getItem(key: string): Promise<T | null> {
     if (isSSR && this.key) {
-      // const value = LOCAL_STORAGE?.getItem(key);
       const value = getCookie(this.request, this.key);
       if (value && value !== 'undefined' && value !== 'empty') {
         return JSON.parse(value);
       }
       return null;
     } else {
-      // const value = LOCAL_STORAGE?.getItem(key);
-      const value = (
-        await firstValueFrom(this.trpc.userStorage.get.query({ name: key }))
-      ).value;
+      let value = LOCAL_STORAGE?.getItem(key);
+      if (!value && this.type === 'server') {
+        value =
+          (await firstValueFrom(this.trpc.userStorage.get.query({ name: key })))
+            ?.value || undefined;
+      }
       if (value && value !== 'undefined' && value !== 'empty') {
         return JSON.parse(value);
       }
@@ -131,14 +146,23 @@ export class LocalStorageService<T = unknown> {
     }
   }
 
+  /**
+   * since the version of the trpc client in analogjs is old, batches cannot be selectively disabled,
+   * so we manually prevent two cookie modification methods from running concurrently,
+   * because if they are launched in parallel, they will overwrite each other
+   * https://github.com/trpc/trpc/blob/d6bb04dafc4f0a887ff1ab3002758ff424a8df17/packages/client/src/links/HTTPBatchLinkOptions.ts#L23
+   */
+  @Concurrency({ global: true, concurrency: 1 })
   private async removeItem(key: string) {
     const oldValue = await this.getItem(key);
-    // LOCAL_STORAGE?.removeItem(key);
     if (isSSR && this.key) {
       //
     } else {
       try {
-        await firstValueFrom(this.trpc.userStorage.del.mutate({ name: key }));
+        LOCAL_STORAGE?.removeItem(key);
+        if (this.type === 'server') {
+          await firstValueFrom(this.trpc.userStorage.del.mutate({ name: key }));
+        }
       } catch (error) {
         // todo: skip only our error
       }
