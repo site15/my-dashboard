@@ -48,4 +48,13 @@ export class ThemeService extends LocalStorageService<ColorScheme> {
 
     await this.set(newTheme);
   }
+
+  async init() {
+    const current = await this.get();
+    if (current) {
+      await this.set(current);
+    } else {
+      await this.switchTheme();
+    }
+  }
 }

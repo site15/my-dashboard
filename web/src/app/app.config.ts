@@ -47,7 +47,7 @@ export const appConfig: ApplicationConfig = {
       sessionService.stream$.pipe(takeUntilDestroyed(destroyRef)).subscribe();
       themeService.stream$.pipe(takeUntilDestroyed(destroyRef)).subscribe();
 
-      await themeService.reload();
+      await themeService.init();
       await firstValueFrom(telegramService.getSettings());
       await firstValueFrom(authService.profile());
     }),
