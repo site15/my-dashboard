@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, concatMap, firstValueFrom, from, mergeMap } from 'rxjs';
+
 import { User } from '../generated/prisma/browser';
 import { injectTrpcClient } from '../trpc-client';
 import { ProfileService } from './profile.service';
@@ -28,7 +29,7 @@ export class AuthService {
 
   signOut() {
     return this.trpc.auth.signOut.mutate().pipe(
-      concatMap(async (result) => {
+      concatMap(async result => {
         await this.sessionService.remove();
         await this.profileService.remove();
         return result;
@@ -39,11 +40,11 @@ export class AuthService {
   profile() {
     return from(this.sessionService.reload()).pipe(
       mergeMap(() => this.trpc.auth.profile.query()),
-      concatMap(async (profile) => {
+      concatMap(async profile => {
         await this.profileService.set(profile as unknown as User);
         return profile;
       }),
-      catchError((err) => {
+      catchError(err => {
         console.error(err);
         const func = async () => {
           await this.sessionService.remove();

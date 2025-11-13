@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // if-logged.directive.ts
 import {
   Directive,
@@ -7,8 +8,8 @@ import {
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
+
 import { ProfileService } from '../services/profile.service';
 
 @Directive({
@@ -27,7 +28,7 @@ export class IfLoggedDirective implements OnInit, OnDestroy {
   ngOnInit() {
     this.subscription = this.profileService
       .isLoggedIn()
-      .subscribe((isLoggedIn) => {
+      .subscribe(isLoggedIn => {
         if (isLoggedIn && !this.hasView) {
           this.viewContainer.createEmbeddedView(this.templateRef);
           this.hasView = true;
@@ -67,7 +68,7 @@ export class IfNotLoggedDirective implements OnInit, OnDestroy {
   ngOnInit() {
     this.subscription = this.profileService
       .isLoggedIn()
-      .subscribe((isLoggedIn) => {
+      .subscribe(isLoggedIn => {
         if (!isLoggedIn && !this.hasView) {
           this.viewContainer.createEmbeddedView(this.templateRef);
           this.hasView = true;

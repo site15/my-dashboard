@@ -1,6 +1,6 @@
 import { inferAsyncReturnType, TRPCError } from '@trpc/server';
-import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import * as trpcNext from '@trpc/server/adapters/next';
+
 import { X_SESSION_ID } from '../constants';
 import { prisma } from '../prisma';
 import { SerializeOptions } from '../utils/cookie';
@@ -10,8 +10,7 @@ import { isSSR } from '../utils/is-ssr';
 export const createContext = async ({
   req,
   res,
-  resHeaders,
-}: trpcNext.CreateNextContextOptions & FetchCreateContextFnOptions) => {
+}: trpcNext.CreateNextContextOptions) => {
   const getUserAndSessionFromHeader = async function () {
     if (req.headers[X_SESSION_ID]) {
       const result = await prisma.session.findFirst({

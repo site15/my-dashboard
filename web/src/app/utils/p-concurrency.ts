@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const KEY = Symbol('p-concurrency:queue');
 
 const DEFAULT_WHEN = () => true;
 const NEW_PROMISE = (
   handler: (
     resolve: (value: unknown) => void,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     reject: (reason?: any) => void
   ) => void
 ) => new Promise(handler);
@@ -42,9 +43,7 @@ export function Concurrency(
   }
 
   const limiter = (fn: { apply: (arg0: any, arg1: any[]) => Promise<any> }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function limited(this: any, ...args: any[]) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!when.apply(this, args as any)) {
         // Should not be limited
         return fn.apply(this, args);

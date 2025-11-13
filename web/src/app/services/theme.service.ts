@@ -1,10 +1,11 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { map } from 'rxjs';
-import { WINDOW } from '../utils/window';
+
 import {
   LocalStorageService,
   StorageChangeType,
 } from './local-storage.service';
+import { WINDOW } from '../utils/window';
 
 export type ColorScheme = 'light' | 'dark';
 
@@ -12,14 +13,14 @@ export type ColorScheme = 'light' | 'dark';
 export class ThemeService extends LocalStorageService<ColorScheme> {
   override key = 'theme';
 
-  stream$ = this.storageChanges.pipe(map((e) => e.newValue));
+  stream$ = this.storageChanges.pipe(map(e => e.newValue));
 
   private readonly document = inject(DOCUMENT);
 
   override storageChangeCallbacks: ((
     e: StorageChangeType<string>
   ) => Promise<unknown>)[] = [
-    async (e) => {
+    async e => {
       const htmlTag = this.document.querySelector('html');
 
       const theme = e.newValue;
@@ -44,8 +45,8 @@ export class ThemeService extends LocalStorageService<ColorScheme> {
     const newTheme = !currentTheme
       ? defaultTheme
       : currentTheme === 'light'
-      ? 'dark'
-      : 'light';
+        ? 'dark'
+        : 'light';
 
     await this.set(newTheme);
   }

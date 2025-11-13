@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { first, tap } from 'rxjs';
+
 import { ColorSchemeSwitcherComponent } from './components/theme/color-scheme-switcher.component';
 import {
   IfLoggedDirective,

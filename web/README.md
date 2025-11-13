@@ -13,11 +13,13 @@ Run `npm install` to install the application dependencies.
 ## Community
 
 Join our Telegram developer community for discussions, updates, and support:
+
 - [Telegram Developer Chat](https://t.me/site15_community)
 
 ## Release Notifications
 
 Release information and updates are automatically posted to our Telegram community chat:
+
 - [Telegram Release Notifications](https://t.me/site15_community/3)
 
 ## Database Setup
@@ -33,6 +35,7 @@ To set up the database:
    ```
 
 Alternative database options:
+
 - [Supabase](https://supabase.com/) - Can go to sleep on the free tier
 - [CockroachCloud](https://www.cockroachlabs.com/) - Has a trial period
 
@@ -53,10 +56,11 @@ Note: Migrations must be applied locally by the developer and are not automatica
 This project uses Prisma as the ORM. After setting up your database:
 
 1. Install `dotenv` and add `import "dotenv/config";` to your `prisma.config.ts` file to load environment variables from `.env`:
+
    ```typescript
-   import "dotenv/config";
-   import { defineConfig, env } from "prisma/config";
-   
+   import 'dotenv/config';
+   import { defineConfig, env } from 'prisma/config';
+
    export default defineConfig({
      // ... existing config
    });
@@ -83,11 +87,13 @@ This will redirect Prisma engine downloads to a mirror that is more accessible f
 This application uses Telegram authentication with the redirect method and hash verification on the server side. The implementation follows the approach described in [Telegram Login with Node.js](https://edisonchee.com/writing/telegram-login-with-node.js/).
 
 There are several ways to implement Telegram login:
+
 1. **Telegram Login Widget** - Provides a "Log in with Telegram" button which triggers a pop-up for the OAuth flow
 2. **Seamless Web Bots** - Allows login by tapping an inline keyboard button from a bot
 3. **Redirect URL method** - Uses data-auth-url instead of data-onauth to receive data on a backend server
 
 This application uses the Redirect URL method. The authentication flow works as follows:
+
 1. User clicks the Telegram Login button on the website
 2. User is redirected to Telegram for authentication
 3. After successful authentication, Telegram redirects back to the application with user data and a hash
@@ -101,6 +107,7 @@ This application uses the Redirect URL method. The authentication flow works as 
 Since Telegram requires a domain for this authentication to work, you need to use a tunneling service like [ngrok](https://ngrok.com/) or [tuna](https://tuna.am/) for local development. The current project uses [tuna](https://tuna.am/) for this purpose.
 
 To use tuna for local development with Telegram authentication:
+
 ```bash
 tuna http 5173
 ```
@@ -117,7 +124,6 @@ If the Telegram login button displays "Bot domain invalid" instead of showing th
    ```bash
    tuna http 5173
    ```
-   
 2. Once executed, the command will display a public URL (example: `https://3zpmpk-46-191-177-220.ru.tuna.am`)
 
 3. Take this URL and set it as your bot's domain using BotFather:
@@ -166,9 +172,19 @@ Run `npm run build` to build the client/server project. The client build artifac
 
 Run `npm run test` to run unit tests with [Vitest](https://vitest.dev).
 
-## Community
+## Code Formatting and Linting
 
-- Visit and Star the [GitHub Repo](https://github.com/analogjs/analog)
-- Join the [Discord](https://chat.analogjs.org)
-- Follow us on [Twitter](https://twitter.com/analogjs)
-- Become a [Sponsor](https://github.com/sponsors/brandonroberts)
+This project uses Prettier for code formatting and ESLint for linting TypeScript code.
+
+### Available Commands
+
+- `npm run format` - Format all source files using Prettier
+- `npm run format:check` - Check if all source files are formatted correctly
+- `npm run lint` - Lint TypeScript files using ESLint
+- `npm run lint:fix` - Automatically fix linting issues in TypeScript files
+
+### Configuration Files
+
+- [.prettierrc](.prettierrc) - Prettier configuration
+- [.eslintrc.json](.eslintrc.json) - ESLint configuration
+- [.prettierignore](.prettierignore) - Files and directories ignored by Prettier

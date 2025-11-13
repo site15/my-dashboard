@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SerializeOptions, parse, serialize } from './cookie';
 
 export function getCookies(req: any) {

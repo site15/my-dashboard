@@ -1,12 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { concatMap, from, mergeMap, Observable } from 'rxjs';
+
 import { TelegramUserDataType } from '../../server/types/TelegramUserDataSchema';
 import { User } from '../generated/prisma/browser';
 import { injectTrpcClient } from '../trpc-client';
-import { WINDOW } from '../utils/window';
 import { ProfileService } from './profile.service';
 import { SessionService } from './session.service';
 import { TelegramSettingsService } from './telegram-settings.service';
+import { WINDOW } from '../utils/window';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class TelegramService {
 
   getSettings() {
     return this.trpc.telegram.settings.query().pipe(
-      concatMap(async (settings) => {
+      concatMap(async settings => {
         await this.telegramSettingsService.set(settings);
         return settings;
       })
@@ -29,8 +30,8 @@ export class TelegramService {
   signInWithTelegramSdk() {
     return from(this.telegramSettingsService.get()).pipe(
       mergeMap(
-        (settings) =>
-          new Observable((s) => {
+        settings =>
+          new Observable(s => {
             try {
               WINDOW?.Telegram?.Login.auth(
                 {
@@ -48,7 +49,7 @@ export class TelegramService {
             }
           })
       ),
-      mergeMap((telegramUser) => this.signInWithTelegram(telegramUser))
+      mergeMap(telegramUser => this.signInWithTelegram(telegramUser))
     );
   }
 

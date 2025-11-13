@@ -13,8 +13,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-
 import { Subject, delay, filter, skip, tap } from 'rxjs';
+
 import { isSSR } from '../utils/is-ssr';
 import { WINDOW } from '../utils/window';
 
@@ -92,8 +92,8 @@ export class ModalComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntilDestroyed(),
         skip(1),
-        filter((shouldOpen) => shouldOpen !== this.isModalOpen()),
-        tap((shouldOpen) =>
+        filter(shouldOpen => shouldOpen !== this.isModalOpen()),
+        tap(shouldOpen =>
           shouldOpen ? this.#openModal$.next() : this.#closeModal$.next()
         )
       )

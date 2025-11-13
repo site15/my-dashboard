@@ -1,9 +1,10 @@
+import { randomUUID } from 'crypto';
+
 import { z } from 'zod';
-import { publicProcedure, router } from '../trpc';
 
 import { prisma } from '../../prisma';
 import { UserSchema, UserType } from '../../types/UserSchema';
-import { randomUUID } from 'crypto';
+import { publicProcedure, router } from '../trpc';
 
 export const authRouter = router({
   profile: publicProcedure
@@ -26,7 +27,7 @@ export const authRouter = router({
         user: UserSchema,
       })
     )
-    .mutation(async (options) => {
+    .mutation(async options => {
       const user = await prisma.user.create({
         data: {
           anonymousId: options?.input?.anonymousId || randomUUID(),

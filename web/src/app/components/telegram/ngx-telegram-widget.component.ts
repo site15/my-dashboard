@@ -9,6 +9,7 @@ import {
   Renderer2,
   ViewChild,
 } from '@angular/core';
+
 import { WINDOW } from '../../utils/window';
 
 export const NgxTelegramWidgetCallback = 'NgxTelegramWidgetCallback';

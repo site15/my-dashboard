@@ -12,18 +12,19 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
 import { withComponentInputBinding } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+
 import { AuthService } from './services/auth.service';
+import { SessionService } from './services/session.service';
 import { TelegramService } from './services/telegram.service';
 import { ThemeService } from './services/theme.service';
 import { provideTrpcClient } from './trpc-client';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SessionService } from './services/session.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [

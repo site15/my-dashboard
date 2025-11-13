@@ -15,6 +15,23 @@
 Присоединяйтесь к нашему Telegram-чату разработчиков для обсуждений, обновлений и поддержки:
 - [Telegram-чат разработчиков](https://t.me/site15_community)
 
+## Форматирование кода и линтинг
+
+Этот проект использует Prettier для форматирования кода и ESLint для линтинга TypeScript кода.
+
+### Доступные команды
+
+- `npm run format` - Форматирование всех исходных файлов с помощью Prettier
+- `npm run format:check` - Проверка правильности форматирования всех исходных файлов
+- `npm run lint` - Линтинг TypeScript файлов с помощью ESLint
+- `npm run lint:fix` - Автоматическое исправление проблем линтинга в TypeScript файлах
+
+### Файлы конфигурации
+
+- [.prettierrc](.prettierrc) - Конфигурация Prettier
+- [.eslintrc.json](.eslintrc.json) - Конфигурация ESLint
+- [.prettierignore](.prettierignore) - Файлы и каталоги, игнорируемые Prettier
+
 ## Уведомления о релизах
 
 Информация о релизах и обновлениях автоматически публикуется в нашем Telegram-чате сообщества:
@@ -165,10 +182,3 @@ server: {
 ```
 
 Если вы сталкиваетесь с этой ошибкой с другим доменом, вы можете добавить его в массив `allowedHosts` в файле [vite.config.ts](vite.config.ts).
-
-## Сообщество
-
-- Посетите и поставьте звезду [репозиторию на GitHub](https://github.com/analogjs/analog)
-- Присоединяйтесь к [Discord](https://chat.analogjs.org)
-- Подписывайтесь на нас в [Twitter](https://twitter.com/analogjs)
-- Станьте [спонсором](https://github.com/sponsors/brandonroberts)

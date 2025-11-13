@@ -1,7 +1,8 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { map, mergeMap, shareReplay, switchMap } from 'rxjs';
+import { map, shareReplay, switchMap } from 'rxjs';
+
 import { injectTrpcClient } from '../trpc-client';
 
 @Component({
@@ -24,9 +25,9 @@ import { injectTrpcClient } from '../trpc-client';
     </h3>
 
     <hr />
-    @if ((qrForLinkDevice$ | async);as qrForLinkDevice){
-    <img src="{{ qrForLinkDevice }}" alt="QR Code" />
-    <hr />
+    @if (qrForLinkDevice$ | async; as qrForLinkDevice) {
+      <img src="{{ qrForLinkDevice }}" alt="QR Code" />
+      <hr />
     }
   </section>`,
 })
@@ -35,15 +36,16 @@ export default class LoginPageComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly dashboardId$ = this.route.paramMap.pipe(
-    map((params) => params.get('dashboardId'))
+    map(params => params.get('dashboardId'))
   );
   readonly qrForLinkDevice$ = this.route.paramMap.pipe(
-    switchMap((params) =>
+    switchMap(params =>
       this.trpc.dashboards.linkDevice.query({
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         dashboardId: params.get('dashboardId')!,
       })
     ),
-    map((result) => result.qr),
+    map(result => result.qr),
     shareReplay(1)
   );
 }

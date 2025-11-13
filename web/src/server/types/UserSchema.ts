@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { TelegramUserDataSchema } from './TelegramUserDataSchema';
 
 export const UserSchema = z.object({

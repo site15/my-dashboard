@@ -2,6 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { first, tap } from 'rxjs';
+
 import { NgxTelegramWidgetComponent } from '../components/telegram/ngx-telegram-widget.component';
 import { AuthService } from '../services/auth.service';
 import { TelegramSettingsService } from '../services/telegram-settings.service';

@@ -37,6 +37,10 @@ npm start
 - [Mobile App Documentation](./mobile/README.md) ([Russian version](./mobile/README_RU.md))
 - [Web App Documentation](./web/README.md) ([Russian version](./web/README_RU.md))
 
+## Code Formatting and Linting
+
+The web application is configured with Prettier for code formatting and ESLint for linting. See [Web App Documentation](./web/README.md#code-formatting-and-linting) for available commands.
+
 ## Community
 
 Join our Telegram developer community for discussions, updates, and support:

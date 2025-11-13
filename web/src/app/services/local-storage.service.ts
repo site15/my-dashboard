@@ -1,6 +1,7 @@
 import { injectRequest } from '@analogjs/router/tokens';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
+
 import { getCookie } from '../../server/utils/cookie-utils';
 import { isSSR } from '../../server/utils/is-ssr';
 import { injectTrpcClient } from '../trpc-client';
@@ -163,6 +164,7 @@ export class LocalStorageService<T = unknown> {
         if (this.type === 'server') {
           await firstValueFrom(this.trpc.userStorage.del.mutate({ name: key }));
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         // todo: skip only our error
       }

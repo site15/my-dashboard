@@ -1,16 +1,16 @@
-import { z } from 'zod';
-import { publicProcedure, router } from '../trpc';
-
 import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
+
 import { ENVIRONMENTS } from '../../env';
 import { prisma } from '../../prisma';
 import { TelegramSettingsSchema } from '../../types/TelegramSettingsSchema';
 import { TelegramUserDataSchema } from '../../types/TelegramUserDataSchema';
 import { UserSchema, UserType } from '../../types/UserSchema';
 import { checkSignature } from '../../utils/check-signature';
+import { publicProcedure, router } from '../trpc';
 
 export const telegramRouter = router({
-  settings: publicProcedure.output(TelegramSettingsSchema).query(({ ctx }) => {
+  settings: publicProcedure.output(TelegramSettingsSchema).query(() => {
     return {
       authBotName: ENVIRONMENTS.MY_DASHBOARD_TELEGRAM_AUTH_BOT_NAME,
       authBotId:

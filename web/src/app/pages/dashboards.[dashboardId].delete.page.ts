@@ -1,7 +1,8 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { map, mergeMap, shareReplay, switchMap } from 'rxjs';
+import { map } from 'rxjs';
+
 import { injectTrpcClient } from '../trpc-client';
 
 @Component({
@@ -24,17 +25,16 @@ import { injectTrpcClient } from '../trpc-client';
     </h3>
 
     <hr />
-    @if ((dashboardId$ | async);as dashboardId){ Remove dashboard with id "{{
-      dashboardId
-    }}" ?
+    @if (dashboardId$ | async; as dashboardId) {
+      Remove dashboard with id "{{ dashboardId }}" ?
 
-    <div class="grid">
-      <a href="/dashboards/{{ dashboardId }}" type="button" class="secondary"
-        >No</a
-      >
-      <button type="submit">Yes</button>
-    </div>
-    <hr />
+      <div class="grid">
+        <a href="/dashboards/{{ dashboardId }}" type="button" class="secondary"
+          >No</a
+        >
+        <button type="submit">Yes</button>
+      </div>
+      <hr />
     }
   </section>`,
 })
@@ -43,6 +43,6 @@ export default class LoginPageComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly dashboardId$ = this.route.paramMap.pipe(
-    map((params) => params.get('dashboardId'))
+    map(params => params.get('dashboardId'))
   );
 }

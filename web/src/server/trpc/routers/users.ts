@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { publicProcedure, router } from '../trpc';
+
 // Import our prisma instance and the Prisma client
 
 import { Prisma } from '../../generated/prisma/browser';
 import { prisma } from '../../prisma';
 import { UserSchema, UserType } from '../../types/UserSchema';
+import { publicProcedure, router } from '../trpc';
 /**
  * Default selector for Note.
  * It's important to always explicitly say which fields you want to return in order to not leak extra information

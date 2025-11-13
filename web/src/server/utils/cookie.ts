@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * RegExp to match cookie-name in RFC 6265 sec 4.1.1
  * This refers out to the obsoleted definition of token in RFC 2616 sec 2.2
@@ -274,7 +276,7 @@ export type SerializeOptions = StringifyOptions &
  * http headers. An optional options object specifies cookie parameters.
  *
  * serialize('foo', 'bar', { httpOnly: true })
- *   => "foo=bar; httpOnly"
+ * => "foo=bar; httpOnly"
  */
 export function stringifySetCookie(
   cookie: SetCookie,
@@ -401,7 +403,7 @@ export function stringifySetCookie(
  * Deserialize a `Set-Cookie` header into an object.
  *
  * deserialize('foo=bar; httpOnly')
- *   => { name: 'foo', value: 'bar', httpOnly: true }
+ * => { name: 'foo', value: 'bar', httpOnly: true }
  */
 export function parseSetCookie(str: string, options?: ParseOptions): SetCookie {
   const dec = options?.decode || decode;
@@ -536,4 +538,4 @@ function isDate(val: any): val is Date {
 /**
  * Backward compatibility exports.
  */
-export { stringifySetCookie as serialize, parseCookie as parse };
+export { parseCookie as parse, stringifySetCookie as serialize };

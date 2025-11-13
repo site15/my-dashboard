@@ -19,7 +19,16 @@
     "start": "npm run dev",
     "build": "npx prisma generate && sed -i 's/process/processLocal/g' ./src/app/generated/prisma/client.ts && sed -i 's/process/processLocal/g' ./src/server/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/app/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/server/generated/prisma/client.ts && vite build",
     "watch": "vite build --watch",
-    "test": "vitest"
+    "test": "vitest",
+    "format": "prettier --write \"src/**/*.{ts,html,css,scss,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,css,scss,json}\"",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint --fix",
+    "*.{js,ts,css,scss,md}": "prettier --ignore-unknown --write"
   },
   "private": true,
   "dependencies": {
@@ -58,9 +67,19 @@
     "@angular/compiler-cli": "^20.0.0",
     "@types/node": "^24.9.2",
     "@types/qrcode": "^1.5.6",
+    "@typescript-eslint/eslint-plugin": "^8.46.4",
+    "@typescript-eslint/parser": "^8.46.4",
+    "eslint": "^9.39.1",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsdoc": "^50.8.0",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
+    "husky": "^9.1.7",
     "jsdom": "^22.0.0",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2",
     "prisma": "^6.19.0",
     "typescript": "~5.8.0",
+    "typescript-eslint": "^8.46.4",
     "vite": "^7.0.0",
     "vite-tsconfig-paths": "^4.2.0",
     "vitest": "^4.0.0"

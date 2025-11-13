@@ -1,0 +1,21 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+.vercel
+
+# Configuration files
+src/app/generated
+src/server/generated
+
+# Environment files
+.env
+*.env
+
+# Log files
+*.log
+
+# IDE files
+.vscode
+.idea
