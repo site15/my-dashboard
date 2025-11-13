@@ -6,7 +6,7 @@
   "homepage": "https://site15-my-dashboard.vercel.app",
   "type": "module",
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "pkg": {
     "assets": [
@@ -23,8 +23,8 @@
   },
   "private": true,
   "dependencies": {
-    "@analogjs/content": "^1.22.4",
-    "@analogjs/router": "^1.22.4",
+    "@analogjs/content": "^2.0.4",
+    "@analogjs/router": "^2.0.4",
     "@analogjs/trpc": "^0.4.0",
     "@angular/animations": "^20.0.0",
     "@angular/common": "^20.0.0",
@@ -50,9 +50,9 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@analogjs/platform": "^1.22.4",
-    "@analogjs/vite-plugin-angular": "^1.22.4",
-    "@analogjs/vitest-angular": "^1.22.4",
+    "@analogjs/platform": "^2.0.4",
+    "@analogjs/vite-plugin-angular": "^2.0.4",
+    "@analogjs/vitest-angular": "^2.0.4",
     "@angular/build": "^20.0.0",
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",

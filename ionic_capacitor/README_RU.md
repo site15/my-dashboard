@@ -52,7 +52,7 @@ docker build -t endykaufman/ionic-capacitor .
 - Базовый образ Ubuntu 22.04
 - OpenJDK 21
 - Android SDK и инструменты сборки
-- Node.js 23.11.0
+- Node.js 24.11.1
 - Ionic CLI и Capacitor CLI
 - Gradle 8.2.1
 

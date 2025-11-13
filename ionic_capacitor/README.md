@@ -52,7 +52,7 @@ This Docker image contains all the necessary tools and dependencies to build Ion
 - Ubuntu 22.04 base image
 - OpenJDK 21
 - Android SDK and build tools
-- Node.js 23.11.0
+- Node.js 24.11.1
 - Ionic CLI and Capacitor CLI
 - Gradle 8.2.1
 
