@@ -15,7 +15,7 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Subject, delay, filter, skip, tap } from 'rxjs';
 
-import { isSSR } from '../utils/is-ssr';
+import { isSSR } from '../../server/utils/is-ssr';
 import { WINDOW } from '../utils/window';
 
 const modalAnimationDuration = 400;
