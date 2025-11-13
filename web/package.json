@@ -19,8 +19,7 @@
     "start": "npm run dev",
     "build": "npx prisma generate && sed -i 's/process/processLocal/g' ./src/app/generated/prisma/client.ts && sed -i 's/process/processLocal/g' ./src/server/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/app/generated/prisma/client.ts && sed -i 's/node:processLocal/node:process/g' ./src/server/generated/prisma/client.ts && vite build",
     "watch": "vite build --watch",
-    "test": "vitest",
-    "preview": "node dist/analog/server/index.mjs"
+    "test": "vitest"
   },
   "private": true,
   "dependencies": {
@@ -41,7 +40,6 @@
     "@tailwindcss/vite": "^4.1.4",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
-    "cookie": "^1.0.2",
     "isomorphic-fetch": "^3.0.0",
     "postcss": "^8.5.3",
     "qrcode": "^1.5.4",
@@ -58,7 +56,6 @@
     "@angular/build": "^20.0.0",
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",
-    "@types/cookie": "^0.6.0",
     "@types/node": "^24.9.2",
     "@types/qrcode": "^1.5.6",
     "jsdom": "^22.0.0",

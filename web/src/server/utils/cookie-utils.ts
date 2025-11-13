@@ -1,11 +1,11 @@
-import cookie, { SerializeOptions } from 'cookie';
+import { SerializeOptions, parse, serialize } from './cookie';
 
 export function getCookies(req: any) {
   const cookieHeader = (req.headers as any)?.['cookie'];
   if (!cookieHeader) {
     return {};
   }
-  return cookie.parse(cookieHeader);
+  return parse(cookieHeader);
 }
 
 export function getCookie(req: any, name: string) {
@@ -13,7 +13,7 @@ export function getCookie(req: any, name: string) {
   if (!cookieHeader) {
     return;
   }
-  const cookies = cookie.parse(cookieHeader);
+  const cookies = parse(cookieHeader);
   return cookies[name];
 }
 
@@ -23,8 +23,5 @@ export function setCookie(
   value?: string | null,
   options?: SerializeOptions
 ) {
-  res.setHeader(
-    'Set-Cookie',
-    cookie.serialize(name, value || 'empty', options)
-  );
+  res.setHeader('Set-Cookie', serialize(name, value || 'empty', options));
 }
