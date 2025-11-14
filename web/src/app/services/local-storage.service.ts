@@ -127,26 +127,8 @@ export class LocalStorageService<T = unknown> {
   }
 
   private async getItem(key: string): Promise<T | null> {
-    console.log(
-      JSON.stringify({
-        isSSR,
-        getItem: { key, headers: this.request?.headers },
-      })
-    );
     if (isSSR && this.key) {
       const value = getCookie(this.request, this.key);
-      console.log(
-        JSON.stringify({
-          getItem: { key, value },
-        })
-      );
-      if (!value) {
-        console.log(
-          JSON.stringify({
-            getItem: { key, value, headers: this.request?.headers },
-          })
-        );
-      }
       if (value && value !== 'undefined' && value !== 'empty') {
         return JSON.parse(value);
       }
@@ -158,11 +140,6 @@ export class LocalStorageService<T = unknown> {
           (await firstValueFrom(this.trpc.userStorage.get.query({ name: key })))
             ?.value || undefined;
       }
-      console.log(
-        JSON.stringify({
-          getItem2: { key, value },
-        })
-      );
       if (value && value !== 'undefined' && value !== 'empty') {
         return JSON.parse(value);
       }
