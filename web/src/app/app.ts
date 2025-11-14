@@ -41,8 +41,8 @@ import { AuthService } from './services/auth.service';
           <li>Copyright © 2025 MyDashboard. Licensed under MIT.</li>
         </ul>
         <ul>
-          <li><a href="#">Source code</a></li>
-          <li><a href="#">Telegram group</a></li>
+          <li><a target="_blank" href="https://github.com/site15/my-dashboard/tree/main/web">Source code</a></li>
+          <li><a target="_blank" href="https://t.me/site15_community">Telegram group</a></li>
         </ul>
       </nav>
     </footer>`,

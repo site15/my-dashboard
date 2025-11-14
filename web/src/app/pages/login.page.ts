@@ -13,7 +13,13 @@ import { TelegramService } from '../services/telegram.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgxTelegramWidgetComponent, AsyncPipe],
   template: `<section>
-    <h3>Authorization</h3>
+    <h3>
+      <nav aria-label="breadcrumb">
+        <ul>
+          <li>Authorization</li>
+        </ul>
+      </nav>
+    </h3>
     <hr />
     <form>
       <input
