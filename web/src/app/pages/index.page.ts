@@ -21,3 +21,5 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   </section>`,
 })
 export default class HomePageComponent {}
+export const ssr = true;
+export const prerender = false;
