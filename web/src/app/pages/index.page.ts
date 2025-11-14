@@ -13,9 +13,16 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     </h3>
     <p>
       Creating a dashboard management system for displaying information on old
-      Android phones. Users create dashboards through a web application, add
-      widgets, and bind phones via QR code. The phone receives data through an
-      API and displays widgets in real-time.
+      Android phones.
+    </p>
+
+    <p>
+      Users create dashboards through a web application, add widgets, and bind
+      phones via QR code.
+    </p>
+
+    <p>
+      The phone receives data through an API and displays widgets in real-time.
     </p>
     <hr />
   </section>`,
