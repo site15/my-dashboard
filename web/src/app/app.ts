@@ -72,6 +72,3 @@ export class AppComponent {
       .subscribe();
   }
 }
-
-export const ssr = true;
-export const prerender = false;

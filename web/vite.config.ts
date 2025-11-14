@@ -16,14 +16,12 @@ export default defineConfig(({ mode }) => ({
     },
   },
   ssr: {
-    noExternal: [
-      'tslib',
-      '@analogjs/trpc',
-      '@trpc/server'
-    ],
+    noExternal: ['tslib', '@analogjs/trpc', '@trpc/server'],
   },
   plugins: [
     analog({
+      ssr: true,
+      prerender: { routes: [] },
       nitro: {
         preset: 'vercel',
       },
