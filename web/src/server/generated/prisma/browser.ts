@@ -33,6 +33,11 @@ export type Session = Prisma.SessionModel
  */
 export type Dashboard = Prisma.DashboardModel
 /**
+ * Model QrCode
+ * 
+ */
+export type QrCode = Prisma.QrCodeModel
+/**
  * Model Widget
  * 
  */

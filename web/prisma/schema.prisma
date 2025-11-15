@@ -56,10 +56,26 @@ model Dashboard {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @default(now())
   deletedAt    DateTime?
+  qrCodes      QrCode[]  @relation(map: "FK_WIDGET__DASHBOARD_ID")
 
   @@unique([userId, name], map: "UQ_DASHBOARD__USER_ID_NAME")
   @@unique([deviceId], map: "UQ_DASHBOARD__DEVICE_ID")
   @@index([userId], map: "IDX_DASHBOARD__USER_ID")
+}
+
+model QrCode {
+  id   String @id(map: "PK_QRCODE") @default(uuid()) @db.Uuid
+  code String
+
+  dashboardId String    @db.Uuid
+  Dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_QRCODE__DASHBOARD_ID")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  @@unique([dashboardId, code], map: "UQ_QRCODE__CODE")
+  @@index([dashboardId], map: "IDX_QRCODE__DASHBOARD_ID")
 }
 
 model Widget {

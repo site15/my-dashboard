@@ -393,6 +393,7 @@ export const ModelName = {
   User: 'User',
   Session: 'Session',
   Dashboard: 'Dashboard',
+  QrCode: 'QrCode',
   Widget: 'Widget',
   WidgetLog: 'WidgetLog'
 } as const
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "dashboard" | "widget" | "widgetLog"
+    modelProps: "user" | "session" | "dashboard" | "qrCode" | "widget" | "widgetLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -636,6 +637,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    QrCode: {
+      payload: Prisma.$QrCodePayload<ExtArgs>
+      fields: Prisma.QrCodeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.QrCodeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.QrCodeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>
+        }
+        findFirst: {
+          args: Prisma.QrCodeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.QrCodeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>
+        }
+        findMany: {
+          args: Prisma.QrCodeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>[]
+        }
+        create: {
+          args: Prisma.QrCodeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>
+        }
+        createMany: {
+          args: Prisma.QrCodeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.QrCodeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>[]
+        }
+        delete: {
+          args: Prisma.QrCodeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>
+        }
+        update: {
+          args: Prisma.QrCodeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>
+        }
+        deleteMany: {
+          args: Prisma.QrCodeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.QrCodeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.QrCodeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>[]
+        }
+        upsert: {
+          args: Prisma.QrCodeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QrCodePayload>
+        }
+        aggregate: {
+          args: Prisma.QrCodeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQrCode>
+        }
+        groupBy: {
+          args: Prisma.QrCodeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QrCodeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.QrCodeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QrCodeCountAggregateOutputType> | number
+        }
+      }
+    }
     Widget: {
       payload: Prisma.$WidgetPayload<ExtArgs>
       fields: Prisma.WidgetFieldRefs
@@ -858,6 +933,18 @@ export const DashboardScalarFieldEnum = {
 } as const
 
 export type DashboardScalarFieldEnum = (typeof DashboardScalarFieldEnum)[keyof typeof DashboardScalarFieldEnum]
+
+
+export const QrCodeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  dashboardId: 'dashboardId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type QrCodeScalarFieldEnum = (typeof QrCodeScalarFieldEnum)[keyof typeof QrCodeScalarFieldEnum]
 
 
 export const WidgetScalarFieldEnum = {
@@ -1110,6 +1197,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   session?: Prisma.SessionOmit
   dashboard?: Prisma.DashboardOmit
+  qrCode?: Prisma.QrCodeOmit
   widget?: Prisma.WidgetOmit
   widgetLog?: Prisma.WidgetLogOmit
 }

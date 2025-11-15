@@ -52,6 +52,7 @@ export const ModelName = {
   User: 'User',
   Session: 'Session',
   Dashboard: 'Dashboard',
+  QrCode: 'QrCode',
   Widget: 'Widget',
   WidgetLog: 'WidgetLog'
 } as const
@@ -107,6 +108,18 @@ export const DashboardScalarFieldEnum = {
 } as const
 
 export type DashboardScalarFieldEnum = (typeof DashboardScalarFieldEnum)[keyof typeof DashboardScalarFieldEnum]
+
+
+export const QrCodeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  dashboardId: 'dashboardId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type QrCodeScalarFieldEnum = (typeof QrCodeScalarFieldEnum)[keyof typeof QrCodeScalarFieldEnum]
 
 
 export const WidgetScalarFieldEnum = {

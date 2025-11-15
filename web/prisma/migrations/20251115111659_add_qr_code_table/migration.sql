@@ -1,0 +1,20 @@
+-- CreateTable
+CREATE TABLE "QrCode" (
+    "id" UUID NOT NULL,
+    "code" TEXT NOT NULL,
+    "dashboardId" UUID NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "PK_QRCODE" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "IDX_QRCODE__DASHBOARD_ID" ON "QrCode"("dashboardId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UQ_QRCODE__CODE" ON "QrCode"("dashboardId", "code");
+
+-- AddForeignKey
+ALTER TABLE "QrCode" ADD CONSTRAINT "FK_QRCODE__DASHBOARD_ID" FOREIGN KEY ("dashboardId") REFERENCES "Dashboard"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;

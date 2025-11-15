@@ -11,6 +11,7 @@
 export type * from './models/User'
 export type * from './models/Session'
 export type * from './models/Dashboard'
+export type * from './models/QrCode'
 export type * from './models/Widget'
 export type * from './models/WidgetLog'
 export type * from './commonInputTypes'

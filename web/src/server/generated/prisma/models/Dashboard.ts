@@ -208,6 +208,7 @@ export type DashboardWhereInput = {
   deletedAt?: Prisma.DateTimeNullableFilter<"Dashboard"> | Date | string | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Widget?: Prisma.WidgetListRelationFilter
+  qrCodes?: Prisma.QrCodeListRelationFilter
 }
 
 export type DashboardOrderByWithRelationInput = {
@@ -221,6 +222,7 @@ export type DashboardOrderByWithRelationInput = {
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   Widget?: Prisma.WidgetOrderByRelationAggregateInput
+  qrCodes?: Prisma.QrCodeOrderByRelationAggregateInput
 }
 
 export type DashboardWhereUniqueInput = Prisma.AtLeast<{
@@ -238,6 +240,7 @@ export type DashboardWhereUniqueInput = Prisma.AtLeast<{
   deletedAt?: Prisma.DateTimeNullableFilter<"Dashboard"> | Date | string | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Widget?: Prisma.WidgetListRelationFilter
+  qrCodes?: Prisma.QrCodeListRelationFilter
 }, "id" | "userId_name" | "deviceId">
 
 export type DashboardOrderByWithAggregationInput = {
@@ -278,6 +281,7 @@ export type DashboardCreateInput = {
   deletedAt?: Date | string | null
   User: Prisma.UserCreateNestedOneWithoutDashboardInput
   Widget?: Prisma.WidgetCreateNestedManyWithoutDashboardInput
+  qrCodes?: Prisma.QrCodeCreateNestedManyWithoutDashboardInput
 }
 
 export type DashboardUncheckedCreateInput = {
@@ -290,6 +294,7 @@ export type DashboardUncheckedCreateInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   Widget?: Prisma.WidgetUncheckedCreateNestedManyWithoutDashboardInput
+  qrCodes?: Prisma.QrCodeUncheckedCreateNestedManyWithoutDashboardInput
 }
 
 export type DashboardUpdateInput = {
@@ -302,6 +307,7 @@ export type DashboardUpdateInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   User?: Prisma.UserUpdateOneRequiredWithoutDashboardNestedInput
   Widget?: Prisma.WidgetUpdateManyWithoutDashboardNestedInput
+  qrCodes?: Prisma.QrCodeUpdateManyWithoutDashboardNestedInput
 }
 
 export type DashboardUncheckedUpdateInput = {
@@ -314,6 +320,7 @@ export type DashboardUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Widget?: Prisma.WidgetUncheckedUpdateManyWithoutDashboardNestedInput
+  qrCodes?: Prisma.QrCodeUncheckedUpdateManyWithoutDashboardNestedInput
 }
 
 export type DashboardCreateManyInput = {
@@ -443,6 +450,20 @@ export type DashboardUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.DashboardScalarWhereInput | Prisma.DashboardScalarWhereInput[]
 }
 
+export type DashboardCreateNestedOneWithoutQrCodesInput = {
+  create?: Prisma.XOR<Prisma.DashboardCreateWithoutQrCodesInput, Prisma.DashboardUncheckedCreateWithoutQrCodesInput>
+  connectOrCreate?: Prisma.DashboardCreateOrConnectWithoutQrCodesInput
+  connect?: Prisma.DashboardWhereUniqueInput
+}
+
+export type DashboardUpdateOneRequiredWithoutQrCodesNestedInput = {
+  create?: Prisma.XOR<Prisma.DashboardCreateWithoutQrCodesInput, Prisma.DashboardUncheckedCreateWithoutQrCodesInput>
+  connectOrCreate?: Prisma.DashboardCreateOrConnectWithoutQrCodesInput
+  upsert?: Prisma.DashboardUpsertWithoutQrCodesInput
+  connect?: Prisma.DashboardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DashboardUpdateToOneWithWhereWithoutQrCodesInput, Prisma.DashboardUpdateWithoutQrCodesInput>, Prisma.DashboardUncheckedUpdateWithoutQrCodesInput>
+}
+
 export type DashboardCreateNestedOneWithoutWidgetInput = {
   create?: Prisma.XOR<Prisma.DashboardCreateWithoutWidgetInput, Prisma.DashboardUncheckedCreateWithoutWidgetInput>
   connectOrCreate?: Prisma.DashboardCreateOrConnectWithoutWidgetInput
@@ -466,6 +487,7 @@ export type DashboardCreateWithoutUserInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   Widget?: Prisma.WidgetCreateNestedManyWithoutDashboardInput
+  qrCodes?: Prisma.QrCodeCreateNestedManyWithoutDashboardInput
 }
 
 export type DashboardUncheckedCreateWithoutUserInput = {
@@ -477,6 +499,7 @@ export type DashboardUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   Widget?: Prisma.WidgetUncheckedCreateNestedManyWithoutDashboardInput
+  qrCodes?: Prisma.QrCodeUncheckedCreateNestedManyWithoutDashboardInput
 }
 
 export type DashboardCreateOrConnectWithoutUserInput = {
@@ -519,6 +542,70 @@ export type DashboardScalarWhereInput = {
   deletedAt?: Prisma.DateTimeNullableFilter<"Dashboard"> | Date | string | null
 }
 
+export type DashboardCreateWithoutQrCodesInput = {
+  id?: string
+  name: string
+  deviceId?: string | null
+  isBlackTheme?: boolean | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  User: Prisma.UserCreateNestedOneWithoutDashboardInput
+  Widget?: Prisma.WidgetCreateNestedManyWithoutDashboardInput
+}
+
+export type DashboardUncheckedCreateWithoutQrCodesInput = {
+  id?: string
+  name: string
+  deviceId?: string | null
+  userId: string
+  isBlackTheme?: boolean | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  Widget?: Prisma.WidgetUncheckedCreateNestedManyWithoutDashboardInput
+}
+
+export type DashboardCreateOrConnectWithoutQrCodesInput = {
+  where: Prisma.DashboardWhereUniqueInput
+  create: Prisma.XOR<Prisma.DashboardCreateWithoutQrCodesInput, Prisma.DashboardUncheckedCreateWithoutQrCodesInput>
+}
+
+export type DashboardUpsertWithoutQrCodesInput = {
+  update: Prisma.XOR<Prisma.DashboardUpdateWithoutQrCodesInput, Prisma.DashboardUncheckedUpdateWithoutQrCodesInput>
+  create: Prisma.XOR<Prisma.DashboardCreateWithoutQrCodesInput, Prisma.DashboardUncheckedCreateWithoutQrCodesInput>
+  where?: Prisma.DashboardWhereInput
+}
+
+export type DashboardUpdateToOneWithWhereWithoutQrCodesInput = {
+  where?: Prisma.DashboardWhereInput
+  data: Prisma.XOR<Prisma.DashboardUpdateWithoutQrCodesInput, Prisma.DashboardUncheckedUpdateWithoutQrCodesInput>
+}
+
+export type DashboardUpdateWithoutQrCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  User?: Prisma.UserUpdateOneRequiredWithoutDashboardNestedInput
+  Widget?: Prisma.WidgetUpdateManyWithoutDashboardNestedInput
+}
+
+export type DashboardUncheckedUpdateWithoutQrCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Widget?: Prisma.WidgetUncheckedUpdateManyWithoutDashboardNestedInput
+}
+
 export type DashboardCreateWithoutWidgetInput = {
   id?: string
   name: string
@@ -528,6 +615,7 @@ export type DashboardCreateWithoutWidgetInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   User: Prisma.UserCreateNestedOneWithoutDashboardInput
+  qrCodes?: Prisma.QrCodeCreateNestedManyWithoutDashboardInput
 }
 
 export type DashboardUncheckedCreateWithoutWidgetInput = {
@@ -539,6 +627,7 @@ export type DashboardUncheckedCreateWithoutWidgetInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  qrCodes?: Prisma.QrCodeUncheckedCreateNestedManyWithoutDashboardInput
 }
 
 export type DashboardCreateOrConnectWithoutWidgetInput = {
@@ -566,6 +655,7 @@ export type DashboardUpdateWithoutWidgetInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   User?: Prisma.UserUpdateOneRequiredWithoutDashboardNestedInput
+  qrCodes?: Prisma.QrCodeUpdateManyWithoutDashboardNestedInput
 }
 
 export type DashboardUncheckedUpdateWithoutWidgetInput = {
@@ -577,6 +667,7 @@ export type DashboardUncheckedUpdateWithoutWidgetInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  qrCodes?: Prisma.QrCodeUncheckedUpdateManyWithoutDashboardNestedInput
 }
 
 export type DashboardCreateManyUserInput = {
@@ -598,6 +689,7 @@ export type DashboardUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Widget?: Prisma.WidgetUpdateManyWithoutDashboardNestedInput
+  qrCodes?: Prisma.QrCodeUpdateManyWithoutDashboardNestedInput
 }
 
 export type DashboardUncheckedUpdateWithoutUserInput = {
@@ -609,6 +701,7 @@ export type DashboardUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Widget?: Prisma.WidgetUncheckedUpdateManyWithoutDashboardNestedInput
+  qrCodes?: Prisma.QrCodeUncheckedUpdateManyWithoutDashboardNestedInput
 }
 
 export type DashboardUncheckedUpdateManyWithoutUserInput = {
@@ -628,10 +721,12 @@ export type DashboardUncheckedUpdateManyWithoutUserInput = {
 
 export type DashboardCountOutputType = {
   Widget: number
+  qrCodes: number
 }
 
 export type DashboardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Widget?: boolean | DashboardCountOutputTypeCountWidgetArgs
+  qrCodes?: boolean | DashboardCountOutputTypeCountQrCodesArgs
 }
 
 /**
@@ -651,6 +746,13 @@ export type DashboardCountOutputTypeCountWidgetArgs<ExtArgs extends runtime.Type
   where?: Prisma.WidgetWhereInput
 }
 
+/**
+ * DashboardCountOutputType without action
+ */
+export type DashboardCountOutputTypeCountQrCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.QrCodeWhereInput
+}
+
 
 export type DashboardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -663,6 +765,7 @@ export type DashboardSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   deletedAt?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Widget?: boolean | Prisma.Dashboard$WidgetArgs<ExtArgs>
+  qrCodes?: boolean | Prisma.Dashboard$qrCodesArgs<ExtArgs>
   _count?: boolean | Prisma.DashboardCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dashboard"]>
 
@@ -705,6 +808,7 @@ export type DashboardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type DashboardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Widget?: boolean | Prisma.Dashboard$WidgetArgs<ExtArgs>
+  qrCodes?: boolean | Prisma.Dashboard$qrCodesArgs<ExtArgs>
   _count?: boolean | Prisma.DashboardCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DashboardIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -719,6 +823,7 @@ export type $DashboardPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     User: Prisma.$UserPayload<ExtArgs>
     Widget: Prisma.$WidgetPayload<ExtArgs>[]
+    qrCodes: Prisma.$QrCodePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1125,6 +1230,7 @@ export interface Prisma__DashboardClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Widget<T extends Prisma.Dashboard$WidgetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dashboard$WidgetArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WidgetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  qrCodes<T extends Prisma.Dashboard$qrCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dashboard$qrCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QrCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1579,6 +1685,30 @@ export type Dashboard$WidgetArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.WidgetScalarFieldEnum | Prisma.WidgetScalarFieldEnum[]
+}
+
+/**
+ * Dashboard.qrCodes
+ */
+export type Dashboard$qrCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QrCode
+   */
+  select?: Prisma.QrCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the QrCode
+   */
+  omit?: Prisma.QrCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QrCodeInclude<ExtArgs> | null
+  where?: Prisma.QrCodeWhereInput
+  orderBy?: Prisma.QrCodeOrderByWithRelationInput | Prisma.QrCodeOrderByWithRelationInput[]
+  cursor?: Prisma.QrCodeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.QrCodeScalarFieldEnum | Prisma.QrCodeScalarFieldEnum[]
 }
 
 /**
