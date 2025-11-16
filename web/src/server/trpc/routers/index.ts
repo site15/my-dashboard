@@ -1,15 +1,17 @@
 import { router } from '../trpc';
 import { authRouter } from './auth';
-import { dashboardRouter } from './dashboards';
+import { dashboardsRouter } from './dashboards';
 import { telegramRouter } from './telegram';
 import { userStorageRouter } from './user-storage';
 import { userRouter } from './users';
+import { widgetsRouter } from './widgets';
 
 export const appRouter = router({
   users: userRouter,
   telegram: telegramRouter,
   auth: authRouter,
-  dashboards: dashboardRouter,
+  dashboards: dashboardsRouter,
+  widgets: widgetsRouter,
   userStorage: userStorageRouter,
 });
 

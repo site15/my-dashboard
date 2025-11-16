@@ -124,6 +124,7 @@ export type QrCodeScalarFieldEnum = (typeof QrCodeScalarFieldEnum)[keyof typeof 
 
 export const WidgetScalarFieldEnum = {
   id: 'id',
+  type: 'type',
   options: 'options',
   state: 'state',
   columnIndex: 'columnIndex',

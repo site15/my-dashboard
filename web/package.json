@@ -43,6 +43,8 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/platform-server": "^20.0.0",
     "@angular/router": "^20.0.0",
+    "@ngx-formly/bootstrap": "^7.0.1",
+    "@ngx-formly/core": "^7.0.1",
     "@picocss/pico": "^2.1.1",
     "@prisma/adapter-pg": "^6.18.0",
     "@prisma/client": "^6.19.0",

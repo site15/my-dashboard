@@ -1,4 +1,8 @@
-import { provideFileRouter, requestContextInterceptor } from '@analogjs/router';
+import {
+  provideFileRouter,
+  requestContextInterceptor,
+  withDebugRoutes,
+} from '@analogjs/router';
 import {
   provideHttpClient,
   withFetch,
@@ -18,6 +22,8 @@ import {
   withEventReplay,
 } from '@angular/platform-browser';
 import { withComponentInputBinding } from '@angular/router';
+import { withFormlyBootstrap } from '@ngx-formly/bootstrap';
+import { provideFormlyCore } from '@ngx-formly/core';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from './services/auth.service';
@@ -28,9 +34,10 @@ import { provideTrpcClient } from './trpc-client';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideFormlyCore(...withFormlyBootstrap()),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideFileRouter(withComponentInputBinding()),
+    provideFileRouter(withComponentInputBinding(), withDebugRoutes()),
     provideHttpClient(
       withFetch(),
       withInterceptors([requestContextInterceptor])

@@ -58,9 +58,8 @@ import { AuthService } from './services/auth.service';
     </footer>`,
 })
 export class AppComponent {
-  private authService = inject(AuthService);
-
-  private router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   signOut() {
     this.authService

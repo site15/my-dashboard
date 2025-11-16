@@ -62,10 +62,10 @@ import { TelegramService } from '../services/telegram.service';
   </section>`,
 })
 export default class LoginPageComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private telegramService = inject(TelegramService);
-  private telegramSettingsService = inject(TelegramSettingsService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly telegramService = inject(TelegramService);
+  private readonly telegramSettingsService = inject(TelegramSettingsService);
 
   telegramSettings$ = this.telegramSettingsService.stream$;
 

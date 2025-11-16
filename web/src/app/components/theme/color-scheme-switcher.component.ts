@@ -99,7 +99,7 @@ import { ThemeService } from '../../services/theme.service';
   `,
 })
 export class ColorSchemeSwitcherComponent {
-  readonly themeService = inject(ThemeService);
+  private readonly themeService = inject(ThemeService);
 
   theme$ = this.themeService.stream$;
   themeLabel$ = this.themeService.stream$.pipe(

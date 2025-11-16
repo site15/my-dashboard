@@ -13,7 +13,7 @@ import {
 } from '../../types/DashboardSchema';
 import { publicProcedure, router } from '../trpc';
 
-export const dashboardRouter = router({
+export const dashboardsRouter = router({
   create: publicProcedure
     .input(CreateDashboardSchema)
     .output(DashboardSchema)
@@ -73,7 +73,7 @@ export const dashboardRouter = router({
         where: { id: input.id, userId: ctx.user.id },
       })) satisfies DashboardType;
     }),
-  remove: publicProcedure
+  delete: publicProcedure
     .input(
       z.object({
         id: z.string(),

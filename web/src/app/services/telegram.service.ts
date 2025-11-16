@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { concatMap, from, mergeMap, Observable } from 'rxjs';
+import { concatMap, from, Observable, switchMap } from 'rxjs';
 
 import { TelegramUserDataType } from '../../server/types/TelegramUserDataSchema';
 import { User } from '../generated/prisma/browser';
@@ -29,7 +29,7 @@ export class TelegramService {
 
   signInWithTelegramSdk() {
     return from(this.telegramSettingsService.get()).pipe(
-      mergeMap(
+      switchMap(
         settings =>
           new Observable(s => {
             try {
@@ -49,7 +49,7 @@ export class TelegramService {
             }
           })
       ),
-      mergeMap(telegramUser => this.signInWithTelegram(telegramUser))
+      switchMap(telegramUser => this.signInWithTelegram(telegramUser))
     );
   }
 

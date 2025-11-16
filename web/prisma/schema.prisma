@@ -80,6 +80,7 @@ model QrCode {
 
 model Widget {
   id          String @id(map: "PK_WIDGET") @default(uuid()) @db.Uuid
+  type        String
   options     Json?
   state       Json?
   columnIndex Int?

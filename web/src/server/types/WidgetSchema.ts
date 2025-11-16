@@ -4,6 +4,7 @@ import { WidgetScalarFieldEnum } from '../generated/prisma/internal/prismaNamesp
 
 export const WidgetSchema = z.object({
   [WidgetScalarFieldEnum.id]: z.string().uuid(),
+  [WidgetScalarFieldEnum.type]: z.string(),
   [WidgetScalarFieldEnum.options]: z.any({}).nullish(),
   [WidgetScalarFieldEnum.state]: z.any().nullish(),
   [WidgetScalarFieldEnum.columnIndex]: z.number().nullish(),
@@ -26,6 +27,7 @@ export type WidgetType = z.infer<typeof WidgetSchema>;
 //
 
 export const CreateWidgetSchema = z.object({
+  [WidgetScalarFieldEnum.type]: z.string(),
   [WidgetScalarFieldEnum.options]: z.any({}).nullish(),
   [WidgetScalarFieldEnum.state]: z.any({}).nullish(),
   [WidgetScalarFieldEnum.columnIndex]: z.number().nullish(),

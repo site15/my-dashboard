@@ -42,6 +42,7 @@ export type WidgetSumAggregateOutputType = {
 
 export type WidgetMinAggregateOutputType = {
   id: string | null
+  type: string | null
   columnIndex: number | null
   rowIndex: number | null
   columnCount: number | null
@@ -59,6 +60,7 @@ export type WidgetMinAggregateOutputType = {
 
 export type WidgetMaxAggregateOutputType = {
   id: string | null
+  type: string | null
   columnIndex: number | null
   rowIndex: number | null
   columnCount: number | null
@@ -76,6 +78,7 @@ export type WidgetMaxAggregateOutputType = {
 
 export type WidgetCountAggregateOutputType = {
   id: number
+  type: number
   options: number
   state: number
   columnIndex: number
@@ -111,6 +114,7 @@ export type WidgetSumAggregateInputType = {
 
 export type WidgetMinAggregateInputType = {
   id?: true
+  type?: true
   columnIndex?: true
   rowIndex?: true
   columnCount?: true
@@ -128,6 +132,7 @@ export type WidgetMinAggregateInputType = {
 
 export type WidgetMaxAggregateInputType = {
   id?: true
+  type?: true
   columnIndex?: true
   rowIndex?: true
   columnCount?: true
@@ -145,6 +150,7 @@ export type WidgetMaxAggregateInputType = {
 
 export type WidgetCountAggregateInputType = {
   id?: true
+  type?: true
   options?: true
   state?: true
   columnIndex?: true
@@ -251,6 +257,7 @@ export type WidgetGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type WidgetGroupByOutputType = {
   id: string
+  type: string
   options: runtime.JsonValue | null
   state: runtime.JsonValue | null
   columnIndex: number | null
@@ -293,6 +300,7 @@ export type WidgetWhereInput = {
   OR?: Prisma.WidgetWhereInput[]
   NOT?: Prisma.WidgetWhereInput | Prisma.WidgetWhereInput[]
   id?: Prisma.UuidFilter<"Widget"> | string
+  type?: Prisma.StringFilter<"Widget"> | string
   options?: Prisma.JsonNullableFilter<"Widget">
   state?: Prisma.JsonNullableFilter<"Widget">
   columnIndex?: Prisma.IntNullableFilter<"Widget"> | number | null
@@ -314,6 +322,7 @@ export type WidgetWhereInput = {
 
 export type WidgetOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   options?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrderInput | Prisma.SortOrder
   columnIndex?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -338,6 +347,7 @@ export type WidgetWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.WidgetWhereInput | Prisma.WidgetWhereInput[]
   OR?: Prisma.WidgetWhereInput[]
   NOT?: Prisma.WidgetWhereInput | Prisma.WidgetWhereInput[]
+  type?: Prisma.StringFilter<"Widget"> | string
   options?: Prisma.JsonNullableFilter<"Widget">
   state?: Prisma.JsonNullableFilter<"Widget">
   columnIndex?: Prisma.IntNullableFilter<"Widget"> | number | null
@@ -359,6 +369,7 @@ export type WidgetWhereUniqueInput = Prisma.AtLeast<{
 
 export type WidgetOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   options?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrderInput | Prisma.SortOrder
   columnIndex?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -386,6 +397,7 @@ export type WidgetScalarWhereWithAggregatesInput = {
   OR?: Prisma.WidgetScalarWhereWithAggregatesInput[]
   NOT?: Prisma.WidgetScalarWhereWithAggregatesInput | Prisma.WidgetScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"Widget"> | string
+  type?: Prisma.StringWithAggregatesFilter<"Widget"> | string
   options?: Prisma.JsonNullableWithAggregatesFilter<"Widget">
   state?: Prisma.JsonNullableWithAggregatesFilter<"Widget">
   columnIndex?: Prisma.IntNullableWithAggregatesFilter<"Widget"> | number | null
@@ -405,6 +417,7 @@ export type WidgetScalarWhereWithAggregatesInput = {
 
 export type WidgetCreateInput = {
   id?: string
+  type: string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: number | null
@@ -425,6 +438,7 @@ export type WidgetCreateInput = {
 
 export type WidgetUncheckedCreateInput = {
   id?: string
+  type: string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: number | null
@@ -445,6 +459,7 @@ export type WidgetUncheckedCreateInput = {
 
 export type WidgetUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -465,6 +480,7 @@ export type WidgetUpdateInput = {
 
 export type WidgetUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -485,6 +501,7 @@ export type WidgetUncheckedUpdateInput = {
 
 export type WidgetCreateManyInput = {
   id?: string
+  type: string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: number | null
@@ -504,6 +521,7 @@ export type WidgetCreateManyInput = {
 
 export type WidgetUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -522,6 +540,7 @@ export type WidgetUpdateManyMutationInput = {
 
 export type WidgetUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -551,6 +570,7 @@ export type WidgetOrderByRelationAggregateInput = {
 
 export type WidgetCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   options?: Prisma.SortOrder
   state?: Prisma.SortOrder
   columnIndex?: Prisma.SortOrder
@@ -577,6 +597,7 @@ export type WidgetAvgOrderByAggregateInput = {
 
 export type WidgetMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   columnIndex?: Prisma.SortOrder
   rowIndex?: Prisma.SortOrder
   columnCount?: Prisma.SortOrder
@@ -594,6 +615,7 @@ export type WidgetMaxOrderByAggregateInput = {
 
 export type WidgetMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   columnIndex?: Prisma.SortOrder
   rowIndex?: Prisma.SortOrder
   columnCount?: Prisma.SortOrder
@@ -687,6 +709,7 @@ export type WidgetUpdateOneRequiredWithoutWidgetLogNestedInput = {
 
 export type WidgetCreateWithoutDashboardInput = {
   id?: string
+  type: string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: number | null
@@ -706,6 +729,7 @@ export type WidgetCreateWithoutDashboardInput = {
 
 export type WidgetUncheckedCreateWithoutDashboardInput = {
   id?: string
+  type: string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: number | null
@@ -754,6 +778,7 @@ export type WidgetScalarWhereInput = {
   OR?: Prisma.WidgetScalarWhereInput[]
   NOT?: Prisma.WidgetScalarWhereInput | Prisma.WidgetScalarWhereInput[]
   id?: Prisma.UuidFilter<"Widget"> | string
+  type?: Prisma.StringFilter<"Widget"> | string
   options?: Prisma.JsonNullableFilter<"Widget">
   state?: Prisma.JsonNullableFilter<"Widget">
   columnIndex?: Prisma.IntNullableFilter<"Widget"> | number | null
@@ -773,6 +798,7 @@ export type WidgetScalarWhereInput = {
 
 export type WidgetCreateWithoutWidgetLogInput = {
   id?: string
+  type: string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: number | null
@@ -792,6 +818,7 @@ export type WidgetCreateWithoutWidgetLogInput = {
 
 export type WidgetUncheckedCreateWithoutWidgetLogInput = {
   id?: string
+  type: string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: number | null
@@ -827,6 +854,7 @@ export type WidgetUpdateToOneWithWhereWithoutWidgetLogInput = {
 
 export type WidgetUpdateWithoutWidgetLogInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -846,6 +874,7 @@ export type WidgetUpdateWithoutWidgetLogInput = {
 
 export type WidgetUncheckedUpdateWithoutWidgetLogInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -865,6 +894,7 @@ export type WidgetUncheckedUpdateWithoutWidgetLogInput = {
 
 export type WidgetCreateManyDashboardInput = {
   id?: string
+  type: string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: number | null
@@ -883,6 +913,7 @@ export type WidgetCreateManyDashboardInput = {
 
 export type WidgetUpdateWithoutDashboardInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -902,6 +933,7 @@ export type WidgetUpdateWithoutDashboardInput = {
 
 export type WidgetUncheckedUpdateWithoutDashboardInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -921,6 +953,7 @@ export type WidgetUncheckedUpdateWithoutDashboardInput = {
 
 export type WidgetUncheckedUpdateManyWithoutDashboardInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   state?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   columnIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -970,6 +1003,7 @@ export type WidgetCountOutputTypeCountWidgetLogArgs<ExtArgs extends runtime.Type
 
 export type WidgetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  type?: boolean
   options?: boolean
   state?: boolean
   columnIndex?: boolean
@@ -992,6 +1026,7 @@ export type WidgetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 
 export type WidgetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  type?: boolean
   options?: boolean
   state?: boolean
   columnIndex?: boolean
@@ -1012,6 +1047,7 @@ export type WidgetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 
 export type WidgetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  type?: boolean
   options?: boolean
   state?: boolean
   columnIndex?: boolean
@@ -1032,6 +1068,7 @@ export type WidgetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 
 export type WidgetSelectScalar = {
   id?: boolean
+  type?: boolean
   options?: boolean
   state?: boolean
   columnIndex?: boolean
@@ -1049,7 +1086,7 @@ export type WidgetSelectScalar = {
   deletedAt?: boolean
 }
 
-export type WidgetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "options" | "state" | "columnIndex" | "rowIndex" | "columnCount" | "rowCount" | "isBlackTheme" | "backgroundColor" | "primaryColor" | "positiveColor" | "negativeColor" | "dashboardId" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["widget"]>
+export type WidgetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "options" | "state" | "columnIndex" | "rowIndex" | "columnCount" | "rowCount" | "isBlackTheme" | "backgroundColor" | "primaryColor" | "positiveColor" | "negativeColor" | "dashboardId" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["widget"]>
 export type WidgetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Dashboard?: boolean | Prisma.DashboardDefaultArgs<ExtArgs>
   WidgetLog?: boolean | Prisma.Widget$WidgetLogArgs<ExtArgs>
@@ -1070,6 +1107,7 @@ export type $WidgetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    type: string
     options: runtime.JsonValue | null
     state: runtime.JsonValue | null
     columnIndex: number | null
@@ -1511,6 +1549,7 @@ export interface Prisma__WidgetClient<T, Null = never, ExtArgs extends runtime.T
  */
 export interface WidgetFieldRefs {
   readonly id: Prisma.FieldRef<"Widget", 'String'>
+  readonly type: Prisma.FieldRef<"Widget", 'String'>
   readonly options: Prisma.FieldRef<"Widget", 'Json'>
   readonly state: Prisma.FieldRef<"Widget", 'Json'>
   readonly columnIndex: Prisma.FieldRef<"Widget", 'Int'>

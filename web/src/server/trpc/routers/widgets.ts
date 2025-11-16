@@ -13,7 +13,7 @@ import {
 } from '../../types/WidgetSchema';
 import { publicProcedure, router } from '../trpc';
 
-export const widgetRouter = router({
+export const widgetsRouter = router({
   create: publicProcedure
     .input(CreateWidgetSchema)
     .output(WidgetSchema)
@@ -26,6 +26,7 @@ export const widgetRouter = router({
       }
       return (await prisma.widget.create({
         data: {
+          type: input.type,
           options: input.options as any,
           columnIndex: input.columnIndex,
           rowIndex: input.rowIndex,
@@ -111,7 +112,7 @@ export const widgetRouter = router({
         return newWidget satisfies WidgetType;
       });
     }),
-  remove: publicProcedure
+  delete: publicProcedure
     .input(
       z.object({
         id: z.string(),

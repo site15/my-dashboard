@@ -46,10 +46,10 @@
 **Статус**: ⚠️ ЧАСТИЧНО ЗАВЕРШЕНО
 
 **Задачи**:
-- [ ] tRPC маршруты для Dashboards: create/read/update/delete (0.5ч)
-- [ ] tRPC маршруты для Widgets: create/read/update/delete (0.5ч)
+- [x] tRPC маршруты для Dashboards: create/read/update/delete (0.5ч)
+- [x] tRPC маршруты для Widgets: create/read/update/delete (0.5ч)
 - [x] Генерация QR-кода для привязки телефона (`qrcode.react` или Svelte/AnalogJS аналог) (0.5ч)
-- [ ] Связь Dashboard → Widgets → Device через deviceId (0.25ч)
+- [x] Связь Dashboard → Widgets → Device через deviceId (0.25ч)
 - [x] Настройка индексов и уникальных ограничений через Prisma (0.25ч)
 
 **Ретроспектива**:
