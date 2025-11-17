@@ -22,8 +22,12 @@ import { DashboardsService } from '../../services/dashboards.service';
     @for (dashboard of dashboards$ | async; track dashboard.id) {
       <details name="dashboard" open>
         <summary>
-          {{ dashboard.name }}<br />
-          <a href="/dashboards/{{ dashboard.id }}">Edit</a>
+          <hgroup>
+            <h5>{{ dashboard.name }}</h5>
+            <p>
+              <a href="/dashboards/{{ dashboard.id }}">Edit</a>
+            </p>
+          </hgroup>
         </summary>
         <p>{{ dashboard | json }}</p>
       </details>

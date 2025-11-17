@@ -40,6 +40,14 @@ import { WidgetsService } from '../../../../../services/widgets.service';
           [model]="model"
         ></formly-form>
         <div class="grid">
+          <a
+            href="/dashboards/{{ dashboardAndWidget.dashboard.id }}/widgets/{{
+              dashboardAndWidget.widget.id
+            }}/delete"
+            type="button"
+            class="secondary"
+            >Remove</a
+          >
           <button type="submit">Save</button>
         </div>
       </form>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import {
   CreateWidgetType,
+  UpdateWidgetStateType,
   UpdateWidgetType,
 } from '../../server/types/WidgetSchema';
 import { injectTrpcClient } from '../trpc-client';
@@ -28,7 +29,11 @@ export class WidgetsService {
     return this.trpc.widgets.delete.mutate({ id });
   }
 
-  list() {
-    return this.trpc.widgets.list.query();
+  list(dashboardId: string) {
+    return this.trpc.widgets.list.query({ dashboardId });
+  }
+
+  updateState(widget: UpdateWidgetStateType) {
+    return this.trpc.widgets.updateState.mutate(widget);
   }
 }

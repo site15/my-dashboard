@@ -61,42 +61,41 @@ import { WidgetsService } from '../../../services/widgets.service';
 
         <hr />
       </section>
+      <hgroup>
+        <h4>Widgets ({{ dashboardAndWidgets.widgets.length }})</h4>
+        <p>
+          <a
+            href="/dashboards/{{
+              dashboardAndWidgets.dashboard.id
+            }}/widgets/add/clock"
+            >Add clock</a
+          >
+          <a
+            style="padding-left: 1rem;"
+            href="/dashboards/{{
+              dashboardAndWidgets.dashboard.id
+            }}/widgets/add/calendar"
+            >Add calendar</a
+          >
+        </p>
+      </hgroup>
 
-      <h4>Widgets ({{ dashboardAndWidgets.widgets.length }})</h4>
-
-      <div class="grid">
-        <a
-          href="/dashboards/{{
-            dashboardAndWidgets.dashboard.id
-          }}/widgets/add/clock"
-          >Add clock</a
-        >
-        <a
-          href="/dashboards/{{
-            dashboardAndWidgets.dashboard.id
-          }}/widgets/add/calendar"
-          >Add calendar</a
-        >
-      </div>
       <hr />
 
       @for (widget of dashboardAndWidgets.widgets; track widget.id) {
         <details name="widget" open>
           <summary>
-            {{ widget.type }}
-            <a
-              href="/dashboards/{{
-                dashboardAndWidgets.dashboard.id
-              }}/widgets/{{ widget.id }}"
-              >Edit</a
-            >
-            <a
-              style="padding-left: 1rem;"
-              href="/dashboards/{{
-                dashboardAndWidgets.dashboard.id
-              }}/widgets/{{ widget.id }}/delete"
-              >Delete</a
-            >
+            <hgroup>
+              <h5>{{ widget.type }}</h5>
+              <p>
+                <a
+                  href="/dashboards/{{
+                    dashboardAndWidgets.dashboard.id
+                  }}/widgets/{{ widget.id }}"
+                  >Edit</a
+                >
+              </p>
+            </hgroup>
           </summary>
           <p>{{ widget | json }}</p>
         </details>
@@ -129,7 +128,7 @@ export default class DashboardsEditPageComponent {
                   dashboard => (this.model = dashboard as UpdateDashboardType)
                 )
               ),
-            widgets: this.widgetsService.list(),
+            widgets: this.widgetsService.list(dashboardId),
           })
         : of(null)
     ),

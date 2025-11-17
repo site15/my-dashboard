@@ -21,7 +21,9 @@ import { WidgetsService } from '../../../../../../services/widgets.service';
         <nav aria-label="breadcrumb">
           <ul>
             <li><a href="/dashboards">Dashboards</a></li>
-            <li>{{ dashboard.name }}</li>
+            <li>
+              <a href="/dashboards/{{ dashboard.id }}">{{ dashboard.name }}</a>
+            </li>
             <li>Add {{ model.type }}</li>
           </ul>
         </nav>

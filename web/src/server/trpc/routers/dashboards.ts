@@ -36,7 +36,7 @@ export const dashboardsRouter = router({
   read: publicProcedure
     .input(
       z.object({
-        id: z.string(),
+        id: z.string().uuid(),
       })
     )
     .output(DashboardSchema)
@@ -76,7 +76,7 @@ export const dashboardsRouter = router({
   delete: publicProcedure
     .input(
       z.object({
-        id: z.string(),
+        id: z.string().uuid(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -130,7 +130,7 @@ export const dashboardsRouter = router({
   generateQrCode: publicProcedure
     .input(
       z.object({
-        dashboardId: z.string(),
+        dashboardId: z.string().uuid(),
       })
     )
     .output(GenerateQrCodeSchema)

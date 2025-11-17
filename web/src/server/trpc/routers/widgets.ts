@@ -45,7 +45,7 @@ export const widgetsRouter = router({
   read: publicProcedure
     .input(
       z.object({
-        id: z.string(),
+        id: z.string().uuid(),
       })
     )
     .output(WidgetSchema)
@@ -115,7 +115,7 @@ export const widgetsRouter = router({
   delete: publicProcedure
     .input(
       z.object({
-        id: z.string(),
+        id: z.string().uuid(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -134,11 +134,13 @@ export const widgetsRouter = router({
         },
       });
     }),
-  list: publicProcedure.query(async () => {
-    return (await prisma.widget.findMany({
-      where: { deletedAt: null },
-    })) as WidgetType[];
-  }),
+  list: publicProcedure
+    .input(z.object({ dashboardId: z.string().uuid() }))
+    .query(async () => {
+      return (await prisma.widget.findMany({
+        where: { deletedAt: null },
+      })) as WidgetType[];
+    }),
   updateState: publicProcedure
     .input(UpdateWidgetStateSchema)
     .mutation(async ({ input, ctx }) => {
