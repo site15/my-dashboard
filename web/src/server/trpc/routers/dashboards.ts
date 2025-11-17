@@ -96,9 +96,15 @@ export const dashboardsRouter = router({
         },
       });
     }),
-  list: publicProcedure.query(async () => {
+  list: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.user) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'User not found!',
+      });
+    }
     return (await prisma.dashboard.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, userId: ctx.user.id },
     })) as DashboardType[];
   }),
   linkDevice: publicProcedure

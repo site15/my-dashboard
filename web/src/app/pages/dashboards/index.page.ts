@@ -36,7 +36,7 @@ import { DashboardsService } from '../../services/dashboards.service';
     }
   </section>`,
 })
-export default class DashboardsPageComponent {
+export default class DashboardsListPageComponent {
   private readonly dashboardsService = inject(DashboardsService);
 
   readonly dashboards$ = this.dashboardsService.list();

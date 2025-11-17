@@ -46,7 +46,7 @@ import { DashboardsService } from '../../../services/dashboards.service';
     }
   `,
 })
-export default class DashboardLinkDevicePageComponent {
+export default class DashboardsLinkDevicePageComponent {
   private readonly dashboardsService = inject(DashboardsService);
   private readonly route = inject(ActivatedRoute);
 

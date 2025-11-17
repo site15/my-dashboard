@@ -8,7 +8,7 @@ import { first, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { DashboardsService } from '../../../services/dashboards.service';
 
 @Component({
-  selector: 'delete-dashboard-page',
+  selector: 'dashboards-delete-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormlyBootstrapModule, AsyncPipe, ReactiveFormsModule],
   template: ` @if (dashboard$ | async; as dashboard) {
@@ -43,7 +43,7 @@ import { DashboardsService } from '../../../services/dashboards.service';
     </section>
   }`,
 })
-export default class DashboardDeletePageComponent {
+export default class DashboardsDeletePageComponent {
   private readonly dashboardsService = inject(DashboardsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

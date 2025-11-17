@@ -11,7 +11,7 @@ import { DashboardsService } from '../../../services/dashboards.service';
 import { WidgetsService } from '../../../services/widgets.service';
 
 @Component({
-  selector: 'dashboards-item-page',
+  selector: 'dashboards-edit-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -91,6 +91,7 @@ import { WidgetsService } from '../../../services/widgets.service';
               >Edit</a
             >
             <a
+              style="padding-left: 1rem;"
               href="/dashboards/{{
                 dashboardAndWidgets.dashboard.id
               }}/widgets/{{ widget.id }}/delete"
@@ -109,7 +110,7 @@ import { WidgetsService } from '../../../services/widgets.service';
     }
   `,
 })
-export default class DashboardsItemPageComponent {
+export default class DashboardsEditPageComponent {
   private readonly dashboardsService = inject(DashboardsService);
   private readonly widgetsService = inject(WidgetsService);
   private readonly router = inject(Router);

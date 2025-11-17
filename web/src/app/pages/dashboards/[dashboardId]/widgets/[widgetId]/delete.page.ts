@@ -9,7 +9,7 @@ import { DashboardsService } from '../../../../../services/dashboards.service';
 import { WidgetsService } from '../../../../../services/widgets.service';
 
 @Component({
-  selector: 'delete-dashboard-widget-page',
+  selector: 'dashboards-widgets-delete-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormlyBootstrapModule, AsyncPipe, ReactiveFormsModule],
   template: ` @if (dashboardAndWidget$ | async; as dashboardAndWidget) {
@@ -60,7 +60,7 @@ import { WidgetsService } from '../../../../../services/widgets.service';
     </section>
   }`,
 })
-export default class DeleteDashboardWidgetPageComponent {
+export default class DashboardsWidgetsDeletePageComponent {
   private readonly dashboardsService = inject(DashboardsService);
   private readonly widgetsService = inject(WidgetsService);
   private readonly route = inject(ActivatedRoute);
