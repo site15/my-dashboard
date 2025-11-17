@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server';
 import QRCode from 'qrcode';
 import { z } from 'zod';
 
+import { ENVIRONMENTS } from '../../env';
 import { prisma } from '../../prisma';
 import {
   CreateDashboardSchema,
@@ -147,6 +148,7 @@ export const dashboardsRouter = router({
           JSON.stringify({
             dashboardId: qrCode.dashboardId,
             code: qrCode.code,
+            apiUrl: ENVIRONMENTS.MY_DASHBOARD_API_URL,
           }),
           { width: 250 }
         ),
