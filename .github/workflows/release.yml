@@ -99,7 +99,7 @@ jobs:
           fi
 
           TAGS=""
-
+          cd web && npm ci cd ..
           for project in $CHANGED_PROJECTS; do
             if [ -f "$project/package.json" ]; then
               cd $project
