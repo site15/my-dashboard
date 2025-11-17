@@ -15,8 +15,26 @@ import {
 
 @Component({
   selector: 'app-tabs',
-  templateUrl: 'tabs.page.html',
-  styleUrls: ['tabs.page.scss'],
+  template: `
+<ion-tabs>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="dashboard" href="/tabs/dashboard">
+      <ion-icon aria-hidden="true" name="grid-outline"></ion-icon>
+      <ion-label>Dashboard</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="qr-code" href="/tabs/qr-code">
+      <ion-icon aria-hidden="true" name="qr-code-outline"></ion-icon>
+      <ion-label>QR Code</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="settings" href="/tabs/settings">
+      <ion-icon  aria-hidden="true" name="settings-outline"></ion-icon>
+      <ion-label>Settings</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>
+`,
   imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
 })
 export class TabsPage {
