@@ -41,9 +41,11 @@ export const authRouter = router({
     }),
 
   signOut: publicProcedure.mutation(async ({ ctx }) => {
-    await prisma.session.update({
-      where: { id: ctx.session?.id },
-      data: { deletedAt: new Date(0) },
-    });
+    if (ctx.session?.id) {
+      await prisma.session.update({
+        where: { id: ctx.session?.id },
+        data: { deletedAt: new Date(0) },
+      });
+    }
   }),
 });

@@ -11,24 +11,29 @@ export const createContext = async ({
   req,
   res,
 }: trpcNext.CreateNextContextOptions) => {
-  const origin = res.req?.headers?.['origin'];
-  if (origin) {
-    if (res.req.method === 'OPTIONS') {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PUT, DELETE, OPTIONS'
-      );
-      res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization'
-      );
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.setHeader('Access-Control-Max-Age', '86400');
-    } else {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
+  try {
+    const origin =
+      res.req?.headers?.['origin'] || res.req?.headers?.['referer'];
+    if (origin) {
+      if (res.req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader(
+          'Access-Control-Allow-Methods',
+          'GET, POST, PUT, DELETE, OPTIONS'
+        );
+        res.setHeader(
+          'Access-Control-Allow-Headers',
+          'Content-Type, Authorization'
+        );
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Max-Age', '86400');
+      } else {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
     }
+  } catch (err) {
+    console.log(err);
   }
   const getUserAndSessionFromHeader = async function () {
     if (req.headers[X_SESSION_ID]) {
