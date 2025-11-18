@@ -13,7 +13,7 @@ export const createContext = async ({
 }: trpcNext.CreateNextContextOptions) => {
   try {
     const origin =
-      res.req?.headers?.['origin'] || res.req?.headers?.['referer'];
+      res.req?.headers?.['origin'] || res.req?.headers?.['referer'] || '*';
     if (origin) {
       if (res.req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Origin', origin);
