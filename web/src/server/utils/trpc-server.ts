@@ -81,12 +81,20 @@ function getCorsOrigin(req: any): string | null {
   const origin = req.headers.origin;
 
   const allowed = [
+    // http
     'http://127.0.0.1:5173',
     'http://localhost:5173',
     'http://localhost:8100',
     'http://127.0.0.1:8100',
-    'capacitor://localhost',
     'http://localhost',
+    // https
+    'https://127.0.0.1:5173',
+    'https://localhost:5173',
+    'https://localhost:8100',
+    'https://127.0.0.1:8100',
+    'https://localhost',
+    // magic
+    'capacitor://localhost',
     'ionic://localhost',
     ENVIRONMENTS.MY_DASHBOARD_API_URL,
   ];
