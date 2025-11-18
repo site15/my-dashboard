@@ -51,6 +51,7 @@
     "@tailwindcss/vite": "^4.1.4",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
+    "cors": "^2.8.5",
     "es-toolkit": "^1.41.0",
     "isomorphic-fetch": "^3.0.0",
     "postcss": "^8.5.3",
