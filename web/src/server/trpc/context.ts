@@ -11,7 +11,7 @@ export const createContext = async ({
   req,
   res,
 }: trpcNext.CreateNextContextOptions) => {
-  const origin = res.req?.headers?.get('origin');
+  const origin = res.req?.headers?.['origin'];
   if (origin) {
     if (res.req.method === 'OPTIONS') {
       res.setHeader('Access-Control-Allow-Origin', origin);
