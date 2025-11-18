@@ -36,7 +36,7 @@ export async function takeCameraPhoto(): Promise<string | null> {
   try {
     const photo = await Camera.getPhoto({
       resultType: CameraResultType.DataUrl,
-      source: CameraSource.Camera,
+      source: CameraSource.Prompt,
       quality: 100,
     });
 

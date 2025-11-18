@@ -19,6 +19,7 @@ import type { TRPCResponse } from '@trpc/server/rpc';
 import type { H3Event } from 'h3';
 import { createError, defineEventHandler, isMethod, readBody } from 'h3';
 import { createURL } from 'ufo';
+
 import { ENVIRONMENTS } from '../env';
 
 type MaybePromise<T> = T | Promise<T>;
@@ -82,13 +83,14 @@ function getCorsOrigin(req: any): string | null {
   const allowed = [
     'http://127.0.0.1:5173',
     'http://localhost:5173',
+    'http://localhost:8100',
+    'http://127.0.0.1:8100',
+    'capacitor://localhost',
+    'http://localhost',
     ENVIRONMENTS.MY_DASHBOARD_API_URL,
   ];
 
-  return (
-    (origin && allowed.includes(origin) ? origin : null) ||
-    'http://127.0.0.1:5173'
-  );
+  return origin && allowed.includes(origin) ? origin : null;
 }
 
 export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
