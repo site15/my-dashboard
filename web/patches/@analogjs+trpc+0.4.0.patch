@@ -1,0 +1,13 @@
+diff --git a/node_modules/@analogjs/trpc/fesm2022/analogjs-trpc.mjs b/node_modules/@analogjs/trpc/fesm2022/analogjs-trpc.mjs
+index fd3f2b7..564f690 100644
+--- a/node_modules/@analogjs/trpc/fesm2022/analogjs-trpc.mjs
++++ b/node_modules/@analogjs/trpc/fesm2022/analogjs-trpc.mjs
+@@ -269,7 +269,7 @@ const createTrpcClient = ({ url, options, batchLinkOptions, }) => {
+                             headers() {
+                                 return TrpcHeaders();
+                             },
+-                            fetch: customFetch,
++                            fetch: (batchLinkOptions ?? {}).fetch || customFetch,
+                             url: url ?? '',
+                         }),
+                     ],

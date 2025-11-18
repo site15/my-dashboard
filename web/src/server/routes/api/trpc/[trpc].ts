@@ -1,10 +1,10 @@
-import { createTrpcNitroHandler } from '@analogjs/trpc/server';
 
 import { createContext } from '../../../trpc/context';
 import { appRouter } from '../../../trpc/routers';
+import { createCustomTrpcNitroHandler } from '../../../utils/trpc-server';
 
 // export API handler
-export default createTrpcNitroHandler({
+export default createCustomTrpcNitroHandler({
   router: appRouter,
   createContext,
 });

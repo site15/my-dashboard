@@ -11,26 +11,6 @@ export const createContext = async ({
   req,
   res,
 }: trpcNext.CreateNextContextOptions) => {
-  try {
-    const origin =
-      res.req?.headers?.['origin'] || res.req?.headers?.['referer'] || '*';
-    if (origin) {
-      if (res.req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Request-Method', '*');
-        res.setHeader(
-          'Access-Control-Allow-Methods',
-          'GET, POST, PUT, DELETE, OPTIONS'
-        );
-        res.setHeader('Access-Control-Allow-Headers', '*');
-      } else {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Request-Method', '*');
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
   const getUserAndSessionFromHeader = async function () {
     if (req.headers[X_SESSION_ID]) {
       const result = await prisma.session.findFirst({
