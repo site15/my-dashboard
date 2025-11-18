@@ -51,7 +51,9 @@ export default defineConfig(({ mode }) => ({
     global: {},
   },
   server: {
-    cors: false,
+    cors: {
+      origin: true, // Allows all origins (use with caution)
+    },
     allowedHosts: ['cpkeja-46-191-177-220.ru.tuna.am', 'localhost'],
   },
 }));
