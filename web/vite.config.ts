@@ -54,3 +54,5 @@ export default defineConfig(({ mode }) => ({
     allowedHosts: ['cpkeja-46-191-177-220.ru.tuna.am', 'localhost'],
   },
 }));
+
+// fake changes
