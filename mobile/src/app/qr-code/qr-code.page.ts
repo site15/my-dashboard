@@ -1,22 +1,31 @@
-import { Component, OnInit } from '@angular/core';
+import { AsyncPipe, JsonPipe } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import {
+  AlertController,
   IonButton,
   IonCard,
   IonCardContent,
-  IonCol,
   IonContent,
-  IonGrid,
   IonHeader,
   IonIcon,
-  IonImg,
-  IonRow,
   IonTitle,
-  IonToolbar,
+  IonToolbar
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { scanOutline } from 'ionicons/icons';
-import { catchError, first, from, map, of, tap } from 'rxjs';
+import parseQRCode from 'qrcode-parser';
+import {
+  BehaviorSubject,
+  catchError,
+  first,
+  forkJoin,
+  from,
+  mergeMap,
+  of,
+  tap,
+  throwError,
+} from 'rxjs';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 
 @Component({
@@ -37,32 +46,21 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
 
       <app-explore-container name="QR Code page">
         <div style="padding: 20px; text-align: center;">
-          @if (scanResult===null) {
-          <ion-button (click)="startScan()">
-            <ion-icon name="scan-outline" slot="start"></ion-icon>
-            Scan QR Code
-          </ion-button>
-          } @else {
+          @if (scanResult$ | async; as scanResult) {
           <ion-card>
             <ion-card-content>
               <h2>Scanned Content:</h2>
-              @if (scanResult){
-              <ion-grid>
-                <ion-row>
-                  <!-- CHANGE: Create a new column and image component for each photo -->
-                  <ion-col size="6">
-                    <ion-img [src]="scanResult"></ion-img>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-              } @else {
-              <p>No image captured.</p>
-              }
+              <p>{{ scanResultQrData$ | async | json }}</p>
               <ion-button (click)="resetScanner()" fill="clear">
                 Scan Again
               </ion-button>
             </ion-card-content>
           </ion-card>
+          } @else {
+          <ion-button (click)="startScan()">
+            <ion-icon name="scan-outline" slot="start"></ion-icon>
+            Scan QR Code
+          </ion-button>
           }
         </div>
       </app-explore-container>
@@ -78,21 +76,22 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
     IonCardContent,
     IonIcon,
     ExploreContainerComponent,
-    IonImg,
-    IonGrid,
-    IonRow,
-    IonCol,
+    AsyncPipe,
+    JsonPipe,
   ],
 })
 export class QrCodePage implements OnInit {
-  scanResult: string | null = null;
+  private readonly alertController = inject(AlertController);
+
+  scanResult$ = new BehaviorSubject<string | null>(null);
+  scanResultQrData$ = new BehaviorSubject<any>(null);
 
   constructor() {
     addIcons({ scanOutline });
   }
 
   ngOnInit() {
-    this.scanResult = null;
+    this.resetScanner();
   }
 
   startScan() {
@@ -105,19 +104,59 @@ export class QrCodePage implements OnInit {
     )
       .pipe(
         first(),
-        tap((result) => console.log({ result })),
-        map((result) => result.webPath),
+        mergeMap((photo) => {
+          return forkJoin({
+            photo: of(photo),
+            parsedData: photo.webPath
+              ? from(parseQRCode(photo.webPath)).pipe(
+                  catchError((err) => {
+                    if (err.message === 'decode failed') {
+                      return from(
+                        this.alertController.create({
+                          message: 'QR code could not be decoded.',
+                          buttons: [
+                            {
+                              text: 'Cancel',
+                              role: 'cancel',
+                              handler: () => {
+                                console.log('Alert canceled');
+                              },
+                            },
+                            {
+                              text: 'Scan Again',
+                              role: 'confirm',
+                              handler: () => {
+                                this.startScan();
+                                console.log('Alert confirmed');
+                              },
+                            },
+                          ],
+                        })
+                      ).pipe(mergeMap((alert) => alert.present()));
+                    }
+                    return throwError(() => err);
+                  })
+                )
+              : of(null),
+          });
+        }),
+        tap(({ photo, parsedData }) => {
+          if (parsedData) {
+            console.log({ photo, parsedData });
+            this.scanResult$.next(photo.webPath || '');
+            this.scanResultQrData$.next(parsedData);
+          }
+        }),
         catchError((error) => {
           console.error('Error scanning barcode:', error);
           return of(null);
         })
       )
-      .subscribe((result) => {
-        this.scanResult = result || '';
-      });
+      .subscribe();
   }
 
   resetScanner() {
-    this.scanResult = null;
+    this.scanResult$.next(null);
+    this.scanResultQrData$.next(null);
   }
 }
