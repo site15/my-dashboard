@@ -87,10 +87,20 @@ function getCorsOrigin(req: any): string | null {
     'http://127.0.0.1:8100',
     'capacitor://localhost',
     'http://localhost',
+    'ionic://localhost',
     ENVIRONMENTS.MY_DASHBOARD_API_URL,
   ];
 
-  return origin && allowed.includes(origin) ? origin : null;
+  const result = origin && allowed.includes(origin) ? origin : null;
+  if (!result) {
+    console.log({
+      url: req.url,
+      method: req.method,
+      corsOrigin: result,
+      origin,
+    });
+  }
+  return result;
 }
 
 export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
@@ -105,7 +115,6 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
     const corsOrigin = getCorsOrigin(req);
     const $url = createURL(req.url!);
 
-    console.log({ url: req.url, method: req.method, corsOrigin });
     // -------------------
     // 1️⃣ Preflight OPTIONS
     // -------------------
