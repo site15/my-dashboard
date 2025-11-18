@@ -61,3 +61,13 @@ The image is designed to be used with volume mounting to build Android applicati
 For instructions on how to use this container to build Android applications, please refer to the mobile project documentation:
 - [English Documentation](../mobile/README.md)
 - [Russian Documentation](../mobile/README_RU.md)
+
+## Capacitor Plugin Management
+
+When adding or removing Capacitor plugins in the mobile application, you need to run the following command to sync the plugins with the Android project:
+
+```bash
+npx cap sync android
+```
+
+This command updates the native Android project with the latest plugin configurations and should be run after any plugin installation or removal.

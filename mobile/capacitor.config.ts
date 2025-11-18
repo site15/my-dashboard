@@ -12,13 +12,6 @@ const config: CapacitorConfig = {
       "keystoreAlias": "my-dashboard",
       "keystoreAliasPassword": "12345678"
     }
-  },
-  plugins: {
-    BarcodeScanner: {
-      android: {
-        scanningLibrary: "zxing"
-      }
-    }
   }
 };
 

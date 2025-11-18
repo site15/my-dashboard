@@ -1,9 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import {
-  CapacitorBarcodeScanner,
-  CapacitorBarcodeScannerTypeHint,
-} from '@capacitor/barcode-scanner';
-import {
   IonButton,
   IonCard,
   IonCardContent,
@@ -80,6 +76,7 @@ export class QrCodePage implements OnInit {
   }
 
   startScan() {
+    /*
     from(
       CapacitorBarcodeScanner.scanBarcode({
         hint: CapacitorBarcodeScannerTypeHint.ALL,
@@ -98,7 +95,7 @@ export class QrCodePage implements OnInit {
       )
       .subscribe((result) => {
         this.scanResult = result;
-      });
+      });*/
   }
 
   resetScanner() {

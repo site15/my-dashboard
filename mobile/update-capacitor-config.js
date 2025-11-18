@@ -21,13 +21,6 @@ const config: CapacitorConfig = {
       "keystoreAlias": "${keystoreAlias}",
       "keystoreAliasPassword": "${keystoreAliasPassword}"
     }
-  },
-  plugins: {
-    BarcodeScanner: {
-      android: {
-        scanningLibrary: "zxing"
-      }
-    }
   }
 };
 
