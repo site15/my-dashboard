@@ -22,6 +22,54 @@ Release information and updates are automatically posted to our Telegram communi
 
 - [Telegram Release Notifications](https://t.me/site15_community/3)
 
+## Local Database Setup with Docker Compose
+
+For local development, you can use Docker Compose to run a PostgreSQL database container. This is especially useful if you don't want to set up a cloud database for development purposes.
+
+### Prerequisites
+
+- Docker and Docker Compose installed on your system
+
+### Starting the Database
+
+To start the PostgreSQL database container, run:
+
+```bash
+docker-compose up -d
+```
+
+This will start a PostgreSQL database with the following configuration:
+- Username: `postgres`
+- Password: `pgtoolspassword`
+- Database: `postgres`
+- Port: `5432` (mapped to localhost:5432)
+
+### Environment Configuration
+
+After starting the database, add the following to your `.env` file:
+
+```
+MY_DASHBOARD_DATABASE_POSTGRES_URL=postgresql://postgres:pgtoolspassword@localhost:5432/postgres
+```
+
+### Stopping the Database
+
+To stop the database container, run:
+
+```bash
+docker-compose down
+```
+
+### Database Persistence
+
+The database data is persisted in a Docker volume named `pg-tools-postgre-sql-volume`. This means your data will be preserved between container restarts.
+
+To completely remove the data, you can remove the volume:
+
+```bash
+docker-compose down -v
+```
+
 ## Database Setup
 
 This project uses a PostgreSQL database. We recommend using [Neon](https://neon.tech/) for cloud hosting as it provides a generous free tier and doesn't go to sleep like some other free options.

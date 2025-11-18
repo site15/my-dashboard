@@ -28,6 +28,57 @@ npm install
 npm start
 ```
 
+## Local Database Setup
+
+For local development, you can use Docker Compose to run a PostgreSQL database container. This is especially useful if you don't want to set up a cloud database for development purposes.
+
+### Prerequisites
+
+- Docker and Docker Compose installed on your system
+
+### Starting the Database
+
+To start the PostgreSQL database container, run:
+
+```bash
+cd web
+docker-compose up -d
+```
+
+This will start a PostgreSQL database with the following configuration:
+- Username: `postgres`
+- Password: `pgtoolspassword`
+- Database: `postgres`
+- Port: `5432` (mapped to localhost:5432)
+
+### Environment Configuration
+
+After starting the database, add the following to your `web/.env` file:
+
+```
+MY_DASHBOARD_DATABASE_POSTGRES_URL=postgresql://postgres:pgtoolspassword@localhost:5432/postgres
+```
+
+### Stopping the Database
+
+To stop the database container, run:
+
+```bash
+cd web
+docker-compose down
+```
+
+### Database Persistence
+
+The database data is persisted in a Docker volume named `pg-tools-postgre-sql-volume`. This means your data will be preserved between container restarts.
+
+To completely remove the data, you can remove the volume:
+
+```bash
+cd web
+docker-compose down -v
+```
+
 ## Documentation
 
 - [Project Overview and Technical Specification](./PROJECT_OVERVIEW.md)

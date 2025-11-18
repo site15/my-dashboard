@@ -24,7 +24,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,html,css,scss,json}\"",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",

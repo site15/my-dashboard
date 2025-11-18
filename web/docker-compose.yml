@@ -1,0 +1,24 @@
+services:
+  pg-tools-postgre-sql:
+    image: 'bitnami/postgresql:latest'
+    container_name: 'pg-tools-postgre-sql'
+    volumes:
+      - 'pg-tools-postgre-sql-volume:/bitnami/postgresql'
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test:
+        - 'CMD-SHELL'
+        - 'pg_isready -U postgres'
+      interval: '5s'
+      timeout: '5s'
+      retries: 5
+    tty: true
+    restart: 'always'
+    environment:
+      POSTGRESQL_USERNAME: 'postgres'
+      POSTGRESQL_PASSWORD: 'pgtoolspassword'
+      POSTGRESQL_DATABASE: 'postgres'
+volumes:
+  pg-tools-postgre-sql-volume:
+    name: 'pg-tools-postgre-sql-volume'
