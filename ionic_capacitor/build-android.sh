@@ -50,4 +50,4 @@ echo "Build process completed!"
 # List the output files
 echo "APK files generated:"
 ls -la android/app/build/outputs/apk/release/
-# fake changes
+# fake changes 2
