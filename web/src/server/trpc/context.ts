@@ -17,19 +17,15 @@ export const createContext = async ({
     if (origin) {
       if (res.req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Request-Method', '*');
         res.setHeader(
           'Access-Control-Allow-Methods',
           'GET, POST, PUT, DELETE, OPTIONS'
         );
-        res.setHeader(
-          'Access-Control-Allow-Headers',
-          'Content-Type, Authorization'
-        );
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Max-Age', '86400');
+        res.setHeader('Access-Control-Allow-Headers', '*');
       } else {
         res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Request-Method', '*');
       }
     }
   } catch (err) {
