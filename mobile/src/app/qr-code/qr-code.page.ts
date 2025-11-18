@@ -10,23 +10,153 @@ import {
   IonHeader,
   IonIcon,
   IonTitle,
-  IonToolbar
+  IonToolbar,
 } from '@ionic/angular/standalone';
+import { BrowserQRCodeReader } from '@zxing/browser';
 import { addIcons } from 'ionicons';
 import { scanOutline } from 'ionicons/icons';
-import parseQRCode from 'qrcode-parser';
+import jsQR from 'jsqr';
 import {
   BehaviorSubject,
   catchError,
   first,
-  forkJoin,
   from,
+  map,
   mergeMap,
   of,
   tap,
   throwError,
 } from 'rxjs';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+
+//
+// --- 1. Снять фото через камеру ---
+//
+export async function takeCameraPhoto(): Promise<string | null> {
+  try {
+    const photo = await Camera.getPhoto({
+      resultType: CameraResultType.DataUrl,
+      source: CameraSource.Camera,
+      quality: 100,
+    });
+
+    return photo.dataUrl ?? null;
+  } catch (err) {
+    console.error('Camera error:', err);
+    return null;
+  }
+}
+
+//
+// --- 2. Декодирование через ZXing (основной путь) ---
+//
+export async function decodeZXing(dataUrl: string): Promise<string | null> {
+  const reader = new BrowserQRCodeReader();
+
+  try {
+    const result = await reader.decodeFromImageUrl(dataUrl);
+    return result.getText(); // <- новый API ZXing
+  } catch (err) {
+    console.warn('ZXing decode error:', err);
+    return null;
+  }
+}
+
+//
+// --- 3. Fallback: jsQR (читает даже сильно повреждённые QR) ---
+//
+export async function decodeJsQR(dataUrl: string): Promise<string | null> {
+  const img = new Image();
+  img.src = dataUrl;
+  await img.decode();
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d')!;
+
+  canvas.width = img.width;
+  canvas.height = img.height;
+
+  ctx.drawImage(img, 0, 0);
+
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  const result = jsQR(imageData.data, canvas.width, canvas.height, {
+    inversionAttempts: 'attemptBoth',
+  });
+
+  return result?.data || null;
+}
+
+//
+// --- 4. Комбинированная обработка + улучшение изображения ---
+//
+async function preprocess(dataUrl: string): Promise<string> {
+  try {
+    const img = new Image();
+    img.src = dataUrl;
+    await img.decode();
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+
+    // увеличиваем изображение ×2 для лучшего качества
+    canvas.width = img.width * 2;
+    canvas.height = img.height * 2;
+
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // чёткая бинаризация (улучшает читаемость QR)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      const bw = avg > 130 ? 255 : 0;
+      data[i] = data[i + 1] = data[i + 2] = bw;
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    return canvas.toDataURL('image/png');
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+//
+// --- 5. Основная функция: сделать фото + распознать QR ---
+//
+export async function scanQRFromCamera(): Promise<string | null> {
+  try {
+    const dataUrl = await takeCameraPhoto();
+    if (!dataUrl) return null;
+
+    // 1) Пробуем ZXing в чистом виде
+
+    const zxing = await decodeZXing(dataUrl);
+    if (zxing) return zxing;
+
+    // 2) Предобрабатываем (улучшение контраста)
+    const enhanced = await preprocess(dataUrl);
+
+    // 3) Пробуем ZXing снова
+    const zxingEnhanced = await decodeZXing(enhanced);
+    if (zxingEnhanced) return zxingEnhanced;
+
+    // 4) Пробуем jsQR (часто спасает разрушенный QR)
+    const jsqr = await decodeJsQR(dataUrl);
+    if (jsqr) return jsqr;
+
+    const jsqrEnhanced = await decodeJsQR(enhanced);
+    if (jsqrEnhanced) return jsqrEnhanced;
+
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
 
 @Component({
   selector: 'app-qr-code',
@@ -46,11 +176,11 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
 
       <app-explore-container name="QR Code page">
         <div style="padding: 20px; text-align: center;">
-          @if (scanResult$ | async; as scanResult) {
+          @if (scanResultQrData$ | async; as scanResultQrData) {
           <ion-card>
             <ion-card-content>
               <h2>Scanned Content:</h2>
-              <p>{{ scanResultQrData$ | async | json }}</p>
+              <p>{{ scanResultQrData | json }}</p>
               <ion-button (click)="resetScanner()" fill="clear">
                 Scan Again
               </ion-button>
@@ -83,7 +213,6 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
 export class QrCodePage implements OnInit {
   private readonly alertController = inject(AlertController);
 
-  scanResult$ = new BehaviorSubject<string | null>(null);
   scanResultQrData$ = new BehaviorSubject<any>(null);
 
   constructor() {
@@ -95,56 +224,44 @@ export class QrCodePage implements OnInit {
   }
 
   startScan() {
-    from(
-      Camera.getPhoto({
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera,
-        quality: 100,
-      })
-    )
+    from(scanQRFromCamera())
       .pipe(
         first(),
-        mergeMap((photo) => {
-          return forkJoin({
-            photo: of(photo),
-            parsedData: photo.webPath
-              ? from(parseQRCode(photo.webPath)).pipe(
-                  catchError((err) => {
-                    if (err.message === 'decode failed') {
-                      return from(
-                        this.alertController.create({
-                          message: 'QR code could not be decoded.',
-                          buttons: [
-                            {
-                              text: 'Cancel',
-                              role: 'cancel',
-                              handler: () => {
-                                console.log('Alert canceled');
-                              },
-                            },
-                            {
-                              text: 'Scan Again',
-                              role: 'confirm',
-                              handler: () => {
-                                this.startScan();
-                                console.log('Alert confirmed');
-                              },
-                            },
-                          ],
-                        })
-                      ).pipe(mergeMap((alert) => alert.present()));
-                    }
-                    return throwError(() => err);
-                  })
-                )
-              : of(null),
-          });
+        map((result) => {
+          if (!result) {
+            throw new Error('decode failed');
+          }
+          return result;
         }),
-        tap(({ photo, parsedData }) => {
-          if (parsedData) {
-            console.log({ photo, parsedData });
-            this.scanResult$.next(photo.webPath || '');
-            this.scanResultQrData$.next(parsedData);
+        catchError((err) => {
+          console.warn('ZXing2 error:', err);
+          if (err.message === 'decode failed') {
+            return from(
+              this.alertController.create({
+                message: 'QR code could not be decoded.',
+                buttons: [
+                  {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    handler: () => {},
+                  },
+                  {
+                    text: 'Scan Again',
+                    role: 'confirm',
+                    handler: () => {
+                      this.startScan();
+                    },
+                  },
+                ],
+              })
+            ).pipe(mergeMap((alert) => alert.present()));
+          }
+          return throwError(() => err);
+        }),
+        tap((data) => {
+          if (data) {
+            console.log(data);
+            this.scanResultQrData$.next(data);
           }
         }),
         catchError((error) => {
@@ -156,7 +273,6 @@ export class QrCodePage implements OnInit {
   }
 
   resetScanner() {
-    this.scanResult$.next(null);
     this.scanResultQrData$.next(null);
   }
 }
