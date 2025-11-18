@@ -13,6 +13,10 @@ import {
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { provideTrpcClient } from './app/trpc-client';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
+
+// Call the element loader before the bootstrapModule/bootstrapApplication call
+defineCustomElements(window);
 
 bootstrapApplication(AppComponent, {
   providers: [

@@ -20,6 +20,16 @@ Join our Telegram developer community for discussions, updates, and support:
 Release information and updates are automatically posted to our Telegram community chat:
 - [Telegram Release Notifications](https://t.me/site15_community/3)
 
+## Capacitor Plugin Management
+
+When adding or removing Capacitor plugins, you need to run the following command to sync the plugins with the Android project:
+
+```bash
+npx cap sync android
+```
+
+This command updates the native Android project with the latest plugin configurations and should be run after any plugin installation or removal.
+
 ## Running the Build with Volume Mounting
 
 To build the Android APK using Docker with volume mounting:

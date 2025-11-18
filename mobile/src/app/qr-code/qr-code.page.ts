@@ -1,11 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import {
   IonButton,
   IonCard,
   IonCardContent,
+  IonCol,
   IonContent,
+  IonGrid,
   IonHeader,
   IonIcon,
+  IonImg,
+  IonRow,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
@@ -41,7 +46,18 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
           <ion-card>
             <ion-card-content>
               <h2>Scanned Content:</h2>
-              <p>{{ scanResult }}</p>
+              @if (scanResult){
+              <ion-grid>
+                <ion-row>
+                  <!-- CHANGE: Create a new column and image component for each photo -->
+                  <ion-col size="6">
+                    <ion-img [src]="scanResult"></ion-img>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+              } @else {
+              <p>No image captured.</p>
+              }
               <ion-button (click)="resetScanner()" fill="clear">
                 Scan Again
               </ion-button>
@@ -62,6 +78,10 @@ import { ExploreContainerComponent } from '../explore-container/explore-containe
     IonCardContent,
     IonIcon,
     ExploreContainerComponent,
+    IonImg,
+    IonGrid,
+    IonRow,
+    IonCol,
   ],
 })
 export class QrCodePage implements OnInit {
@@ -76,26 +96,25 @@ export class QrCodePage implements OnInit {
   }
 
   startScan() {
-    /*
     from(
-      CapacitorBarcodeScanner.scanBarcode({
-        hint: CapacitorBarcodeScannerTypeHint.ALL,
-        web: { showCameraSelection: true },
-        scanButton: true,
+      Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+        quality: 100,
       })
     )
       .pipe(
         first(),
         tap((result) => console.log({ result })),
-        map((result) => result.ScanResult),
+        map((result) => result.webPath),
         catchError((error) => {
           console.error('Error scanning barcode:', error);
           return of(null);
         })
       )
       .subscribe((result) => {
-        this.scanResult = result;
-      });*/
+        this.scanResult = result || '';
+      });
   }
 
   resetScanner() {
