@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import {
   CreateDashboardType,
   UpdateDashboardType,
-  LinkDeviceType,
 } from '../../server/types/DashboardSchema';
 import { injectTrpcClient } from '../trpc-client';
 
@@ -31,10 +30,6 @@ export class DashboardsService {
 
   list() {
     return this.trpc.dashboards.list.query();
-  }
-
-  linkDevice(data: LinkDeviceType) {
-    return this.trpc.dashboards.linkDevice.mutate(data);
   }
 
   generateQrCode(dashboardId: string) {

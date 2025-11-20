@@ -192,7 +192,10 @@ model WidgetLog {
 - `/auth` - Authentication operations
 
 ### Dashboard Routes
-- `/dashboards/linkDevice` - Generate QR code for device linking
+- `/dashboards/generateQrCode` - Generate QR code for device linking
+
+### Device Routes
+- `/device/link` - Link device to dashboard using QR code
 
 ### Widget Routes
 - Widget management operations (partially implemented)

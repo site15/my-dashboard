@@ -1,4 +1,4 @@
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import {
@@ -9,6 +9,7 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonSpinner,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
@@ -19,15 +20,18 @@ import jsQR from 'jsqr';
 import {
   BehaviorSubject,
   catchError,
+  finalize,
   first,
   from,
   map,
   mergeMap,
   of,
+  switchMap,
   tap,
   throwError,
 } from 'rxjs';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+import { injectTrpcClient } from '../trpc-client';
 
 //
 // --- 1. Снять фото через камеру ---
@@ -158,6 +162,13 @@ export async function scanQRFromCamera(): Promise<string | null> {
   }
 }
 
+// QR Code data structure
+interface QrCodeData {
+  dashboardId: string;
+  code: string;
+  apiUrl: string;
+}
+
 @Component({
   selector: 'app-qr-code',
   template: `
@@ -176,21 +187,26 @@ export async function scanQRFromCamera(): Promise<string | null> {
 
       <app-explore-container name="QR Code page">
         <div style="padding: 20px; text-align: center;">
-          @if (scanResultQrData$ | async; as scanResultQrData) {
-          <ion-card>
-            <ion-card-content>
-              <h2>Scanned Content:</h2>
-              <p>{{ scanResultQrData | json }}</p>
-              <ion-button (click)="resetScanner()" fill="clear">
-                Scan Again
-              </ion-button>
-            </ion-card-content>
-          </ion-card>
+          @if (isLoading$ | async) {
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+              <ion-spinner></ion-spinner>
+              <p>Scanning QR code...</p>
+            </div>
+          } @else if (scanResultQrData$ | async; as scanResultQrData) {
+            <ion-card>
+              <ion-card-content>
+                <h2>Device Linked Successfully!</h2>
+                <p>Dashboard ID: {{ scanResultQrData.dashboardId }}</p>
+                <ion-button (click)="resetScanner()" fill="clear">
+                  Scan Another QR Code
+                </ion-button>
+              </ion-card-content>
+            </ion-card>
           } @else {
-          <ion-button (click)="startScan()">
-            <ion-icon name="scan-outline" slot="start"></ion-icon>
-            Scan QR Code
-          </ion-button>
+            <ion-button (click)="startScan()">
+              <ion-icon name="scan-outline" slot="start"></ion-icon>
+              Scan QR Code
+            </ion-button>
           }
         </div>
       </app-explore-container>
@@ -205,15 +221,17 @@ export async function scanQRFromCamera(): Promise<string | null> {
     IonCard,
     IonCardContent,
     IonIcon,
+    IonSpinner,
     ExploreContainerComponent,
     AsyncPipe,
-    JsonPipe,
   ],
 })
 export class QrCodePage implements OnInit {
   private readonly alertController = inject(AlertController);
+  private readonly trpc = injectTrpcClient();
 
-  scanResultQrData$ = new BehaviorSubject<any>(null);
+  scanResultQrData$ = new BehaviorSubject<QrCodeData | null>(null);
+  isLoading$ = new BehaviorSubject<boolean>(false);
 
   constructor() {
     addIcons({ scanOutline });
@@ -224,49 +242,64 @@ export class QrCodePage implements OnInit {
   }
 
   startScan() {
+    // Set loading state to true when starting the scan
+    this.isLoading$.next(true);
+    
     from(scanQRFromCamera())
       .pipe(
         first(),
-        map((result) => {
+        mergeMap((result) => {
           if (!result) {
             throw new Error('decode failed');
           }
-          return result;
+          
+          // Parse the QR code data
+          try {
+            const qrData: QrCodeData = JSON.parse(result);
+            
+            // Generate a unique device ID (in a real app, you might want to use a more robust method)
+            const deviceId = this.generateDeviceId();
+            
+            // Call the device/link API
+            return from(
+              this.trpc.device.link.mutate({
+                dashboardId: qrData.dashboardId,
+                code: qrData.code,
+                deviceId: deviceId
+              })
+            ).pipe(
+              map(() => qrData), // Return the QR data on success
+              catchError((err) => {
+                console.error('Error linking device:', err);
+                throw new Error('link failed');
+              })
+            );
+          } catch (parseError) {
+            console.error('Error parsing QR code data:', parseError);
+            throw new Error('invalid qr code');
+          }
         }),
         catchError((err) => {
-          console.warn('ZXing2 error:', err);
-          if (err.message === 'decode failed') {
-            return from(
-              this.alertController.create({
-                message: 'QR code could not be decoded.',
-                buttons: [
-                  {
-                    text: 'Cancel',
-                    role: 'cancel',
-                    handler: () => {},
-                  },
-                  {
-                    text: 'Scan Again',
-                    role: 'confirm',
-                    handler: () => {
-                      this.startScan();
-                    },
-                  },
-                ],
-              })
-            ).pipe(mergeMap((alert) => alert.present()));
-          }
-          return throwError(() => err);
+          console.warn('Scan error:', err);
+          // Handle the error by showing an alert and returning null to continue the stream
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          return from(this.showScanErrorAlert(errorMessage)).pipe(
+            switchMap(() => of(null))
+          );
         }),
         tap((data) => {
-          if (data) {
-            console.log(data);
+          if (data && typeof data === 'object' && 'dashboardId' in data) {
+            console.log('Device linked successfully:', data);
             this.scanResultQrData$.next(data);
           }
         }),
         catchError((error) => {
           console.error('Error scanning barcode:', error);
           return of(null);
+        }),
+        // Always set loading state to false when the operation completes
+        finalize(() => {
+          this.isLoading$.next(false);
         })
       )
       .subscribe();
@@ -274,5 +307,53 @@ export class QrCodePage implements OnInit {
 
   resetScanner() {
     this.scanResultQrData$.next(null);
+  }
+
+  private generateDeviceId(): string {
+    // Check if we already have a device ID in local storage
+    const storedDeviceId = localStorage.getItem('deviceId');
+    if (storedDeviceId) {
+      return storedDeviceId;
+    }
+    
+    // Generate a new device ID if none exists
+    const newDeviceId = 'device_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    
+    // Store it in local storage for future use
+    localStorage.setItem('deviceId', newDeviceId);
+    
+    return newDeviceId;
+  }
+
+  private async showScanErrorAlert(errorMessage: string) {
+    let alertMessage = 'An unknown error occurred. Please try again.';
+    
+    if (errorMessage === 'decode failed') {
+      alertMessage = 'QR code could not be decoded.';
+    } else if (errorMessage === 'invalid qr code') {
+      alertMessage = 'Invalid QR code format.';
+    } else if (errorMessage === 'link failed') {
+      alertMessage = 'Failed to link device. Please try again.';
+    }
+
+    const alert = await this.alertController.create({
+      message: alertMessage,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {},
+        },
+        {
+          text: 'Scan Again',
+          role: 'confirm',
+          handler: () => {
+            this.startScan();
+          },
+        },
+      ],
+    });
+    
+    await alert.present();
   }
 }
