@@ -100,14 +100,6 @@ function getCorsOrigin(req: any): string | null {
   ];
 
   const result = origin && allowed.includes(origin) ? origin : null;
-  if (!result) {
-    console.log({
-      url: req.url,
-      method: req.method,
-      corsOrigin: result,
-      origin,
-    });
-  }
   return result;
 }
 
@@ -182,9 +174,9 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
         return { headers };
       },
       onError: o => {
-        const ctx = o.ctx as any; // TRPC контекст с logger
+        const ctx = o.ctx; // TRPC контекст с logger
         if (ctx?.logger) {
-          ctx.logger.error(o.error, {
+          ctx.logger.errorWithStack(o.error, {
             event: 'trpc_error',
             path: o.path,
             type: o.type,

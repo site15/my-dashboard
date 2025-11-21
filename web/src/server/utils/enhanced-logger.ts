@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*****************************************************************************************
  * 🔥 ENHANCED LOGGER — TRPC + Zod + Auto-Masking + Correlation-id
  *
@@ -11,7 +13,7 @@
  *    export async function createContext({ req, res }) {
  *      const baseCtx = { req, res, user: req.user, session: req.session };
  *      return attachLoggerToContext(baseCtx);
- *   
+ *
  * 3) В TRPC процедурах:
  *    ctx.logger.info("Hello world");
  *    ctx.logger.debug({ body: ctx.req.body });
@@ -23,6 +25,8 @@ import { randomUUID } from 'crypto';
 
 import pino, { Logger as PinoLogger } from 'pino';
 import { z } from 'zod';
+
+import 'pino-pretty';
 
 /* ======================================================================================
  * SENSITIVE DATA MASKING
@@ -55,44 +59,38 @@ const captureStackTrace = (): string | undefined => {
 };
 
 const mapCompiledPathToSource = (compiledPath: string): string => {
-  // Map compiled .mjs paths back to source .ts paths
-  if (compiledPath.includes('/dist/.nitro/dev/index.mjs')) {
-    // Extract the source path information if available
-    return 'web/src/server/trpc/routers/device.ts';
-  }
-  
-  // Handle other common compiled path patterns
-  if (compiledPath.endsWith('.mjs')) {
-    return compiledPath.replace(/\.mjs$/, '.ts');
-  }
-  
   return compiledPath;
 };
 
-const parseStackTrace = (stack: string | undefined): { file: string; line: number; column: number } | null => {
+const parseStackTrace = (
+  stack: string | undefined,
+  error?: any
+): { file: string; line: number; column: number; stack: any } | null => {
   if (!stack) return null;
-  
+
   // Parse the stack trace to extract file path, line and column
   const lines = stack.split('\n');
   // Skip the first line (Error message) and get the first stack frame
   const stackLine = lines[2] || lines[1]; // Sometimes the first real frame is at index 2
-  
+
   if (stackLine) {
     // Match pattern like: at functionName (/path/to/file.ts:123:45)
-    const match = stackLine.match(/at .*?\((.+?):(\d+):(\d+)\)/) || 
-                  stackLine.match(/at (.+?):(\d+):(\d+)/);
-    
+    const match =
+      stackLine.match(/at .*?\((.+?):(\d+):(\d+)\)/) ||
+      stackLine.match(/at (.+?):(\d+):(\d+)/);
+
     if (match) {
       const filePath = mapCompiledPathToSource(match[1]);
-      
+
       return {
         file: filePath,
         line: parseInt(match[2], 10),
-        column: parseInt(match[3], 10)
+        column: parseInt(match[3], 10),
+        stack: String(error),
       };
     }
   }
-  
+
   return null;
 };
 
@@ -126,39 +124,53 @@ export function createRequestLogger(opts: {
   const { traceId, userId, sessionId, deviceId, enabled, maskRegexList } = opts;
   const instance = baseLogger.child({ traceId, userId, sessionId, deviceId });
 
-  const emit = (level: 'info' | 'debug' | 'warn' | 'error', payload: any) => {
+  const emit = (
+    level: 'info' | 'debug' | 'warn' | 'error',
+    payload?: any,
+    ...args: any
+  ) => {
     if (!enabled) return;
-    
+
     // Capture stack trace for error logs
-    let stackTraceInfo = null;
-    if (level === 'error') {
-      const stack = captureStackTrace();
-      stackTraceInfo = parseStackTrace(stack);
+    let stackTraceInfo = payload.stackTrace || null;
+    if (level === 'error' && !stackTraceInfo) {
+      try {
+        const stack = payload?.stack || captureStackTrace();
+        stackTraceInfo = parseStackTrace(stack, payload);
+      } catch (err) {
+        const stack = captureStackTrace();
+        stackTraceInfo = parseStackTrace(stack);
+      }
     }
-    
+
     const structured =
       typeof payload === 'string' ? { message: payload } : payload || {};
-      
+
     // Add stack trace info for errors
     if (stackTraceInfo && level === 'error') {
       structured.stackTrace = {
         file: stackTraceInfo.file,
         line: stackTraceInfo.line,
-        column: stackTraceInfo.column
+        column: stackTraceInfo.column,
       };
     }
-    
+
+    try {
+      structured.errorClass = payload?.stack?.split(':')?.[0];
+    } catch (error) {
+      structured.errorClass = payload.name;
+    }
     const masked = maskSensitiveData(structured, maskRegexList);
     instance[level](masked);
   };
 
   return {
     traceId,
-    info: (msg: any) => emit('info', msg),
-    debug: (msg: any) => emit('debug', msg),
-    warn: (msg: any) => emit('warn', msg),
-    error: (msg: any) => emit('error', msg),
-    log: (msg: any) => emit('info', msg),
+    info: (...msg: any) => emit('info', ...msg),
+    debug: (...msg: any) => emit('debug', ...msg),
+    warn: (...msg: any) => emit('warn', ...msg),
+    error: (...msg: any) => emit('error', ...msg),
+    log: (...msg: any) => emit('info', ...msg),
 
     child() {
       return createRequestLogger({
@@ -174,45 +186,52 @@ export function createRequestLogger(opts: {
     // Красивое логирование Zod ошибок
     zodError: (err: z.ZodError, contextInfo?: any) => {
       const issues = err.issues.map(i => ({
+        name: err.name,
         path: i.path.join('.'),
         message: i.message,
         code: i.code,
       }));
-      
+
       // Include the original error stack trace
-      const stackTraceInfo = parseStackTrace(err.stack);
-      
-      emit('error', { 
-        event: 'zod_error', 
-        issues, 
+      const stackTraceInfo = parseStackTrace(err.stack, err);
+
+      emit('error', {
+        event: 'zod_error',
+        issues,
         context: contextInfo,
         originalError: {
+          name: err.name,
           message: err.message,
           stack: err.stack,
-          stackTrace: stackTraceInfo ? {
-            file: stackTraceInfo.file,
-            line: stackTraceInfo.line,
-            column: stackTraceInfo.column
-          } : undefined
-        }
+          stackTrace: stackTraceInfo
+            ? {
+                file: stackTraceInfo.file,
+                line: stackTraceInfo.line,
+                column: stackTraceInfo.column,
+              }
+            : undefined,
+        },
       });
     },
-    
+
     // Enhanced error logging with full stack trace information
-    errorWithStack: (error: Error, contextInfo?: any) => {
-      const stackTraceInfo = parseStackTrace(error.stack);
-      
+    errorWithStack: (err: Error, contextInfo?: any) => {
+      const stackTraceInfo = parseStackTrace(err.stack, err);
+
       emit('error', {
-        message: error.message,
-        stack: error.stack,
-        stackTrace: stackTraceInfo ? {
-          file: stackTraceInfo.file,
-          line: stackTraceInfo.line,
-          column: stackTraceInfo.column
-        } : undefined,
-        context: contextInfo
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+        stackTrace: stackTraceInfo
+          ? {
+              file: stackTraceInfo.file,
+              line: stackTraceInfo.line,
+              column: stackTraceInfo.column,
+            }
+          : undefined,
+        context: contextInfo,
       });
-    }
+    },
   };
 }
 
@@ -225,15 +244,17 @@ export function attachLoggerToContext(ctx: any) {
   // correlation-id / trace-id
   const traceId =
     req?.headers?.['x-trace-id'] || req?.headers?.['trace-id'] || randomUUID();
-  
+
   // Handle the case where headers might be arrays
-  const getHeaderAsString = (header: string | string[] | undefined): string | undefined => {
+  const getHeaderAsString = (
+    header: string | string[] | undefined
+  ): string | undefined => {
     if (Array.isArray(header)) {
       return header[0]; // Take the first value if it's an array
     }
     return header;
   };
-  
+
   const deviceIdHeader = getHeaderAsString(req?.headers?.['x-device-id']);
   const enabled = true; // всегда логируем
 
