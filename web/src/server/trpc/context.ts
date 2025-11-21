@@ -56,7 +56,7 @@ export const createContext = async ({
 
   const options = await getUserAndSessionFromHeader();
   if (!options) {
-    return {
+    return attachLoggerToContext({
       deviceId: await getDeviceIdFromHeader(),
       setCookie: (
         name: string,
@@ -76,7 +76,7 @@ export const createContext = async ({
           }
         }
       },
-    };
+    });
   }
   return attachLoggerToContext({
     req,
