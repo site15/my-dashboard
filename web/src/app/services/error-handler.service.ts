@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 
 /**
@@ -6,12 +8,12 @@ import { Observable } from 'rxjs';
  * Shows error notifications using browser's Notification API or simple alerts
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ErrorHandlerService {
   private globalErrorHandlingEnabled = true;
 
-  constructor() {}
+  constructor(private readonly toastrService: ToastrService) {}
 
   /**
    * Enable or disable global error handling
@@ -29,7 +31,7 @@ export class ErrorHandlerService {
     }
 
     let message = customMessage || 'An error occurred';
-    
+
     // Handle TRPC errors
     if (error && typeof error === 'object') {
       if (error.message) {
@@ -39,27 +41,20 @@ export class ErrorHandlerService {
       }
     }
 
-    // Show error using browser's Notification API if available
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Error', {
-        body: message,
-        icon: '/favicon.ico'
-      });
-    } else {
-      // Fallback to console error and alert
-      console.error('Application Error:', message);
-      
-      // Only show alert in development mode
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        alert(`Error: ${message}`);
-      }
-    }
+    this.toastrService.error(message, 'Error', {
+      timeOut: 3000,
+      positionClass: 'toast-bottom-center',
+      progressBar: true,
+    });
   }
 
   /**
    * Wrap an observable with error handling
    */
-  withErrorHandling<T>(observable: Observable<T>, customMessage?: string): Observable<T> {
+  withErrorHandling<T>(
+    observable: Observable<T>,
+    customMessage?: string
+  ): Observable<T> {
     return new Observable<T>(subscriber => {
       const subscription = observable.subscribe({
         next: value => subscriber.next(value),
@@ -67,9 +62,9 @@ export class ErrorHandlerService {
           await this.handleError(error, customMessage);
           subscriber.error(error);
         },
-        complete: () => subscriber.complete()
+        complete: () => subscriber.complete(),
       });
-      
+
       return () => subscription.unsubscribe();
     });
   }
@@ -77,7 +72,10 @@ export class ErrorHandlerService {
   /**
    * Wrap a promise with error handling
    */
-  async withErrorHandlingAsync<T>(promise: Promise<T>, customMessage?: string): Promise<T> {
+  async withErrorHandlingAsync<T>(
+    promise: Promise<T>,
+    customMessage?: string
+  ): Promise<T> {
     try {
       return await promise;
     } catch (error) {

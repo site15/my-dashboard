@@ -21,9 +21,11 @@ import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { withComponentInputBinding } from '@angular/router';
 import { withFormlyBootstrap } from '@ngx-formly/bootstrap';
 import { provideFormlyCore } from '@ngx-formly/core';
+import { provideToastr } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from './services/auth.service';
@@ -44,6 +46,8 @@ export const appConfig: ApplicationConfig = {
     ),
     provideClientHydration(withEventReplay()),
     provideTrpcClient(),
+    provideNoopAnimations(),
+    provideToastr(),
     provideAppInitializer(async () => {
       const destroyRef = inject(DestroyRef);
 
