@@ -57,9 +57,6 @@ export function Concurrency(
           size: 0,
           queue: [],
         });
-
-      // console.log(host, info)
-
       const { queue } = info;
 
       const next = () => {

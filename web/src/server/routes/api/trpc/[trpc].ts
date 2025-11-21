@@ -1,4 +1,3 @@
-
 import { createContext } from '../../../trpc/context';
 import { appRouter } from '../../../trpc/routers';
 import { createCustomTrpcNitroHandler } from '../../../utils/trpc-server';
@@ -7,4 +6,7 @@ import { createCustomTrpcNitroHandler } from '../../../utils/trpc-server';
 export default createCustomTrpcNitroHandler({
   router: appRouter,
   createContext,
+  onError: opts => {
+    console.error(opts.error.stack);
+  },
 });

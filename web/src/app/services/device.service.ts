@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { LinkDeviceType } from '../../server/types/DashboardSchema';
+import { DeviceLinkType } from '../../server/types/DashboardSchema';
 import { injectTrpcClient } from '../trpc-client';
 
 @Injectable({
@@ -9,7 +9,11 @@ import { injectTrpcClient } from '../trpc-client';
 export class DeviceService {
   private trpc = injectTrpcClient();
 
-  link(data: LinkDeviceType) {
+  link(data: DeviceLinkType) {
     return this.trpc.device.link.mutate(data);
+  }
+
+  info(deviceId: string) {
+    return this.trpc.device.info.query({ deviceId });
   }
 }

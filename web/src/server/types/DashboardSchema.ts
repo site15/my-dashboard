@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
-import { DashboardScalarFieldEnum } from '../generated/prisma/internal/prismaNamespace';
+import {
+  DashboardScalarFieldEnum,
+  WidgetScalarFieldEnum,
+} from '../generated/prisma/internal/prismaNamespace';
 
 export const DashboardSchema = z.object({
   [DashboardScalarFieldEnum.id]: z.string().uuid(),
@@ -45,10 +48,38 @@ export type GenerateQrCodeType = z.infer<typeof GenerateQrCodeSchema>;
 
 //
 
-export const LinkDeviceSchema = z.object({
-  dashboardId: z.string(),
+export const DeviceLinkSchema = z.object({
   deviceId: z.string(),
   code: z.string(),
 });
 
-export type LinkDeviceType = z.infer<typeof LinkDeviceSchema>;
+export type DeviceLinkType = z.infer<typeof DeviceLinkSchema>;
+
+//
+
+// Device info response schema
+export const DeviceInfoWidgetSchema = z.object({
+  [WidgetScalarFieldEnum.id]: z.string().uuid(),
+  [WidgetScalarFieldEnum.options]: z.any().nullish(),
+  [WidgetScalarFieldEnum.state]: z.any().nullish(),
+  [WidgetScalarFieldEnum.columnIndex]: z.number().nullish(),
+  [WidgetScalarFieldEnum.rowIndex]: z.number().nullish(),
+  [WidgetScalarFieldEnum.columnCount]: z.number().nullish(),
+  [WidgetScalarFieldEnum.rowCount]: z.number().nullish(),
+  [WidgetScalarFieldEnum.isBlackTheme]: z.boolean().nullish(),
+  [WidgetScalarFieldEnum.backgroundColor]: z.string().nullish(),
+  [WidgetScalarFieldEnum.primaryColor]: z.string().nullish(),
+  [WidgetScalarFieldEnum.positiveColor]: z.string().nullish(),
+  [WidgetScalarFieldEnum.negativeColor]: z.string().nullish(),
+});
+
+export type DeviceInfoWidgetType = z.infer<typeof DeviceInfoWidgetSchema>;
+
+export const DeviceInfoSchema = z.object({
+  [DashboardScalarFieldEnum.id]: z.string().uuid(),
+  [DashboardScalarFieldEnum.name]: z.string(),
+  [DashboardScalarFieldEnum.isBlackTheme]: z.boolean().nullish(),
+  widgets: z.array(DeviceInfoWidgetSchema),
+});
+
+export type DeviceInfoType = z.infer<typeof DeviceInfoSchema>;

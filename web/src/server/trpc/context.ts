@@ -1,7 +1,7 @@
 import { inferAsyncReturnType, TRPCError } from '@trpc/server';
 import * as trpcNext from '@trpc/server/adapters/next';
 
-import { X_SESSION_ID } from '../constants';
+import { X_DEVICE_ID, X_SESSION_ID } from '../constants';
 import { prisma } from '../prisma';
 import { SerializeOptions } from '../utils/cookie';
 import { getCookie, getCookies, setCookie } from '../utils/cookie-utils';
@@ -30,9 +30,33 @@ export const createContext = async ({
     }
     return null;
   };
+
+  const getDeviceIdFromHeader = async function () {
+    const deviceId = req.headers[X_DEVICE_ID];
+    if (deviceId) {
+      const result = await prisma.dashboard.findFirst({
+        where: {
+          deviceId: { equals: deviceId },
+          deletedAt: null,
+        },
+      });
+      if (!result) {
+        if (isSSR) {
+          return null;
+        }
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Device ID not found!',
+        });
+      }
+    }
+    return deviceId;
+  };
+
   const options = await getUserAndSessionFromHeader();
   if (!options) {
     return {
+      deviceId: await getDeviceIdFromHeader(),
       setCookie: (
         name: string,
         value?: string | null,
@@ -56,6 +80,7 @@ export const createContext = async ({
   return {
     user: options.user,
     session: options.session,
+    deviceId: await getDeviceIdFromHeader(),
     setCookie: (
       name: string,
       value?: string | null,
