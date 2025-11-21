@@ -104,7 +104,7 @@ export const dashboardsRouter = router({
       });
     }
     return (await prisma.dashboard.findMany({
-      where: { deletedAt: null, userId: ctx.user.id },
+      where: { deletedAt: { equals: null }, userId: { equals: ctx.user.id } },
     })) as DashboardType[];
   }),
   generateQrCode: publicProcedure

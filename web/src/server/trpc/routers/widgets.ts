@@ -138,7 +138,10 @@ export const widgetsRouter = router({
     .input(z.object({ dashboardId: z.string().uuid() }))
     .query(async ({ input }) => {
       return (await prisma.widget.findMany({
-        where: { dashboardId: input.dashboardId, deletedAt: null },
+        where: {
+          dashboardId: { equals: input.dashboardId },
+          deletedAt: { equals: null },
+        },
       })) as WidgetType[];
     }),
   updateState: publicProcedure

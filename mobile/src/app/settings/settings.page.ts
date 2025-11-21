@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -20,19 +21,20 @@ import {
   IonNote,
   IonButtons,
   ToastController,
+  AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  qrCodeOutline,
   refreshOutline,
   saveOutline,
+  qrCodeOutline,
   unlinkOutline,
 } from 'ionicons/icons';
+import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 import { firstValueFrom } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { DeviceInfoType } from '../../../../web/src/server/types/DashboardSchema';
-import { ExploreContainerComponent } from '../explore-container/explore-container.component';
-import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 
 @Component({
   selector: 'app-settings',
@@ -202,11 +204,13 @@ import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
     FormsModule,
     RouterLink,
     ExploreContainerComponent,
+    JsonPipe,
   ],
 })
 export class SettingsPage {
   private trpc = injectTrpcClient();
   private toastController = inject(ToastController);
+  private alertController = inject(AlertController);
 
   dashboardInfo: DeviceInfoType | null = null;
   dashboardSettings = {
@@ -305,27 +309,39 @@ export class SettingsPage {
     }
 
     try {
-      // Confirm unlink action
-      if (
-        confirm(
-          'Are you sure you want to unlink this device from the dashboard?'
-        )
-      ) {
-        // Remove deviceId from localStorage
-        localStorage.removeItem('deviceId');
+      // Create and present Ionic alert instead of using native confirm
+      const alert = await this.alertController.create({
+        header: 'Confirm Unlink',
+        message:
+          'Are you sure you want to unlink this device from the dashboard?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+          },
+          {
+            text: 'Unlink',
+            role: 'destructive',
+            handler: async () => {
+              // Remove deviceId from localStorage
+              localStorage.removeItem('deviceId');
 
-        // Show success message
-        const toast = await this.toastController.create({
-          message: 'Device unlinked successfully',
-          duration: 2000,
-          color: 'success',
-        });
-        await toast.present();
+              // Show success message
+              const toast = await this.toastController.create({
+                message: 'Device unlinked successfully',
+                duration: 2000,
+                color: 'success',
+              });
+              await toast.present();
 
-        // Clear dashboard info
-        this.dashboardInfo = null;
-        this.deviceId = null;
-      }
+              // Clear dashboard info
+              this.dashboardInfo = null;
+              this.deviceId = null;
+            },
+          },
+        ],
+      });
+      await alert.present();
     } catch (err) {
       console.error('Error unlinking device:', err);
       const toast = await this.toastController.create({

@@ -11,21 +11,21 @@ export const deviceRouter = router({
   link: publicProcedure.input(DeviceLinkSchema).mutation(async ({ input }) => {
     await prisma.dashboard.updateMany({
       where: {
-        deviceId: input.deviceId,
+        deviceId: { equals: input.deviceId },
       },
       data: { deviceId: null },
     });
     await prisma.dashboard.updateMany({
       where: {
         qrCodes: {
-          every: { code: input.code, deletedAt: null },
+          every: { code: { equals: input.code }, deletedAt: { equals: null } },
         },
       },
       data: { deviceId: input.deviceId, updatedAt: new Date() },
     });
     await prisma.qrCode.updateMany({
       where: {
-        code: input.code,
+        code: { equals: input.code },
       },
       data: { deletedAt: new Date() },
     });
