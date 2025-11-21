@@ -2,9 +2,13 @@ import { createHash, createHmac } from 'crypto';
 
 import { ENVIRONMENTS } from '../env';
 
-// We'll destructure req.query to make our code clearer
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const checkSignature = ({ hash, ...userData }: any) => {
+// Properly type the function parameters instead of using any
+interface TelegramUserData {
+  hash?: string;
+  [key: string]: string | number | undefined;
+}
+
+export const checkSignature = ({ hash, ...userData }: TelegramUserData) => {
   // create a hash of a secret that both you and Telegram know. In this case, it is your bot token
   const secretKey = createHash('sha256')
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

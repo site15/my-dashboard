@@ -5,6 +5,7 @@ import { X_DEVICE_ID, X_SESSION_ID } from '../constants';
 import { prisma } from '../prisma';
 import { SerializeOptions } from '../utils/cookie';
 import { getCookie, getCookies, setCookie } from '../utils/cookie-utils';
+import { attachLoggerToContext } from '../utils/enhanced-logger';
 import { isSSR } from '../utils/is-ssr';
 
 export const createContext = async ({
@@ -77,7 +78,8 @@ export const createContext = async ({
       },
     };
   }
-  return {
+  return attachLoggerToContext({
+    req,
     user: options.user,
     session: options.session,
     deviceId: await getDeviceIdFromHeader(),
@@ -99,7 +101,7 @@ export const createContext = async ({
         }
       }
     },
-  };
+  });
 };
 
 export type Context = inferAsyncReturnType<typeof createContext>;

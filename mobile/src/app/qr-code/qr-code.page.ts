@@ -13,6 +13,7 @@ import {
   IonSpinner,
   IonTitle,
   IonToolbar,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { BrowserQRCodeReader } from '@zxing/browser';
 import { addIcons } from 'ionicons';
@@ -32,6 +33,7 @@ import {
 } from 'rxjs';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
+import { ErrorHandlerService } from '../services/error-handler.service';
 
 //
 // --- 1. Снять фото через камеру ---
@@ -230,6 +232,8 @@ interface QrCodeData {
 })
 export class QrCodePage {
   private readonly alertController = inject(AlertController);
+  private readonly toastController = inject(ToastController);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly trpc = injectTrpcClient();
   private readonly router = inject(Router);
 
@@ -238,6 +242,8 @@ export class QrCodePage {
 
   constructor() {
     addIcons({ scanOutline });
+    // Initialize the error handler with the toast controller
+    this.errorHandler.initialize(this.toastController);
   }
 
   ionViewWillEnter() {
@@ -275,11 +281,15 @@ export class QrCodePage {
               map(() => qrData), // Return the QR data on success
               catchError((err) => {
                 console.error('Error linking device:', err);
+                // Handle the error using our global error handler
+                this.errorHandler.handleError(err, 'Failed to link device').catch(console.error);
                 throw new Error('link failed');
               })
             );
           } catch (parseError) {
             console.error('Error parsing QR code data:', parseError);
+            // Handle the error using our global error handler
+            this.errorHandler.handleError(parseError, 'Invalid QR code format').catch(console.error);
             throw new Error('invalid qr code');
           }
         }),
@@ -301,6 +311,8 @@ export class QrCodePage {
         }),
         catchError((error) => {
           console.error('Error scanning barcode:', error);
+          // Handle the error using our global error handler
+          this.errorHandler.handleError(error, 'Error scanning QR code').catch(console.error);
           return of(null);
         }),
         // Always set loading state to false when the operation completes

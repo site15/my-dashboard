@@ -1,5 +1,5 @@
 import { JsonPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -13,6 +13,7 @@ import {
   IonIcon,
   IonTitle,
   IonToolbar,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { qrCodeOutline, refreshOutline } from 'ionicons/icons';
@@ -22,6 +23,7 @@ import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 import { firstValueFrom } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { DeviceInfoType } from '../../../../web/src/server/types/DashboardSchema';
+import { ErrorHandlerService } from '../services/error-handler.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -72,23 +74,20 @@ import { DeviceInfoType } from '../../../../web/src/server/types/DashboardSchema
             </ion-card>
             }
           </div>
-          } @else if (loading) {
-          <p>Loading dashboard information...</p>
-          } @else if (error) {
-          <p>Error: {{ error }}</p>
-          <ion-button (click)="loadDashboardInfo()" fill="clear">
-            <ion-icon name="refresh-outline" slot="start"></ion-icon>
-            Retry
-          </ion-button>
           } @else {
-          <p>
-            No dashboard information available. Please scan a QR code to link a
-            device.
-          </p>
-          <ion-button routerLink="/tabs/qr-code" fill="clear">
-            <ion-icon name="qr-code-outline" slot="start"></ion-icon>
-            Scan QR Code
-          </ion-button>
+          <ion-card>
+            <ion-card-content>
+              <p>No dashboard linked to this device.</p>
+              <ion-button
+                routerLink="/tabs/qr-code"
+                fill="clear"
+                expand="block"
+              >
+                <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+                Scan QR Code to Link Device
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
           }
         </div>
       </app-explore-container>
@@ -113,6 +112,8 @@ import { DeviceInfoType } from '../../../../web/src/server/types/DashboardSchema
 })
 export class DashboardPage {
   private readonly trpc = injectTrpcClient();
+  private readonly toastController = inject(ToastController);
+  private readonly errorHandler = inject(ErrorHandlerService);
 
   dashboardInfo: DeviceInfoType | null = null;
   loading = false;
@@ -120,8 +121,10 @@ export class DashboardPage {
 
   constructor() {
     addIcons({ refreshOutline, qrCodeOutline });
+    // Initialize the error handler with the toast controller
+    this.errorHandler.initialize(this.toastController);
   }
-  
+
   ionViewWillEnter() {
     // Refresh data every time the view is about to enter
     this.loadDashboardInfo();
@@ -149,6 +152,11 @@ export class DashboardPage {
     } catch (err) {
       console.error('Error fetching dashboard info:', err);
       this.error = 'Failed to load dashboard information.';
+      // Use global error handler
+      await this.errorHandler.handleError(
+        err,
+        'Failed to load dashboard information'
+      );
     } finally {
       this.loading = false;
     }

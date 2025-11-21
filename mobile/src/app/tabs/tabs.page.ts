@@ -5,6 +5,7 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -12,6 +13,7 @@ import {
   qrCodeOutline,
   settingsOutline
 } from 'ionicons/icons';
+import { ErrorHandlerService } from '../services/error-handler.service';
 
 @Component({
   selector: 'app-tabs',
@@ -39,8 +41,12 @@ import {
 })
 export class TabsPage {
   public environmentInjector = inject(EnvironmentInjector);
+  private toastController = inject(ToastController);
+  private errorHandler = inject(ErrorHandlerService);
 
   constructor() {
     addIcons({ settingsOutline, qrCodeOutline, gridOutline });
+    // Initialize the error handler with the toast controller
+    this.errorHandler.initialize(this.toastController);
   }
 }

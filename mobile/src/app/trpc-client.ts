@@ -4,6 +4,7 @@ import { inject } from '@angular/core';
 import 'isomorphic-fetch';
 import { AppRouter } from '../../../web/src/server/trpc/routers/index';
 import { environment } from '../environments/environment';
+import { ErrorHandlerService } from './services/error-handler.service';
 
 function customFetch(
   input: RequestInfo | URL,
@@ -19,6 +20,9 @@ function customFetch(
         },
       })
       .catch((e: any) => {
+        // Handle errors globally
+        const errorHandler = inject(ErrorHandlerService);
+        errorHandler.handleError(e).catch(console.error);
         throw e;
       })
       .then((response: any) => ({
@@ -48,6 +52,11 @@ function customFetch(
     headers: {
       ...(init?.headers || {}),
     },
+  }).catch((e: any) => {
+    // Handle errors globally
+    const errorHandler = inject(ErrorHandlerService);
+    errorHandler.handleError(e).catch(console.error);
+    throw e;
   });
 }
 

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { Component, inject } from '@angular/core';
+import { IonApp, IonRouterOutlet, ToastController } from '@ionic/angular/standalone';
+import { ErrorHandlerService } from './services/error-handler.service';
 
 @Component({
   selector: 'app-root',
@@ -11,5 +12,11 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
+  private toastController = inject(ToastController);
+  private errorHandler = inject(ErrorHandlerService);
   
+  constructor() {
+    // Initialize the error handler with the toast controller
+    this.errorHandler.initialize(this.toastController);
+  }
 }

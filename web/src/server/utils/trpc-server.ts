@@ -114,7 +114,6 @@ function getCorsOrigin(req: any): string | null {
 export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
   router,
   createContext,
-  responseMeta,
   onError,
   batching,
 }: ResolveHTTPRequestOptions<TRouter>) {
@@ -183,6 +182,24 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
         return { headers };
       },
       onError: o => {
+        const ctx = o.ctx as any; // TRPC контекст с logger
+        if (ctx?.logger) {
+          ctx.logger.error(o.error, {
+            event: 'trpc_error',
+            path: o.path,
+            type: o.type,
+            input: o.input,
+          });
+        } else {
+          // fallback, если ctx ещё нет
+          console.error('[tRPC Error]', o.error, {
+            path: o.path,
+            type: o.type,
+            input: o.input,
+          });
+        }
+
+        // Вызов внешнего onError, если есть
         onError?.({
           ...o,
           req,
