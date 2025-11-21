@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { concatMap, from, Observable, switchMap } from 'rxjs';
 
+import { ErrorHandlerService } from './error-handler.service';
 import { TelegramUserDataType } from '../../server/types/TelegramUserDataSchema';
 import { User } from '../generated/prisma/browser';
 import { injectTrpcClient } from '../trpc-client';
@@ -17,12 +18,18 @@ export class TelegramService {
   private sessionService = inject(SessionService);
   private profileService = inject(ProfileService);
   private telegramSettingsService = inject(TelegramSettingsService);
+  private errorHandler = inject(ErrorHandlerService);
 
   getSettings() {
     return this.trpc.telegram.settings.query().pipe(
       concatMap(async settings => {
-        await this.telegramSettingsService.set(settings);
-        return settings;
+        try {
+          await this.telegramSettingsService.set(settings);
+          return settings;
+        } catch (error) {
+          await this.errorHandler.handleError(error, 'Failed to load Telegram settings');
+          throw error;
+        }
       })
     );
   }
@@ -58,9 +65,14 @@ export class TelegramService {
       .mutate(telegramUser as TelegramUserDataType)
       .pipe(
         concatMap(async ({ sessionId, user }) => {
-          await this.sessionService.set(sessionId);
-          await this.profileService.set(user as unknown as User);
-          return { sessionId, user };
+          try {
+            await this.sessionService.set(sessionId);
+            await this.profileService.set(user as unknown as User);
+            return { sessionId, user };
+          } catch (error) {
+            await this.errorHandler.handleError(error, 'Failed to sign in with Telegram');
+            throw error;
+          }
         })
       );
   }

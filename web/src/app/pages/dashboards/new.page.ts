@@ -3,10 +3,11 @@ import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
-import { first, tap } from 'rxjs';
 
 import { CreateDashboardType } from '../../../server/types/DashboardSchema';
 import { DashboardsService } from '../../services/dashboards.service';
+import { ErrorHandlerService } from '../../services/error-handler.service';
+import { executeTrpcMutation } from '../../services/trpc-utils';
 
 @Component({
   selector: 'dashboards-new-page',
@@ -43,6 +44,7 @@ import { DashboardsService } from '../../services/dashboards.service';
 export default class DashboardsNewPageComponent {
   private readonly router = inject(Router);
   private readonly dashboardsService = inject(DashboardsService);
+  private readonly errorHandler = inject(ErrorHandlerService);
 
   form = new UntypedFormGroup({});
   model: CreateDashboardType = { name: '', isBlackTheme: false };
@@ -68,12 +70,24 @@ export default class DashboardsNewPageComponent {
   ];
 
   onSubmit(model: CreateDashboardType) {
-    this.dashboardsService
-      .create(model)
-      .pipe(
-        first(),
-        tap(dashboard => this.router.navigate([`/dashboards/${dashboard.id}`]))
-      )
-      .subscribe();
+    // Example of using the utility function with disabled error handling
+    executeTrpcMutation(
+      (params) => this.dashboardsService.create(params).toPromise(),
+      model,
+      {
+        disableGlobalErrorHandling: false, // Set to true to disable global error handling
+        customErrorMessage: 'Failed to create dashboard',
+        errorHandler: this.errorHandler
+      }
+    )
+    .then(dashboard => {
+      if (dashboard) {
+        this.router.navigate([`/dashboards/${(dashboard as any).id}`]);
+      }
+    })
+    .catch(error => {
+      // Handle any errors that weren't handled by the global handler
+      console.error('Dashboard creation failed:', error);
+    });
   }
 }

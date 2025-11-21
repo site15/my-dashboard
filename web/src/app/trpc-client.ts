@@ -3,6 +3,7 @@ import { createTrpcClient } from '@analogjs/trpc';
 import { inject } from '@angular/core';
 import 'isomorphic-fetch';
 
+import { ErrorHandlerService } from './services/error-handler.service';
 import { AppRouter } from '../server/trpc/routers/index';
 
 function customFetch(
@@ -19,6 +20,9 @@ function customFetch(
         },
       })
       .catch((e: any) => {
+        // Handle errors globally
+        const errorHandler = inject(ErrorHandlerService);
+        errorHandler.handleError(e).catch(console.error);
         throw e;
       })
       .then((response: any) => ({
@@ -48,6 +52,11 @@ function customFetch(
     headers: {
       ...(init?.headers || {}),
     },
+  }).catch((e: any) => {
+    // Handle errors globally
+    const errorHandler = inject(ErrorHandlerService);
+    errorHandler.handleError(e).catch(console.error);
+    throw e;
   });
 }
 
