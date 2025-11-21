@@ -2,9 +2,12 @@
 import { createTrpcClient } from '@analogjs/trpc';
 import { inject } from '@angular/core';
 import 'isomorphic-fetch';
+import superjson from 'superjson';
+
+import { ErrorHandlerService } from './services/error-handler.service';
+
 import { AppRouter } from '../../../web/src/server/trpc/routers/index';
 import { environment } from '../environments/environment';
-import { ErrorHandlerService } from './services/error-handler.service';
 
 function customFetch(
   input: RequestInfo | URL,
@@ -63,7 +66,8 @@ function customFetch(
 export const { provideTrpcClient, TrpcClient, TrpcHeaders } =
   createTrpcClient<AppRouter>({
     url: `${environment.apiUrl}/api/trpc`,
-    batchLinkOptions: { fetch: customFetch } as any, // используем кастомный fetch
+    options: { transformer: superjson },
+    batchLinkOptions: { fetch: customFetch, transformer: superjson } as any, // используем кастомный fetch
   });
 
 export function injectTrpcClient() {

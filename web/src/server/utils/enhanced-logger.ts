@@ -27,6 +27,7 @@ import pino, { Logger as PinoLogger } from 'pino';
 import { z } from 'zod';
 
 import 'pino-pretty';
+import { ENVIRONMENTS } from '../env';
 
 /* ======================================================================================
  * SENSITIVE DATA MASKING
@@ -99,10 +100,12 @@ const parseStackTrace = (
  * ==================================================================================== */
 export const baseLogger: PinoLogger = pino({
   level: process.env['LOG_LEVEL'] || 'debug',
-  transport: {
-    target: 'pino-pretty',
-    options: { colorize: true, singleLine: false },
-  },
+  transport: ENVIRONMENTS.MY_DASHBOARD_PRETTY_LOGS
+    ? {
+        target: 'pino-pretty',
+        options: { colorize: true, singleLine: false },
+      }
+    : undefined,
   formatters: {
     log(obj) {
       return obj;
