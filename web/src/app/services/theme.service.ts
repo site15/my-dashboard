@@ -5,7 +5,6 @@ import {
   LocalStorageService,
   StorageChangeType,
 } from './local-storage.service';
-import { WINDOW } from '../utils/window';
 
 export type ColorScheme = 'light' | 'dark';
 
@@ -35,11 +34,7 @@ export class ThemeService extends LocalStorageService<ColorScheme> {
   ];
 
   async switchTheme() {
-    const defaultTheme: ColorScheme = WINDOW?.matchMedia?.(
-      '(prefers-color-scheme: dark)'
-    ).matches
-      ? 'dark'
-      : 'light';
+    const defaultTheme = 'light';
 
     const currentTheme = await this.get();
     const newTheme = !currentTheme
