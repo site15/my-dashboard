@@ -1,4 +1,5 @@
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable, from, defer, isObservable } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -11,83 +12,92 @@ import { ErrorHandlerService } from './error-handler.service';
  * @param mutationFn The TRPC mutation function to execute
  * @param params The parameters for the mutation
  * @param options Options for execution
- * @returns The result of the mutation
+ * @returns Observable of the result of the mutation
  */
-export async function executeTrpcMutation<T, P>(
-  mutationFn: (params: P) => Promise<T>,
+export function executeTrpcMutation<T, P>(
+  mutationFn: (params: P) => Promise<T> | Observable<T>,
   params: P,
   options?: {
     disableGlobalErrorHandling?: boolean;
     customErrorMessage?: string;
     errorHandler?: ErrorHandlerService;
   }
-): Promise<T> {
-  // Save the current error handling state
-  const originalErrorHandlingState = options?.errorHandler 
-    ? true 
-    : false;
-  
-  try {
+): Observable<T> {
+  return defer(() => {
+    // Save the current error handling state
+    const originalErrorHandlingState = options?.errorHandler 
+      ? true 
+      : false;
+    
     // Temporarily disable global error handling if requested
     if (options?.disableGlobalErrorHandling && options?.errorHandler) {
       options.errorHandler.setGlobalErrorHandling(false);
     }
     
-    // Execute the mutation
-    const result = await mutationFn(params);
-    return result;
-  } catch (error) {
-    // Handle error with custom message if provided and global error handling is enabled
-    if (!options?.disableGlobalErrorHandling && options?.errorHandler) {
-      await options.errorHandler.handleError(error, options.customErrorMessage);
-    }
-    throw error;
-  } finally {
-    // Restore the original error handling state
-    if (options?.disableGlobalErrorHandling && options?.errorHandler) {
-      options.errorHandler.setGlobalErrorHandling(originalErrorHandlingState);
-    }
-  }
+    // Execute the mutation - handle both Promise and Observable
+    const result = mutationFn(params);
+    const observableResult = isObservable(result) ? result : from(result);
+    
+    return observableResult.pipe(
+      catchError(error => {
+        // Handle error with custom message if provided and global error handling is enabled
+        if (!options?.disableGlobalErrorHandling && options?.errorHandler) {
+          // We need to handle the error asynchronously but return EMPTY to prevent breaking the stream
+          options.errorHandler.handleError(error, options.customErrorMessage).catch(console.error);
+        }
+        throw error;
+      }),
+      finalize(() => {
+        // Restore the original error handling state
+        if (options?.disableGlobalErrorHandling && options?.errorHandler) {
+          options.errorHandler.setGlobalErrorHandling(originalErrorHandlingState);
+        }
+      })
+    );
+  });
 }
 
 /**
  * Execute a TRPC query with optional error handling
  * @param queryFn The TRPC query function to execute
  * @param options Options for execution
- * @returns The result of the query
+ * @returns Observable of the result of the query
  */
-export async function executeTrpcQuery<T>(
+export function executeTrpcQuery<T>(
   queryFn: () => Observable<T>,
   options?: {
     disableGlobalErrorHandling?: boolean;
     customErrorMessage?: string;
     errorHandler?: ErrorHandlerService;
   }
-): Promise<T> {
-  // Save the current error handling state
-  const originalErrorHandlingState = options?.errorHandler 
-    ? true 
-    : false;
-  
-  try {
+): Observable<T> {
+  return defer(() => {
+    // Save the current error handling state
+    const originalErrorHandlingState = options?.errorHandler 
+      ? true 
+      : false;
+    
     // Temporarily disable global error handling if requested
     if (options?.disableGlobalErrorHandling && options?.errorHandler) {
       options.errorHandler.setGlobalErrorHandling(false);
     }
     
     // Execute the query
-    const result = await firstValueFrom(queryFn());
-    return result;
-  } catch (error) {
-    // Handle error with custom message if provided and global error handling is enabled
-    if (!options?.disableGlobalErrorHandling && options?.errorHandler) {
-      await options.errorHandler.handleError(error, options.customErrorMessage);
-    }
-    throw error;
-  } finally {
-    // Restore the original error handling state
-    if (options?.disableGlobalErrorHandling && options?.errorHandler) {
-      options.errorHandler.setGlobalErrorHandling(originalErrorHandlingState);
-    }
-  }
+    return queryFn().pipe(
+      catchError(error => {
+        // Handle error with custom message if provided and global error handling is enabled
+        if (!options?.disableGlobalErrorHandling && options?.errorHandler) {
+          // We need to handle the error asynchronously but return EMPTY to prevent breaking the stream
+          options.errorHandler.handleError(error, options.customErrorMessage).catch(console.error);
+        }
+        throw error;
+      }),
+      finalize(() => {
+        // Restore the original error handling state
+        if (options?.disableGlobalErrorHandling && options?.errorHandler) {
+          options.errorHandler.setGlobalErrorHandling(originalErrorHandlingState);
+        }
+      })
+    );
+  });
 }

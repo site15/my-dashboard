@@ -3,6 +3,7 @@ import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
+import { tap, catchError, EMPTY, first } from 'rxjs';
 
 import { CreateDashboardType } from '../../../server/types/DashboardSchema';
 import { DashboardsService } from '../../services/dashboards.service';
@@ -72,22 +73,24 @@ export default class DashboardsNewPageComponent {
   onSubmit(model: CreateDashboardType) {
     // Example of using the utility function with disabled error handling
     executeTrpcMutation(
-      (params) => this.dashboardsService.create(params).toPromise(),
+      params => this.dashboardsService.create(params),
       model,
       {
-        disableGlobalErrorHandling: false, // Set to true to disable global error handling
+        disableGlobalErrorHandling: false,
         customErrorMessage: 'Failed to create dashboard',
-        errorHandler: this.errorHandler
+        errorHandler: this.errorHandler,
       }
-    )
-    .then(dashboard => {
-      if (dashboard) {
-        this.router.navigate([`/dashboards/${(dashboard as any).id}`]);
-      }
-    })
-    .catch(error => {
-      // Handle any errors that weren't handled by the global handler
-      console.error('Dashboard creation failed:', error);
-    });
+    ).pipe(
+      first(), // Take only the first emission and complete
+      tap((dashboard: { id: string }) => {
+        if (dashboard && dashboard.id) {
+          this.router.navigate([`/dashboards/${dashboard.id}`]);
+        }
+      }),
+      catchError(error => {
+        console.error('Dashboard creation failed:', error);
+        return EMPTY;
+      })
+    ).subscribe();
   }
 }
