@@ -1,10 +1,12 @@
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../../prisma';
+import { DashboardSchema, DashboardType } from '../../types/DashboardSchema';
 import {
   DeviceInfoSchema,
   DeviceLinkSchema,
-} from '../../types/DashboardSchema';
+  SaveDeviceSettingsSchema,
+} from '../../types/DeviceSchema';
 import { publicProcedure, router } from '../trpc';
 
 export const deviceRouter = router({
@@ -98,8 +100,7 @@ export const deviceRouter = router({
     }),
 
   info: publicProcedure.output(DeviceInfoSchema).query(async ({ ctx }) => {
-    // Extract deviceId from context (it's added in createContext)
-    const deviceId = (ctx as any).deviceId;
+    const deviceId = ctx.deviceId;
 
     if (!deviceId) {
       throw new TRPCError({
@@ -147,4 +148,23 @@ export const deviceRouter = router({
       })),
     };
   }),
+
+  saveSettings: publicProcedure
+    .input(SaveDeviceSettingsSchema)
+    .output(DashboardSchema)
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.deviceId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Device ID not found!',
+        });
+      }
+      return (await prisma.dashboard.update({
+        data: {
+          isBlackTheme: input.isBlackTheme,
+          updatedAt: new Date(),
+        },
+        where: { deviceId: ctx.deviceId, userId: ctx.user.id },
+      })) satisfies DashboardType;
+    }),
 });

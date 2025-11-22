@@ -20,7 +20,7 @@ import {
   IonTitle,
   IonToggle,
   IonToolbar,
-  ToastController
+  ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -31,7 +31,6 @@ import {
 } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
-import { DeviceInfoType } from '../../../../web/src/server/types/DashboardSchema';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
@@ -59,7 +58,7 @@ import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 
       <app-explore-container name="Settings page">
         <div style="padding: 20px;">
-          @if (dashboardInfo && deviceId) {
+          @if (deviceSettings.name && deviceId) {
           <form (ngSubmit)="saveSettings()" #settingsForm="ngForm">
             <ion-card>
               <ion-card-header>
@@ -69,7 +68,7 @@ import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
                 <ion-item>
                   <ion-label position="stacked">Dashboard Name</ion-label>
                   <ion-input
-                    [(ngModel)]="dashboardSettings.name"
+                    [(ngModel)]="deviceSettings.name"
                     [ngModelOptions]="{ standalone: true }"
                     name="name"
                     required
@@ -79,7 +78,7 @@ import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
                 <ion-item>
                   <ion-label>Dark Theme</ion-label>
                   <ion-toggle
-                    [(ngModel)]="dashboardSettings.isBlackTheme"
+                    [(ngModel)]="deviceSettings.isBlackTheme"
                     [ngModelOptions]="{ standalone: true }"
                     name="isBlackTheme"
                   ></ion-toggle>
@@ -109,12 +108,6 @@ import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
                     <ion-label>
                       <h3>Device ID</h3>
                       <p>{{ deviceId }}</p>
-                    </ion-label>
-                  </ion-item>
-                  <ion-item>
-                    <ion-label>
-                      <h3>Dashboard ID</h3>
-                      <p>{{ dashboardInfo.id }}</p>
                     </ion-label>
                   </ion-item>
                 </ion-list>
@@ -179,8 +172,7 @@ export class SettingsPage {
   private alertController = inject(AlertController);
   private errorHandler = inject(ErrorHandlerService);
 
-  dashboardInfo: DeviceInfoType | null = null;
-  dashboardSettings = {
+  deviceSettings = {
     name: '',
     isBlackTheme: false,
   };
@@ -202,7 +194,10 @@ export class SettingsPage {
     this.deviceId = localStorage.getItem('deviceId');
 
     if (!this.deviceId) {
-      this.dashboardInfo = null;
+      this.deviceSettings = {
+        name: '',
+        isBlackTheme: false,
+      };
       return;
     }
 
@@ -211,22 +206,26 @@ export class SettingsPage {
       TrpcHeaders.set({ [X_DEVICE_ID]: this.deviceId });
 
       // Fetch dashboard info
-      this.dashboardInfo = await firstValueFrom(this.trpc.device.info.query());
+      const deviceSettings = await firstValueFrom(
+        this.trpc.device.info.query()
+      );
 
       // Update local settings
-      this.dashboardSettings.name = this.dashboardInfo.name;
-      this.dashboardSettings.isBlackTheme =
-        this.dashboardInfo.isBlackTheme ?? false;
+      this.deviceSettings.name = deviceSettings.name;
+      this.deviceSettings.isBlackTheme = deviceSettings.isBlackTheme ?? false;
     } catch (err) {
       console.error('Error loading dashboard info:', err);
       // Use global error handler
       await this.errorHandler.handleError(err, 'Failed to load dashboard info');
-      this.dashboardInfo = null;
+      this.deviceSettings = {
+        name: '',
+        isBlackTheme: false,
+      };
     }
   }
 
   async saveSettings() {
-    if (!this.dashboardInfo || !this.deviceId) {
+    if (!this.deviceSettings.name || !this.deviceId) {
       return;
     }
 
@@ -235,10 +234,8 @@ export class SettingsPage {
     try {
       // Update dashboard settings
       await firstValueFrom(
-        this.trpc.dashboards.update.mutate({
-          id: this.dashboardInfo.id,
-          name: this.dashboardSettings.name,
-          isBlackTheme: this.dashboardSettings.isBlackTheme,
+        this.trpc.device.saveSettings.mutate({
+          isBlackTheme: this.deviceSettings.isBlackTheme,
         })
       );
 
@@ -262,7 +259,7 @@ export class SettingsPage {
   }
 
   async unlinkDevice() {
-    if (!this.dashboardInfo || !this.deviceId) {
+    if (!this.deviceSettings || !this.deviceId) {
       return;
     }
 
@@ -293,7 +290,10 @@ export class SettingsPage {
               await toast.present();
 
               // Clear dashboard info
-              this.dashboardInfo = null;
+              this.deviceSettings = {
+                name: '',
+                isBlackTheme: false,
+              };
               this.deviceId = null;
             },
           },
