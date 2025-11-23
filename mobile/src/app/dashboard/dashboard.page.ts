@@ -22,8 +22,8 @@ import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 // Import types from the backend Zod schemas
 import { firstValueFrom } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
-import { DeviceInfoType } from '../../../../web/src/server/types/DashboardSchema';
 import { ErrorHandlerService } from '../services/error-handler.service';
+import { DeviceInfoType } from '../../../../web/src/server/types/DeviceSchema';
 
 @Component({
   selector: 'app-dashboard',
