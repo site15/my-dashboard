@@ -6,7 +6,11 @@ import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
 import { first, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
-import { UpdateWidgetType } from '../../../../../../server/types/WidgetSchema';
+import {
+  WIDGETS_FORMLY_FIELDS,
+  WidgetsType,
+} from '../../../../../../server/widgets/widgets';
+import { mapFormlyTypes } from '../../../../../formly/get-formly-type';
 import { DashboardsService } from '../../../../../services/dashboards.service';
 import { WidgetsService } from '../../../../../services/widgets.service';
 
@@ -15,34 +19,37 @@ import { WidgetsService } from '../../../../../services/widgets.service';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormlyBootstrapModule, ReactiveFormsModule, FormlyForm, AsyncPipe],
-  template: ` @if (dashboardAndWidget$ | async; as dashboardAndWidget) {
+  template: ` @if (data$ | async; as data) {
     <section>
       <h3>
         <nav aria-label="breadcrumb">
           <ul>
             <li><a href="/dashboards">Dashboards</a></li>
             <li>
-              <a href="/dashboards/{{ dashboardAndWidget.dashboard.id }}">
-                {{ dashboardAndWidget.dashboard.name }}
+              <a href="/dashboards/{{ data.dashboard.id }}">
+                {{ data.dashboard.name }}
               </a>
             </li>
 
-            <li>Edit {{ dashboardAndWidget.widget.type }}</li>
+            <li>Edit {{ data.widget.type }}</li>
           </ul>
         </nav>
       </h3>
       <hr />
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit(model)">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="onSubmit({ type: data.widget.type, id: data.widget.id })"
+      >
         <formly-form
           [form]="form"
           [fields]="fields"
-          [model]="model"
+          [(model)]="model"
         ></formly-form>
         <div class="grid">
           <a
-            href="/dashboards/{{ dashboardAndWidget.dashboard.id }}/widgets/{{
-              dashboardAndWidget.widget.id
+            href="/dashboards/{{ data.dashboard.id }}/widgets/{{
+              data.widget.id
             }}/delete"
             type="button"
             class="secondary"
@@ -63,33 +70,10 @@ export default class DashboardsWidgetsEditPageComponent {
   private readonly router = inject(Router);
 
   form = new UntypedFormGroup({});
-  model: UpdateWidgetType = {
-    id: '',
-    options: '',
-    state: '',
-  };
-  fields: FormlyFieldConfig[] = [
-    {
-      key: 'options',
-      type: 'textarea',
-      props: {
-        label: 'Options',
-        placeholder: 'Enter options',
-        attributes: { 'aria-label': 'Options' },
-      },
-    },
-    {
-      key: 'state',
-      type: 'textarea',
-      props: {
-        label: 'State',
-        placeholder: 'Enter state',
-        attributes: { 'aria-label': 'State' },
-      },
-    },
-  ];
+  fields: FormlyFieldConfig[] = [];
+  model = {};
 
-  readonly dashboardAndWidget$ = this.route.paramMap.pipe(
+  readonly data$ = this.route.paramMap.pipe(
     map(params => ({
       dashboardId: params.get('dashboardId'),
       widgetId: params.get('widgetId'),
@@ -98,18 +82,27 @@ export default class DashboardsWidgetsEditPageComponent {
       dashboardId && widgetId
         ? forkJoin({
             dashboard: this.dashboardsService.read(dashboardId),
-            widget: this.widgetsService
-              .read(widgetId)
-              .pipe(tap(widget => (this.model = widget as UpdateWidgetType))),
+            widget: this.widgetsService.read(widgetId).pipe(
+              map(widget => {
+                this.model = widget.options;
+                this.fields = mapFormlyTypes(
+                  WIDGETS_FORMLY_FIELDS[widget.type] || []
+                );
+                return widget;
+              })
+            ),
           })
         : of(null)
     ),
     shareReplay(1)
   );
 
-  onSubmit(model: UpdateWidgetType) {
+  onSubmit(data: { type: string; id: string }) {
     this.widgetsService
-      .update(model)
+      .update({
+        ...data,
+        options: { ...this.model, type: data.type } as WidgetsType,
+      })
       .pipe(
         first(),
         tap(widget =>

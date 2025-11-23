@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { isEqual } from 'es-toolkit';
 import { z } from 'zod';
 
+import { Prisma } from '../../generated/prisma/client';
 import { prisma } from '../../prisma';
 import {
   CreateWidgetSchema,
@@ -27,7 +28,10 @@ export const widgetsRouter = router({
       return (await prisma.widget.create({
         data: {
           type: input.type,
-          options: input.options as any,
+          options: {
+            ...input.options,
+            type: input.type,
+          } as any,
           columnIndex: input.columnIndex,
           rowIndex: input.rowIndex,
           columnCount: input.columnCount,
@@ -74,12 +78,15 @@ export const widgetsRouter = router({
       }
       return prisma.$transaction(async trx => {
         const oldWidget = await trx.widget.findFirstOrThrow({
-          select: { state: true, options: true },
+          select: { type: true, state: true, options: true },
           where: { id: input.id },
         });
         const newWidget = await trx.widget.update({
           data: {
-            options: input.options as any,
+            options: {
+              ...input.options,
+              type: oldWidget.type,
+            } as any,
             columnIndex: input.columnIndex,
             rowIndex: input.rowIndex,
             columnCount: input.columnCount,
@@ -94,21 +101,8 @@ export const widgetsRouter = router({
           where: { id: input.id },
         });
 
-        if (
-          !isEqual(oldWidget.state, newWidget.state) ||
-          !isEqual(oldWidget.options, newWidget.options)
-        ) {
-          await trx.widgetLog.create({
-            data: {
-              createdAt: new Date(),
-              newOptions: newWidget.options as any,
-              newState: newWidget.state as any,
-              oldOptions: oldWidget.options as any,
-              oldState: oldWidget.state as any,
-              widgetId: input.id,
-            },
-          });
-        }
+        await saveWidgetLog({ oldWidget, newWidget, trx, input });
+
         return newWidget satisfies WidgetType;
       });
     }),
@@ -161,26 +155,40 @@ export const widgetsRouter = router({
         const newWidget = await trx.widget.update({
           select: { state: true, options: true },
           data: {
-            options: input.state,
+            state: input.state,
             updatedAt: new Date(),
           },
           where: { id: input.id },
         });
-        if (
-          !isEqual(oldWidget.state, newWidget.state) ||
-          !isEqual(oldWidget.options, newWidget.options)
-        ) {
-          await trx.widgetLog.create({
-            data: {
-              createdAt: new Date(),
-              newOptions: newWidget.options as any,
-              newState: newWidget.state as any,
-              oldOptions: oldWidget.options as any,
-              oldState: oldWidget.state as any,
-              widgetId: input.id,
-            },
-          });
-        }
+        await saveWidgetLog({ oldWidget, newWidget, trx, input });
       });
     }),
 });
+
+async function saveWidgetLog({
+  oldWidget,
+  newWidget,
+  trx,
+  input,
+}: {
+  oldWidget: { options?: any; state?: any };
+  newWidget: { options?: any; state?: any };
+  trx: Prisma.TransactionClient;
+  input: { id: string; state?: any };
+}) {
+  if (
+    !isEqual(oldWidget.state, newWidget.state) ||
+    !isEqual(oldWidget.options, newWidget.options)
+  ) {
+    await trx.widgetLog.create({
+      data: {
+        createdAt: new Date(),
+        newOptions: newWidget.options as any,
+        newState: newWidget.state as any,
+        oldOptions: oldWidget.options as any,
+        oldState: oldWidget.state as any,
+        widgetId: input.id,
+      },
+    });
+  }
+}

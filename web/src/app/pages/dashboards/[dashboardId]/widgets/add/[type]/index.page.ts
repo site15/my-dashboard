@@ -6,7 +6,11 @@ import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
 import { first, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
-import { CreateWidgetType } from '../../../../../../../server/types/WidgetSchema';
+import {
+  WIDGETS_FORMLY_FIELDS,
+  WidgetsType,
+} from '../../../../../../../server/widgets/widgets';
+import { mapFormlyTypes } from '../../../../../../formly/get-formly-type';
 import { DashboardsService } from '../../../../../../services/dashboards.service';
 import { WidgetsService } from '../../../../../../services/widgets.service';
 
@@ -15,26 +19,33 @@ import { WidgetsService } from '../../../../../../services/widgets.service';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormlyBootstrapModule, ReactiveFormsModule, FormlyForm, AsyncPipe],
-  template: ` @if (dashboard$ | async; as dashboard) {
+  template: ` @if (data$ | async; as data) {
     <section>
       <h3>
         <nav aria-label="breadcrumb">
           <ul>
             <li><a href="/dashboards">Dashboards</a></li>
             <li>
-              <a href="/dashboards/{{ dashboard.id }}">{{ dashboard.name }}</a>
+              <a href="/dashboards/{{ data.dashboard.id }}">{{
+                data.dashboard.name
+              }}</a>
             </li>
-            <li>Add {{ model.type }}</li>
+            <li>Add {{ data.type }}</li>
           </ul>
         </nav>
       </h3>
       <hr />
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit(model)">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="
+          onSubmit({ type: data.type, dashboardId: data.dashboard.id })
+        "
+      >
         <formly-form
           [form]="form"
           [fields]="fields"
-          [model]="model"
+          [(model)]="model"
         ></formly-form>
         <div class="grid">
           <button type="submit">Add</button>
@@ -52,34 +63,10 @@ export default class DashboardsWidgetsAddByTypePageComponent {
   private readonly router = inject(Router);
 
   form = new UntypedFormGroup({});
-  model: CreateWidgetType = {
-    type: '',
-    options: '',
-    state: '',
-    dashboardId: '',
-  };
-  fields: FormlyFieldConfig[] = [
-    {
-      key: 'options',
-      type: 'textarea',
-      props: {
-        label: 'Options',
-        placeholder: 'Enter options',
-        attributes: { 'aria-label': 'Options' },
-      },
-    },
-    {
-      key: 'state',
-      type: 'textarea',
-      props: {
-        label: 'State',
-        placeholder: 'Enter state',
-        attributes: { 'aria-label': 'State' },
-      },
-    },
-  ];
+  fields: FormlyFieldConfig[] = [];
+  model = {};
 
-  readonly dashboard$ = this.route.paramMap.pipe(
+  readonly data$ = this.route.paramMap.pipe(
     map(params => ({
       dashboardId: params.get('dashboardId'),
       type: params.get('type'),
@@ -87,11 +74,11 @@ export default class DashboardsWidgetsAddByTypePageComponent {
     switchMap(({ dashboardId, type }) =>
       dashboardId && type
         ? this.dashboardsService.read(dashboardId).pipe(
-            tap(dashboard => {
-              this.model = {
-                ...this.model,
-                type,
-                dashboardId: dashboard.id,
+            map(dashboard => {
+              this.fields = mapFormlyTypes(WIDGETS_FORMLY_FIELDS[type] || []);
+              return {
+                type: type,
+                dashboard,
               };
             })
           )
@@ -100,9 +87,14 @@ export default class DashboardsWidgetsAddByTypePageComponent {
     shareReplay(1)
   );
 
-  onSubmit(model: CreateWidgetType) {
+  onSubmit(data: { type: string; dashboardId: string }) {
+    console.log(this.model, this);
     this.widgetsService
-      .create(model)
+      .create({
+        dashboardId: data.dashboardId,
+        type: data.type,
+        options: { ...this.model, type: data.type } as unknown as WidgetsType,
+      })
       .pipe(
         first(),
         tap(widget =>

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { WidgetScalarFieldEnum } from '../generated/prisma/internal/prismaNamespace';
+import { WidgetsSchema } from '../widgets/widgets';
 
 export const WidgetSchema = z.object({
   [WidgetScalarFieldEnum.id]: z.string().uuid(),
@@ -28,7 +29,7 @@ export type WidgetType = z.infer<typeof WidgetSchema>;
 
 export const CreateWidgetSchema = z.object({
   [WidgetScalarFieldEnum.type]: z.string(),
-  [WidgetScalarFieldEnum.options]: z.any({}).nullish(),
+  [WidgetScalarFieldEnum.options]: WidgetsSchema,
   [WidgetScalarFieldEnum.state]: z.any({}).nullish(),
   [WidgetScalarFieldEnum.columnIndex]: z.number().nullish(),
   [WidgetScalarFieldEnum.rowIndex]: z.number().nullish(),
@@ -48,7 +49,7 @@ export type CreateWidgetType = z.infer<typeof CreateWidgetSchema>;
 
 export const UpdateWidgetSchema = z.object({
   [WidgetScalarFieldEnum.id]: z.string().uuid(),
-  [WidgetScalarFieldEnum.options]: z.any().nullish(),
+  [WidgetScalarFieldEnum.options]: WidgetsSchema,
   [WidgetScalarFieldEnum.state]: z.any().nullish(),
   [WidgetScalarFieldEnum.columnIndex]: z.number().nullish(),
   [WidgetScalarFieldEnum.rowIndex]: z.number().nullish(),
