@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
+
 /**
- * ALl credit goes to the awesome trpc-nuxt plugin https://github.com/wobsoriano/trpc-nuxt
- * Since Analog currently uses Nitro as the underlying server we can
- * simply reuse the hard work done by Robert Soriano and friends
- * **/
+ * Enhanced tRPC → Nitro handler
+ * ✔ Красивое Zod-логирование (ctx.logger.zodError)
+ * ✔ errorWithStack для остальных ошибок
+ * ✔ Полная совместимость с tRPC v10.45.2
+ */
 
 import type {
   AnyRouter,
@@ -19,6 +20,7 @@ import type { TRPCResponse } from '@trpc/server/rpc';
 import type { H3Event } from 'h3';
 import { createError, defineEventHandler, isMethod, readBody } from 'h3';
 import { createURL } from 'ufo';
+import { z } from 'zod';
 
 import { ENVIRONMENTS } from '../env';
 
@@ -63,45 +65,41 @@ export interface ResolveHTTPRequestOptions<TRouter extends AnyRouter> {
   };
 }
 
+/** ------------------------------------------------------------------
+ * Utils
+ * ------------------------------------------------------------------ */
+
 function getPath(event: H3Event): string | null {
   const { params } = event.context;
-
-  if (typeof params?.['trpc'] === 'string') {
-    return params['trpc'];
-  }
-
-  if (params?.['trpc'] && Array.isArray(params['trpc'])) {
-    return (params['trpc'] as string[]).join('/');
-  }
-
+  if (typeof params?.['trpc'] === 'string') return params['trpc'];
+  if (Array.isArray(params?.['trpc']))
+    return ((params['trpc'] as Array<string>) || []).join('/');
   return null;
 }
 
 function getCorsOrigin(req: any): string | null {
   const origin = req.headers.origin;
-
   const allowed = [
-    // http
     'http://127.0.0.1:5173',
     'http://localhost:5173',
     'http://localhost:8100',
     'http://127.0.0.1:8100',
     'http://localhost',
-    // https
     'https://127.0.0.1:5173',
     'https://localhost:5173',
     'https://localhost:8100',
     'https://127.0.0.1:8100',
     'https://localhost',
-    // magic
     'capacitor://localhost',
     'ionic://localhost',
     ENVIRONMENTS.MY_DASHBOARD_API_URL,
   ];
-
-  const result = origin && allowed.includes(origin) ? origin : null;
-  return result;
+  return origin && allowed.includes(origin) ? origin : null;
 }
+
+/** ------------------------------------------------------------------
+ * Handler
+ * ------------------------------------------------------------------ */
 
 export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
   router,
@@ -114,9 +112,9 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
     const corsOrigin = getCorsOrigin(req);
     const $url = createURL(req.url!);
 
-    // -------------------
-    // 1️⃣ Preflight OPTIONS
-    // -------------------
+    /** --------------------------
+     * 1) OPTIONS — CORS preflight
+     * ------------------------ */
     if (req.method === 'OPTIONS') {
       res.statusCode = 204;
       if (corsOrigin) {
@@ -131,15 +129,15 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
       return null;
     }
 
-    // -------------------
-    // 2️⃣ Основной tRPC запрос
-    // -------------------
+    /** --------------------------
+     * 2) Main tRPC request
+     * -------------------------- */
     const path = getPath(event);
     if (path === null) {
       const error = router.getErrorShape({
         error: new TRPCError({
           message:
-            'Param "trpc" not found - is the file named `[trpc]`.ts or `[...trpc].ts`?',
+            'Param "trpc" not found — file must be `[trpc].ts` or `[...trpc].ts`.',
           code: 'INTERNAL_SERVER_ERROR',
         }),
         type: 'unknown',
@@ -153,6 +151,9 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
       });
     }
 
+    /** --------------------------
+     * 3) resolveHTTPResponse
+     * -------------------------- */
     const httpResponse = await resolveHTTPResponse({
       batching,
       router,
@@ -164,6 +165,7 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
       },
       path,
       createContext: async () => await createContext?.(event),
+
       responseMeta: ({ errors }) => {
         const headers: Record<string, string> = {};
         if (corsOrigin) {
@@ -173,25 +175,37 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
         if (errors.length) headers['X-TRPC-Error'] = 'true';
         return { headers };
       },
+
+      /** ------------------------------------------------------------------
+       * 🔥 CUSTOM ERROR HANDLING
+       * ------------------------------------------------------------------ */
       onError: o => {
-        const ctx = o.ctx; // TRPC контекст с logger
-        if (ctx?.logger) {
-          ctx.logger.errorWithStack(o.error, {
-            event: 'trpc_error',
+        const ctx = o.ctx;
+
+        /**
+         * 🌈 Beautiful Zod error logging
+         * If TRPCError.cause is ZodError → use ctx.logger.zodError(...)
+         */
+        const maybeOriginalCause = (o.error as any)?.cause;
+
+        if (maybeOriginalCause instanceof z.ZodError) {
+          ctx?.logger?.zodError(maybeOriginalCause, {
+            event: 'zod_error',
             path: o.path,
             type: o.type,
             input: o.input,
           });
         } else {
-          // fallback, если ctx ещё нет
-          console.error('[tRPC Error]', o.error, {
+          /** fallback: full stack trace */
+          ctx?.logger?.errorWithStack?.(o.error, {
+            event: 'trpc_error',
             path: o.path,
             type: o.type,
             input: o.input,
           });
         }
 
-        // Вызов внешнего onError, если есть
+        /** also call external handler */
         onError?.({
           ...o,
           req,
@@ -199,16 +213,19 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
       },
     });
 
+    /** --------------------------
+     * 4) Write HTTP response
+     * -------------------------- */
     const { status, headers, body } = httpResponse;
+
     res.statusCode = status;
 
-    headers &&
-      Object.keys(headers).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (headers) {
+      for (const key of Object.keys(headers)) {
         res.setHeader(key, headers[key]!);
-      });
+      }
+    }
 
-    // 🔥 Принудительно ставим CORS после tRPC
     if (corsOrigin) {
       res.setHeader('Access-Control-Allow-Origin', corsOrigin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');

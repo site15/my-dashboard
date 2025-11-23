@@ -6,6 +6,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 
 import { PrismaClient } from './generated/prisma/client';
+import { attachPrismaLogger } from './utils/enhanced-logger';
 
 const prismaGlobal = global as typeof global & {
   prisma?: PrismaClient;
@@ -19,3 +20,5 @@ export const prisma: PrismaClient =
     }),
   });
 prismaGlobal.prisma = prisma;
+
+attachPrismaLogger(prisma);

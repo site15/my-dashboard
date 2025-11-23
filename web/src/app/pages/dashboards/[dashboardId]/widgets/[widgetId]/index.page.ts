@@ -101,7 +101,10 @@ export default class DashboardsWidgetsEditPageComponent {
     this.widgetsService
       .update({
         ...data,
-        options: { ...this.model, type: data.type } as WidgetsType,
+        options: {
+          ...this.model,
+          type: data.type,
+        } as WidgetsType,
       })
       .pipe(
         first(),
