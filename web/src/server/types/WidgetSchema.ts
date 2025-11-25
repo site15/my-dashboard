@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { z } from 'zod';
 
 import { WidgetScalarFieldEnum } from '../generated/prisma/internal/prismaNamespace';
@@ -72,3 +73,13 @@ export const UpdateWidgetStateSchema = z.object({
 });
 
 export type UpdateWidgetStateType = z.infer<typeof UpdateWidgetStateSchema>;
+
+export type WidgetRenderFunctionOptions = {
+  static: boolean;
+};
+
+//
+export type WidgetRenderFunction<T> = (
+  widget: T,
+  options?: WidgetRenderFunctionOptions
+) => Observable<string>;

@@ -8,7 +8,7 @@ import { DashboardsService } from '../../services/dashboards.service';
   standalone: true,
   imports: [AsyncPipe, JsonPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<section>
+  template: `<section class="pico">
     <h3>
       <nav aria-label="breadcrumb">
         <ul>

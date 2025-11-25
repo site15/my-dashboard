@@ -13,7 +13,7 @@ import { WidgetsService } from '../../../../../services/widgets.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormlyBootstrapModule, AsyncPipe, ReactiveFormsModule],
   template: ` @if (dashboardAndWidget$ | async; as dashboardAndWidget) {
-    <section>
+    <section class="pico">
       <h3>
         <nav aria-label="breadcrumb">
           <ul>

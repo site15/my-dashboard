@@ -1,6 +1,12 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  SecurityContext,
+} from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
@@ -8,6 +14,7 @@ import { first, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import {
   WIDGETS_FORMLY_FIELDS,
+  WIDGETS_RENDERERS,
   WidgetsType,
 } from '../../../../../../server/widgets/widgets';
 import { mapFormlyTypes } from '../../../../../formly/get-formly-type';
@@ -21,43 +28,48 @@ import { WidgetsService } from '../../../../../services/widgets.service';
   imports: [FormlyBootstrapModule, ReactiveFormsModule, FormlyForm, AsyncPipe],
   template: ` @if (data$ | async; as data) {
     <section>
-      <h3>
-        <nav aria-label="breadcrumb">
-          <ul>
-            <li><a href="/dashboards">Dashboards</a></li>
-            <li>
-              <a href="/dashboards/{{ data.dashboard.id }}">
-                {{ data.dashboard.name }}
-              </a>
-            </li>
+      <div class="pico">
+        <h3>
+          <nav aria-label="breadcrumb">
+            <ul>
+              <li><a href="/dashboards">Dashboards</a></li>
+              <li>
+                <a href="/dashboards/{{ data.dashboard.id }}">
+                  {{ data.dashboard.name }}
+                </a>
+              </li>
 
-            <li>Edit {{ data.widget.type }}</li>
-          </ul>
-        </nav>
-      </h3>
-      <hr />
+              <li>Edit {{ data.widget.type }}</li>
+            </ul>
+          </nav>
+        </h3>
+        <hr />
+        <form
+          [formGroup]="form"
+          (ngSubmit)="onSubmit({ type: data.widget.type, id: data.widget.id })"
+        >
+          <formly-form
+            [form]="form"
+            [fields]="fields"
+            [(model)]="model"
+          ></formly-form>
+          <div class="grid">
+            <a
+              href="/dashboards/{{ data.dashboard.id }}/widgets/{{
+                data.widget.id
+              }}/delete"
+              type="button"
+              class="secondary"
+              >Remove</a
+            >
+            <button type="submit">Save</button>
+          </div>
+        </form>
 
-      <form
-        [formGroup]="form"
-        (ngSubmit)="onSubmit({ type: data.widget.type, id: data.widget.id })"
-      >
-        <formly-form
-          [form]="form"
-          [fields]="fields"
-          [(model)]="model"
-        ></formly-form>
-        <div class="grid">
-          <a
-            href="/dashboards/{{ data.dashboard.id }}/widgets/{{
-              data.widget.id
-            }}/delete"
-            type="button"
-            class="secondary"
-            >Remove</a
-          >
-          <button type="submit">Save</button>
-        </div>
-      </form>
+        <hr />
+      </div>
+      
+      <div [innerHTML]="safeHtmlContent$ | async"></div>
 
       <hr />
     </section>
@@ -68,6 +80,7 @@ export default class DashboardsWidgetsEditPageComponent {
   private readonly widgetsService = inject(WidgetsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
 
   form = new UntypedFormGroup({});
   fields: FormlyFieldConfig[] = [];
@@ -95,6 +108,17 @@ export default class DashboardsWidgetsEditPageComponent {
         : of(null)
     ),
     shareReplay(1)
+  );
+
+  safeHtmlContent$ = this.data$.pipe(
+    switchMap(data => {
+      return data?.widget.type && WIDGETS_RENDERERS[data.widget.type]
+        ? WIDGETS_RENDERERS[data.widget.type](data?.widget.options, {
+            static: true,
+          })
+        : '';
+    }),
+    map(html => this.sanitizer.sanitize(SecurityContext.HTML, html))
   );
 
   onSubmit(data: { type: string; id: string }) {

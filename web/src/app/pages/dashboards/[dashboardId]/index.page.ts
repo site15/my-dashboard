@@ -23,7 +23,7 @@ import { WidgetsService } from '../../../services/widgets.service';
   ],
   template: `
     @if (dashboardAndWidgets$ | async; as dashboardAndWidgets) {
-      <section>
+      <section class="pico">
         <h3>
           <nav aria-label="breadcrumb">
             <ul>
@@ -61,51 +61,53 @@ import { WidgetsService } from '../../../services/widgets.service';
 
         <hr />
       </section>
-      <hgroup>
-        <h4>Widgets ({{ dashboardAndWidgets.widgets.length }})</h4>
-        <p>
-          <a
-            href="/dashboards/{{
-              dashboardAndWidgets.dashboard.id
-            }}/widgets/add/clock"
-            >Add clock</a
-          >
-          <a
-            style="padding-left: 1rem;"
-            href="/dashboards/{{
-              dashboardAndWidgets.dashboard.id
-            }}/widgets/add/calendar"
-            >Add calendar</a
-          >
-        </p>
-      </hgroup>
+      <div class="pico">
+        <hgroup>
+          <h4>Widgets ({{ dashboardAndWidgets.widgets.length }})</h4>
+          <p>
+            <a
+              href="/dashboards/{{
+                dashboardAndWidgets.dashboard.id
+              }}/widgets/add/clock"
+              >Add clock</a
+            >
+            <a
+              style="padding-left: 1rem;"
+              href="/dashboards/{{
+                dashboardAndWidgets.dashboard.id
+              }}/widgets/add/calendar"
+              >Add calendar</a
+            >
+          </p>
+        </hgroup>
 
-      <hr />
+        <hr />
 
-      @for (widget of dashboardAndWidgets.widgets; track widget.id) {
-        <details name="widget" open>
-          <summary>
-            <hgroup>
-              <h5>{{ widget.type }}</h5>
-              <p>
-                <a
-                  href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
-                  }}/widgets/{{ widget.id }}"
-                  >Edit</a
-                >
-              </p>
-            </hgroup>
-          </summary>
-          <p>{{ widget | json }}</p>
-        </details>
-        <hr />
-      } @empty {
-        <details name="widget" open>
-          <summary>There are no widgets</summary>
-        </details>
-        <hr />
-      }
+        @for (widget of dashboardAndWidgets.widgets; track widget.id) {
+          <details name="widget" open>
+            <summary>
+              <hgroup>
+                <h5>{{ widget.type }}</h5>
+                <p>
+                  <a
+                    href="/dashboards/{{
+                      dashboardAndWidgets.dashboard.id
+                    }}/widgets/{{ widget.id }}"
+                    >Edit</a
+                  >
+                </p>
+              </hgroup>
+            </summary>
+            <p>{{ widget | json }}</p>
+          </details>
+          <hr />
+        } @empty {
+          <details name="widget" open>
+            <summary>There are no widgets</summary>
+          </details>
+          <hr />
+        }
+      </div>
     }
   `,
 })

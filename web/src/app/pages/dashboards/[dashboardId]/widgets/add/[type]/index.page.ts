@@ -20,7 +20,7 @@ import { WidgetsService } from '../../../../../../services/widgets.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormlyBootstrapModule, ReactiveFormsModule, FormlyForm, AsyncPipe],
   template: ` @if (data$ | async; as data) {
-    <section>
+    <section class="pico">
       <h3>
         <nav aria-label="breadcrumb">
           <ul>

@@ -12,7 +12,7 @@ import { TelegramService } from '../services/telegram.service';
   selector: 'login-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgxTelegramWidgetComponent, AsyncPipe],
-  template: `<section>
+  template: `<section class="pico">
     <h3>
       <nav aria-label="breadcrumb">
         <ul>

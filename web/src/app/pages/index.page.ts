@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 @Component({
   selector: 'home-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<section>
+  template: `<section class="pico">
     <h3>
       <nav aria-label="breadcrumb">
         <ul>

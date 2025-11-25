@@ -14,7 +14,7 @@ import { DashboardsService } from '../../services/dashboards.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormlyBootstrapModule, ReactiveFormsModule, FormlyForm],
   template: `
-    <section>
+    <section class="pico">
       <h3>
         <nav aria-label="breadcrumb">
           <ul>

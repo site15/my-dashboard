@@ -14,7 +14,7 @@ import { DashboardsService } from '../../../services/dashboards.service';
   imports: [FormlyBootstrapModule, AsyncPipe, ReactiveFormsModule],
   template: `
     @if (dashboard$ | async; as dashboard) {
-      <section>
+      <section class="pico">
         <h3>
           <nav aria-label="breadcrumb">
             <ul>

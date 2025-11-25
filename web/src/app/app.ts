@@ -17,7 +17,7 @@ import { AuthService } from './services/auth.service';
     IfNotLoggedDirective,
     IfLoggedDirective,
   ],
-  template: ` <header class="container">
+  template: ` <header class="container pico">
       <nav>
         <ul>
           <li>
@@ -35,7 +35,7 @@ import { AuthService } from './services/auth.service';
     <main class="container">
       <router-outlet></router-outlet>
     </main>
-    <footer class="container">
+    <footer class="container pico">
       <nav>
         <ul>
           <li>Copyright © 2025 MyDashboard. Licensed under MIT.</li>

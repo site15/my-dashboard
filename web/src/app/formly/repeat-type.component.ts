@@ -1,4 +1,4 @@
-import { NgFor, NgIf } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FieldArrayType, FormlyField } from '@ngx-formly/core';
 
@@ -27,6 +27,6 @@ import { FieldArrayType, FormlyField } from '@ngx-formly/core';
     </article>
   `,
   standalone: true,
-  imports: [NgIf, NgFor, FormlyField],
+  imports: [NgIf, FormlyField],
 })
 export class RepeatTypeComponent extends FieldArrayType {}
