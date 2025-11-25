@@ -78,6 +78,13 @@ import { WidgetsService } from '../../../services/widgets.service';
               }}/widgets/add/calendar"
               >Add calendar</a
             >
+            <a
+              style="padding-left: 1rem;"
+              href="/dashboards/{{
+                dashboardAndWidgets.dashboard.id
+              }}/widgets/add/habits"
+              >Add habits</a
+            >
           </p>
         </hgroup>
 
