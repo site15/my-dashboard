@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { interval, map, of } from 'rxjs';
@@ -31,7 +32,7 @@ export enum HourFormat {
 export const CLOCK_WIDGET_HOUR_FORMAT_TITLE: Record<string, string> =
   Object.fromEntries(
     Object.entries(HourFormat)
-      .filter(([, value]) => !isNaN(+value))
+      .filter(([, value]) => value.startsWith('h'))
       .map(([label, value]) => [String(value), label])
   );
 
@@ -106,67 +107,109 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
   },
 ];
 
-//
+// Helper function to get digital time for a timezone
+function getDigitalTime(timezoneOffset: string): string {
+  try {
+    const timezone = TIMEZONE_OFFSET_TO_IANA[timezoneOffset];
+    if (!timezone) return '--:--';
 
+    const date = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: timezone,
+    };
+
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  } catch (_error) {
+    return '--:--';
+  }
+}
+
+// Updated clock widget render function to match the gemini-template.html implementation
 export const clockWidgetRender: WidgetRenderFunction<ClockWidgetType> = (
   widget: ClockWidgetType,
   options?: { static: boolean }
 ) => {
   const render = () => {
-    const timezoneValues = widget.timezones.map((clock, index) => {
-      const timeOptions = {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: index === 0 ? '2-digit' : undefined, // Только для главных часов показываем секунды
-        hourCycle:
-          HourFormat[widget.hourFormat as keyof typeof HourFormat] ||
-          HourFormat['24h'], // Default to 24-hour format
-        timeZone: TIMEZONE_OFFSET_TO_IANA[clock.timezone],
-      };
-      const dateOptions = {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        timeZone: TIMEZONE_OFFSET_TO_IANA[clock.timezone],
-      };
+    // For SSR or static rendering, return a simplified version with actual time
+    if (isSSR || options?.static) {
+      // Get current times for the timezones
+      const mainTime = widget.timezones[0]
+        ? getDigitalTime(widget.timezones[0].timezone)
+        : '--:--';
+      const smallTime1 = widget.timezones[1]
+        ? getDigitalTime(widget.timezones[1].timezone)
+        : '--:--';
+      const smallTime2 = widget.timezones[2]
+        ? getDigitalTime(widget.timezones[2].timezone)
+        : '--:--';
 
-      const nowInZone = new Date();
-      const timeString = nowInZone.toLocaleString('en-US', timeOptions as any);
-      const dateString = nowInZone.toLocaleString('en-US', dateOptions as any);
-      return {
-        clock,
-        time: timeString,
-        date: index === 0 ? dateString : undefined,
-      };
-    });
+      return `
+        <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-48 flex flex-col justify-between border-l-4 border-pastel-green">
+          <div class="flex items-center justify-center flex-grow">
+            <div class="w-24 h-24 mr-6 bg-gray-100 rounded-full flex items-center justify-center">
+              <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col items-center">
+              <p class="text-4xl font-extrabold text-gray-800">${mainTime}</p>
+              <p class="text-md font-medium mt-1 text-center text-gray-600">${widget.timezones[0]?.label || 'Clock'}</p>
+            </div>
+          </div>
+          <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
+            <div class="text-center w-1/2">
+              <p class="text-xl font-bold text-gray-800">${smallTime1}</p>
+              <p class="text-xs text-gray-500">${widget.timezones[1]?.label || 'Timezone 1'}</p>
+            </div>
+            <div class="text-center w-1/2">
+              <p class="text-xl font-bold text-gray-800">${smallTime2}</p>
+              <p class="text-xs text-gray-500">${widget.timezones[2]?.label || 'Timezone 2'}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // For client-side rendering, return the widget container that will be populated by JavaScript
+    // Generate unique IDs for the clocks based on the widget configuration
+    const mainClockId = widget.timezones[0]?.label
+      ? widget.timezones[0].label.replace(/\s+/g, '-')
+      : 'main-clock';
 
     return `
-                <div id="clocks-container" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-1 lg:gap-4">
-                <div id="main-clock" class="col-span-1 md:col-span-2 lg:col-span-2 p-6 rounded-xl shadow-xl bg-sky-500 text-white flex flex-col justify-center items-center transition duration-300 transform hover:scale-[1.01] hover:shadow-2xl">
-                    <div id="time-0" class="text-5xl md:text-6xl lg:text-7xl font-black mb-1">${timezoneValues[0].time}</div>
-                    <div class="text-lg md:text-2xl font-semibold opacity-90">${timezoneValues[0].clock.label}</div>
-                    <div id="date-0" class="text-sm md:text-base opacity-75 mt-1">${timezoneValues[0].date}</div>
-                </div>
-                
-                <div class="col-span-1 md:col-span-2 lg:col-span-4 grid grid-cols-2 lg:grid-cols-4 gap-1 lg:gap-4">
-                    ${timezoneValues
-                      .slice(1)
-                      .map(
-                        (timezoneValue, index) => `
-                        <div id="clock-${index + 1}" class="p-4 rounded-xl shadow-lg bg-white flex flex-col justify-center items-center transition duration-300 hover:bg-gray-50">
-                            <div id="time-${index + 1}" class="text-3xl md:text-4xl font-extrabold text-gray-800">${timezoneValue.time}</div>
-                            <div class="text-sm md:text-base font-medium text-gray-600 mt-1">${timezoneValue.clock.label}</div>
-                        </div>
-                    `
-                      )
-                      .join('')}
-                </div>
-                
-                </div>
-                
-            `;
+      <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-48 flex flex-col justify-between border-l-4 border-pastel-green">
+        <div class="flex items-center justify-center flex-grow">
+          <!-- Canvas for analog clock - will be populated by JavaScript -->
+          <canvas id="main-analog-clock-${mainClockId}" class="w-24 h-24 mr-6 cursor-pointer" 
+                  onclick="event.stopPropagation(); showModal('clocks-modal');"></canvas>
+          <!-- Digital time and name - will be populated by JavaScript -->
+          <div class="flex flex-col items-center cursor-pointer" onclick="rotateClocks(event);">
+            <p id="main-clock-time-${mainClockId}" class="text-4xl font-extrabold transition-colors duration-300 tracking-tight text-gray-800">--:--</p>
+            <p id="main-clock-name-${mainClockId}" class="text-md font-medium mt-1 text-center text-gray-600"></p>
+          </div>
+        </div>
+        <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
+          ${widget.timezones
+            .slice(1, 3)
+            .map((clock, index) => {
+              const clockId = clock.label.replace(/\s+/g, '-');
+              return `
+            <div class="text-center w-1/2">
+              <p id="small-clock-time-${index + 1}-${clockId}" class="text-xl font-bold text-gray-800">--:--</p>
+              <p id="small-clock-name-${index + 1}-${clockId}" class="text-xs text-gray-500"></p>
+            </div>
+          `;
+            })
+            .join('')}
+        </div>
+      </div>
+    `;
   };
 
+  // For client-side, we still need to update the clocks periodically
   return !isSSR && !options?.static
     ? interval(1000).pipe(map(() => render()))
     : of(render());
