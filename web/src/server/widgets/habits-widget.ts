@@ -2,7 +2,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { of } from 'rxjs';
 import { z } from 'zod';
 
-import { WidgetRenderFunction } from '../types/WidgetSchema';
+import { WidgetRender, WidgetRenderType } from '../types/WidgetSchema';
 
 // Define the habit item structure
 
@@ -149,58 +149,57 @@ function getProgressBarColor(percentage: number): string {
   }
 }
 
-export const habitsWidgetRender: WidgetRenderFunction<HabitsWidgetType> = (
-  widget: HabitsWidgetType
-) => {
-  const render = () => {
-    // Default items if none provided
-    const items =
-      widget.items && widget.items.length > 0
-        ? widget.items
-        : [
-            {
-              id: 'water',
-              name: 'Water',
-              icon: 'droplet',
-              color: 'blue',
-              minValue: 0,
-              maxValue: 8,
-              currentValue: 0,
-              history: [],
-            },
-            {
-              id: 'food',
-              name: 'Food',
-              icon: 'utensils',
-              color: 'orange',
-              minValue: 0,
-              maxValue: 5,
-              currentValue: 0,
-              history: [],
-            },
-            {
-              id: 'medication',
-              name: 'Medication',
-              icon: 'pill',
-              color: 'purple',
-              minValue: 0,
-              maxValue: 5,
-              currentValue: 0,
-              history: [],
-            },
-            {
-              id: 'exercise',
-              name: 'Exercise',
-              icon: 'dumbbell',
-              color: 'green',
-              minValue: 0,
-              maxValue: 3,
-              currentValue: 0,
-              history: [],
-            },
-          ];
+export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
+  render(widget: WidgetRenderType<HabitsWidgetType>) {
+    const render = () => {
+      // Default items if none provided
+      const items =
+        widget.options.items && widget.options.items.length > 0
+          ? widget.options.items
+          : [
+              {
+                id: 'water',
+                name: 'Water',
+                icon: 'droplet',
+                color: 'blue',
+                minValue: 0,
+                maxValue: 8,
+                currentValue: 0,
+                history: [],
+              },
+              {
+                id: 'food',
+                name: 'Food',
+                icon: 'utensils',
+                color: 'orange',
+                minValue: 0,
+                maxValue: 5,
+                currentValue: 0,
+                history: [],
+              },
+              {
+                id: 'medication',
+                name: 'Medication',
+                icon: 'pill',
+                color: 'purple',
+                minValue: 0,
+                maxValue: 5,
+                currentValue: 0,
+                history: [],
+              },
+              {
+                id: 'exercise',
+                name: 'Exercise',
+                icon: 'dumbbell',
+                color: 'green',
+                minValue: 0,
+                maxValue: 3,
+                currentValue: 0,
+                history: [],
+              },
+            ];
 
-    return `
+      return `
       <div class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-green">
         <button class="absolute top-2 right-2 text-gray-400 hover:text-pastel-blue opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full bg-white/70 backdrop-blur-sm dark:bg-[#1e1e1e]/70">
           <i data-lucide="pencil" class="w-5 h-5"></i>
@@ -215,20 +214,20 @@ export const habitsWidgetRender: WidgetRenderFunction<HabitsWidgetType> = (
         </div>
       </div>
     `;
-  };
+    };
 
-  // Helper function to render widget content
-  function renderWidgetContent(items: HabitsWidgetItemType[]): string {
-    if (items.length === 0) {
-      return '<p class="text-gray-500 text-sm">No habits configured</p>';
-    }
+    // Helper function to render widget content
+    function renderWidgetContent(items: HabitsWidgetItemType[]): string {
+      if (items.length === 0) {
+        return '<p class="text-gray-500 text-sm">No habits configured</p>';
+      }
 
-    // Create container for top 3 items with icons and progress
-    let topItemsHtml = '';
-    const topItems = items.slice(0, 3);
+      // Create container for top 3 items with icons and progress
+      let topItemsHtml = '';
+      const topItems = items.slice(0, 3);
 
-    if (topItems.length > 0) {
-      topItemsHtml = `
+      if (topItems.length > 0) {
+        topItemsHtml = `
         <div class="grid grid-cols-3 gap-2 mt-2">
           ${topItems
             .map(item => {
@@ -251,14 +250,14 @@ export const habitsWidgetRender: WidgetRenderFunction<HabitsWidgetType> = (
             .join('')}
         </div>
       `;
-    }
+      }
 
-    // Create container for remaining items as simple text
-    let remainingItemsHtml = '';
-    const remainingItems = items.slice(3);
+      // Create container for remaining items as simple text
+      let remainingItemsHtml = '';
+      const remainingItems = items.slice(3);
 
-    if (remainingItems.length > 0) {
-      remainingItemsHtml = `
+      if (remainingItems.length > 0) {
+        remainingItemsHtml = `
         <div class="flex flex-wrap gap-3 mt-2 text-sm">
           ${remainingItems
             .map(
@@ -272,10 +271,13 @@ export const habitsWidgetRender: WidgetRenderFunction<HabitsWidgetType> = (
             .join('')}
         </div>
       `;
+      }
+
+      return (
+        topItemsHtml + (remainingItems.length > 0 ? remainingItemsHtml : '')
+      );
     }
 
-    return topItemsHtml + (remainingItems.length > 0 ? remainingItemsHtml : '');
+    return of(render());
   }
-
-  return of(render());
-};
+}

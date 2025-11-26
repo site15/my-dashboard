@@ -4,7 +4,12 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { interval, map, of } from 'rxjs';
 import { z } from 'zod';
 
-import { WidgetRenderFunction } from '../types/WidgetSchema';
+import { WINDOW } from '../../app/utils/window';
+import {
+  WidgetRender,
+  WidgetRenderFunctionOptions,
+  WidgetRenderType,
+} from '../types/WidgetSchema';
 import { isSSR } from '../utils/is-ssr';
 import { Timezone, TIMEZONE_OFFSET_TO_IANA } from '../utils/timezones';
 
@@ -135,26 +140,66 @@ function getDigitalTime(timezoneOffset: string): string {
   }
 }
 
-// Updated clock widget render function to match the gemini-template.html implementation
-export const clockWidgetRender: WidgetRenderFunction<ClockWidgetType> = (
-  widget: ClockWidgetType,
-  options?: { static: boolean }
-) => {
-  const render = () => {
-    // For SSR or static rendering, return a simplified version with actual time
-    if (isSSR || options?.static) {
-      // Get current times for the timezones
-      const mainTime = widget.timezones[0]
-        ? getDigitalTime(widget.timezones[0].timezone)
-        : '--:--';
-      const smallTime1 = widget.timezones[1]
-        ? getDigitalTime(widget.timezones[1].timezone)
-        : '--:--';
-      const smallTime2 = widget.timezones[2]
-        ? getDigitalTime(widget.timezones[2].timezone)
-        : '--:--';
+function loadScript(src: string, callback: () => void) {
+  const script = document.createElement('script');
+  script.src = src;
+  script.type = 'module';
+  script.async = true; // Scripts are async by default when dynamically added, but explicit is clear
 
-      return `
+  // Optional: Add onload and onerror handlers for better control and error handling
+  script.onload = () => {
+    console.log(`${src} loaded successfully.`);
+    if (callback) {
+      callback();
+    }
+  };
+  script.onerror = () => {
+    console.error(`Error loading script: ${src}`);
+  };
+
+  document.head.appendChild(script); // Append to the head or body
+}
+
+export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
+  inited = false;
+  init(widget: WidgetRenderType<ClockWidgetType>) {
+    if (this.inited) {
+      return;
+    }
+    this.inited = true;
+    loadScript('./widgets/clock-widget.js', () => {
+      WINDOW?.initializeClockWidget?.(
+        widget.options.timezones.map((tz: ClockWidgetTimezoneType) => {
+          return {
+            name: tz.label,
+            timezone: getDigitalTime(tz.timezone),
+            color: '#8A89F0',
+          };
+        })
+      );
+      alert('afterRender');
+    });
+  }
+
+  render(
+    widget: WidgetRenderType<ClockWidgetType>,
+    options?: WidgetRenderFunctionOptions
+  ) {
+    const render = () => {
+      // For SSR or static rendering, return a simplified version with actual time
+      if (isSSR || options?.static) {
+        // Get current times for the timezones
+        const mainTime = widget.options.timezones[0]
+          ? getDigitalTime(widget.options.timezones[0].timezone)
+          : '--:--';
+        const smallTime1 = widget.options.timezones[1]
+          ? getDigitalTime(widget.options.timezones[1].timezone)
+          : '--:--';
+        const smallTime2 = widget.options.timezones[2]
+          ? getDigitalTime(widget.options.timezones[2].timezone)
+          : '--:--';
+
+        return `
         <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-48 flex flex-col justify-between border-l-4 border-pastel-green">
           <div class="flex items-center justify-center flex-grow">
             <div class="w-24 h-24 mr-6 bg-gray-100 rounded-full flex items-center justify-center">
@@ -164,30 +209,30 @@ export const clockWidgetRender: WidgetRenderFunction<ClockWidgetType> = (
             </div>
             <div class="flex flex-col items-center">
               <p class="text-4xl font-extrabold text-gray-800">${mainTime}</p>
-              <p class="text-md font-medium mt-1 text-center text-gray-600">${widget.timezones[0]?.label || 'Clock'}</p>
+              <p class="text-md font-medium mt-1 text-center text-gray-600">${widget.options.timezones[0]?.label || 'Clock'}</p>
             </div>
           </div>
           <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
             <div class="text-center w-1/2">
               <p class="text-xl font-bold text-gray-800">${smallTime1}</p>
-              <p class="text-xs text-gray-500">${widget.timezones[1]?.label || 'Timezone 1'}</p>
+              <p class="text-xs text-gray-500">${widget.options.timezones[1]?.label || 'Timezone 1'}</p>
             </div>
             <div class="text-center w-1/2">
               <p class="text-xl font-bold text-gray-800">${smallTime2}</p>
-              <p class="text-xs text-gray-500">${widget.timezones[2]?.label || 'Timezone 2'}</p>
+              <p class="text-xs text-gray-500">${widget.options.timezones[2]?.label || 'Timezone 2'}</p>
             </div>
           </div>
         </div>
       `;
-    }
+      }
 
-    // For client-side rendering, return the widget container that will be populated by JavaScript
-    // Generate unique IDs for the clocks based on the widget configuration
-    const mainClockId = widget.timezones[0]?.label
-      ? widget.timezones[0].label.replace(/\s+/g, '-')
-      : 'main-clock';
+      // For client-side rendering, return the widget container that will be populated by JavaScript
+      // Generate unique IDs for the clocks based on the widget configuration
+      const mainClockId = widget.options.timezones[0]?.label
+        ? widget.options.timezones[0].label.replace(/\s+/g, '-')
+        : 'main-clock';
 
-    return `
+      return `
       <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-48 flex flex-col justify-between border-l-4 border-pastel-green">
         <div class="flex items-center justify-center flex-grow">
           <!-- Canvas for analog clock - will be populated by JavaScript -->
@@ -200,9 +245,9 @@ export const clockWidgetRender: WidgetRenderFunction<ClockWidgetType> = (
           </div>
         </div>
         <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
-          ${widget.timezones
+          ${widget.options.timezones
             .slice(1, 3)
-            .map((clock, index) => {
+            .map((clock: ClockWidgetTimezoneType, index: number) => {
               const clockId = clock.label.replace(/\s+/g, '-');
               return `
             <div class="text-center w-1/2">
@@ -215,10 +260,11 @@ export const clockWidgetRender: WidgetRenderFunction<ClockWidgetType> = (
         </div>
       </div>
     `;
-  };
+    };
 
-  // For client-side, we still need to update the clocks periodically
-  return !isSSR && !options?.static
-    ? interval(1000).pipe(map(() => render()))
-    : of(render());
-};
+    // For client-side, we still need to update the clocks periodically
+    return !isSSR && !options?.static
+      ? interval(1000).pipe(map(() => render()))
+      : of(render());
+  }
+}

@@ -78,8 +78,13 @@ export type WidgetRenderFunctionOptions = {
   static: boolean;
 };
 
-//
-export type WidgetRenderFunction<T> = (
-  widget: T,
-  options?: WidgetRenderFunctionOptions
-) => Observable<string>;
+export type WidgetRenderType<T> = WidgetType & { options?: T };
+
+export interface WidgetRender<T> {
+  init?(widget: WidgetRenderType<T>): void;
+  render(
+    widget: WidgetRenderType<T>,
+    options?: WidgetRenderFunctionOptions
+  ): Observable<string>;
+  afterRender?(widget: WidgetRenderType<T>): void;
+}

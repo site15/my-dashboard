@@ -68,7 +68,7 @@ import { WidgetsService } from '../../../../../services/widgets.service';
 
         <hr />
       </div>
-      
+
       <div [innerHTML]="safeHtmlContent$ | async"></div>
 
       <hr />
@@ -112,13 +112,30 @@ export default class DashboardsWidgetsEditPageComponent {
 
   safeHtmlContent$ = this.data$.pipe(
     switchMap(data => {
-      return data?.widget.type && WIDGETS_RENDERERS[data.widget.type]
-        ? WIDGETS_RENDERERS[data.widget.type](data?.widget.options, {
-            static: true,
-          })
-        : '';
+      const render =
+        data?.widget.type && WIDGETS_RENDERERS[data.widget.type]
+          ? WIDGETS_RENDERERS[data.widget.type]
+          : null;
+      return forkJoin({
+        render: of(render),
+        html:
+          render && data?.widget
+            ? render.render(data?.widget, {
+                static: true,
+              })
+            : '',
+        widget: of(data?.widget),
+      });
     }),
-    map(html => this.sanitizer.sanitize(SecurityContext.HTML, html))
+    map(({ render, html, widget }) => {
+      setTimeout(() => {
+        if (widget) {
+          render?.init?.(widget);
+          render?.afterRender?.(widget);
+        }
+      });
+      return this.sanitizer.sanitize(SecurityContext.HTML, html);
+    })
   );
 
   onSubmit(data: { type: string; id: string }) {

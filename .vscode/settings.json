@@ -1,4 +1,5 @@
 {
     "typescript.preferences.importModuleSpecifier": "relative",
-    "typescript.preferences.importModuleSpecifierEnding": "auto"
+    "typescript.preferences.importModuleSpecifierEnding": "auto",
+    "prisma.pinToPrisma6": true
 }

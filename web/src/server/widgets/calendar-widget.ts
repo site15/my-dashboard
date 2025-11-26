@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { of } from 'rxjs';
 import { z } from 'zod';
 
-import { WidgetRenderFunction } from '../types/WidgetSchema';
+import { WidgetRender, WidgetRenderType } from '../types/WidgetSchema';
 
 export enum CalendarWidgetWeekday {
   sunday = 'sunday',
@@ -69,30 +70,33 @@ export const CALENDAR_FORMLY_FIELDS: FormlyFieldConfig[] = [
 function getMonthlyProgress() {
   const today = new Date();
   const currentDay = today.getDate();
-  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const lastDay = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    0
+  ).getDate();
   const progress = (currentDay / lastDay) * 100;
   return { currentDay, lastDay, progress: progress.toFixed(1) };
 }
 
-export const calendarWidgetRender: WidgetRenderFunction<CalendarWidgetType> = (
-  _widget: CalendarWidgetType // eslint-disable-line @typescript-eslint/no-unused-vars
-) => {
-  const render = () => {
-    // For the calendar widget, we want to show the monthly progress view
-    // similar to the one in gemini-template.html
-    const { progress } = getMonthlyProgress();
-    const today = new Date();
-    
-    // Format date as "day month" (e.g., "25 November")
-    const dateElement = today.toLocaleDateString('en-US', { 
-      day: 'numeric', 
-      month: 'long' 
-    });
-    
-    // Format progress text
-    const progressText = `${progress}% of month passed`;
+export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
+  render(widget: WidgetRenderType<CalendarWidgetType>) {
+    const render = () => {
+      // For the calendar widget, we want to show the monthly progress view
+      // similar to the one in gemini-template.html
+      const { progress } = getMonthlyProgress();
+      const today = new Date();
 
-    return `
+      // Format date as "day month" (e.g., "25 November")
+      const dateElement = today.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+      });
+
+      // Format progress text
+      const progressText = `${progress}% of month passed`;
+
+      return `
       <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-blue">
         <div class="flex justify-between items-start">
           <div class="flex flex-col">
@@ -112,7 +116,8 @@ export const calendarWidgetRender: WidgetRenderFunction<CalendarWidgetType> = (
         </div>
       </div>
     `;
-  };
+    };
 
-  return of(render());
-};
+    return of(render());
+  }
+}

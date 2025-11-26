@@ -4,20 +4,20 @@ import { z } from 'zod';
 
 import {
   CALENDAR_FORMLY_FIELDS,
-  calendarWidgetRender,
+  CalendarWidgetRender,
   CalendarWidgetSchema,
 } from './calendar-widget';
 import {
   CLOCK_FORMLY_FIELDS,
-  clockWidgetRender,
+  ClockWidgetRender,
   ClockWidgetSchema,
 } from './clock-widget';
 import {
   HABITS_FORMLY_FIELDS,
-  habitsWidgetRender,
+  HabitsWidgetRender,
   HabitsWidgetSchema,
 } from './habits-widget';
-import { WidgetRenderFunction } from '../types/WidgetSchema';
+import { WidgetRender } from '../types/WidgetSchema';
 
 export const WIDGETS_FORMLY_FIELDS: Record<string, FormlyFieldConfig[]> = {
   clock: CLOCK_FORMLY_FIELDS,
@@ -31,10 +31,10 @@ export const WIDGETS_ZOD_SCHEMAS = {
   habits: HabitsWidgetSchema,
 };
 
-export const WIDGETS_RENDERERS: Record<string, WidgetRenderFunction<any>> = {
-  clock: clockWidgetRender,
-  calendar: calendarWidgetRender,
-  habits: habitsWidgetRender,
+export const WIDGETS_RENDERERS: Record<string, WidgetRender<any>> = {
+  clock: new ClockWidgetRender(),
+  calendar: new CalendarWidgetRender(),
+  habits: new HabitsWidgetRender(),
 };
 
 export const WidgetsSchema = z.discriminatedUnion('type', [
