@@ -4,6 +4,15 @@
  */
 /* global document */
 
+import {
+  getElementById,
+  setTextContent,
+  setStyle,
+  createElement,
+  appendChild,
+  clearChildren
+} from './dom-utils.js';
+
 /**
  * Gets monthly progress information
  * @returns {Object} Object containing currentDay, lastDay, and progress percentage
@@ -18,40 +27,42 @@ function getMonthlyProgress() {
 
 /**
  * Updates the date widget with current date and progress information
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function updateDateWidget() {
+function updateDateWidget(scope = document) {
   const { progress } = getMonthlyProgress();
   const today = new Date();
   
-  const dateElement = document.getElementById('monthly-progress-date');
-  const progressElement = document.getElementById('monthly-progress-value');
-  const progressTextElement = document.getElementById('monthly-progress-text');
+  const dateElement = getElementById(scope, 'monthly-progress-date');
+  const progressElement = getElementById(scope, 'monthly-progress-value');
+  const progressTextElement = getElementById(scope, 'monthly-progress-text');
 
   if (dateElement) {
-    dateElement.textContent = today.toLocaleDateString('en-US', { 
+    setTextContent(dateElement, today.toLocaleDateString('en-US', { 
       day: 'numeric', 
       month: 'long' 
-    });
+    }));
   }
   
   if (progressElement) {
-    progressElement.style.width = `${progress}%`;
+    setStyle(progressElement, 'width', `${progress}%`);
   }
   
   if (progressTextElement) {
-    progressTextElement.textContent = `${progress}% of month passed`;
+    setTextContent(progressTextElement, `${progress}% of month passed`);
   }
 }
 
 /**
  * Renders calendar days in the modal
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function renderCalendarDays() {
-  const calendarContainer = document.getElementById('calendar-grid');
-  const monthTitle = document.getElementById('calendar-month-title');
+function renderCalendarDays(scope = document) {
+  const calendarContainer = getElementById(scope, 'calendar-grid');
+  const monthTitle = getElementById(scope, 'calendar-month-title');
   if (!calendarContainer || !monthTitle) return;
 
-  calendarContainer.innerHTML = '';
+  clearChildren(calendarContainer);
   const today = new Date();
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
@@ -61,7 +72,7 @@ function renderCalendarDays() {
     month: 'long', 
     year: 'numeric' 
   });
-  monthTitle.textContent = monthName;
+  setTextContent(monthTitle, monthName);
 
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
   const startDayOfWeek = (firstDayOfMonth.getDay() + 6) % 7; 
@@ -69,16 +80,17 @@ function renderCalendarDays() {
 
   // Add empty cells for days before the first day of the month
   for (let i = 0; i < startDayOfWeek; i++) {
-    const emptyCell = document.createElement('div');
+    const emptyCell = createElement(document, 'div');
     emptyCell.className = 'text-center p-2';
-    calendarContainer.appendChild(emptyCell);
+    appendChild(calendarContainer, emptyCell);
   }
 
   // Add cells for each day of the month
   for (let day = 1; day <= lastDay; day++) {
-    const dayCell = document.createElement('div');
+    const dayCell = createElement(document, 'div');
     dayCell.className = 'text-center p-2 rounded-lg font-medium transition-colors duration-200';
-    dayCell.textContent = day;
+
+    setTextContent(dayCell, day);
 
     if (day < currentDay) {
       dayCell.classList.add('bg-pastel-blue/20', 'text-gray-800', 'dark:bg-pastel-blue/50');
@@ -89,16 +101,12 @@ function renderCalendarDays() {
       dayCell.classList.add('text-gray-600', 'dark:text-gray-400');
     }
 
-    calendarContainer.appendChild(dayCell);
+    appendChild(calendarContainer, dayCell);
   }
 }
 
 // Export functions for use in other modules
-// eslint-disable-next-line no-undef
-if (typeof module !== 'undefined' && module.exports) {
-  // eslint-disable-next-line no-undef
-  module.exports = {
-    updateDateWidget,
-    renderCalendarDays
-  };
-}
+export {
+  updateDateWidget,
+  renderCalendarDays
+};

@@ -4,6 +4,12 @@
  */
 /* global document, window, setInterval, clearInterval */
 
+import {
+  getElementById,
+  setTextContent,
+  setStyle
+} from './dom-utils.js';
+
 // Global variables for clock management
 let clockUpdateInterval = null;
 let timeZoneClocks = [];
@@ -11,15 +17,16 @@ let timeZoneClocks = [];
 /**
  * Initializes the clock widget with the provided configuration
  * @param {Array} clocks - Array of clock configurations
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function initializeClockWidget(clocks) {
+function initializeClockWidget(clocks, scope = document) {
   timeZoneClocks = clocks.map(clock => ({
     name: clock.label,
     timezone: getTimezoneFromOffset(clock.timezone),
     color: getColorForClock(clock.label)
   }));
   
-  setupClockInterval(true);
+  setupClockInterval(true, scope);
 }
 
 /**
@@ -102,9 +109,10 @@ function getDigitalTime(timezone) {
  * @param {string} canvasId - ID of the canvas element
  * @param {string} timezone - IANA timezone identifier
  * @param {string} color - Color for the clock hands
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function drawAnalogClock(canvasId, timezone, color = '#8A89F0') {
-  const canvas = document.getElementById(canvasId);
+function drawAnalogClock(canvasId, timezone, color = '#8A89F0', scope = document) {
+  const canvas = getElementById(scope, canvasId);
   if (!canvas) return;
 
   // Set canvas size for high pixel density
@@ -182,8 +190,9 @@ function drawAnalogClock(canvasId, timezone, color = '#8A89F0') {
 
 /**
  * Updates all clocks in the UI
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function updateClocksUI() {
+function updateClocksUI(scope = document) {
   const visibleClocks = timeZoneClocks.slice(0, 3);
   
   // Main clock (Widget)
@@ -191,21 +200,21 @@ function updateClocksUI() {
     const mainClock = visibleClocks[0];
     const mainClockId = mainClock.name.replace(/\s+/g, '-');
     
-    const timeElement = document.getElementById(`main-clock-time-${mainClockId}`);
-    const nameElement = document.getElementById(`main-clock-name-${mainClockId}`);
-    const canvasElement = document.getElementById(`main-analog-clock-${mainClockId}`);
+    const timeElement = getElementById(scope, `main-clock-time-${mainClockId}`);
+    const nameElement = getElementById(scope, `main-clock-name-${mainClockId}`);
+    const canvasElement = getElementById(scope, `main-analog-clock-${mainClockId}`);
     
     if (timeElement) {
-      timeElement.textContent = getDigitalTime(mainClock.timezone);
+      setTextContent(timeElement, getDigitalTime(mainClock.timezone));
     }
     if (nameElement) {
-      nameElement.textContent = mainClock.name;
-      nameElement.style.color = mainClock.color;
+      setTextContent(nameElement, mainClock.name);
+      setStyle(nameElement, 'color', mainClock.color);
     }
     
     // Update analog clock
     if (canvasElement) {
-      drawAnalogClock(`main-analog-clock-${mainClockId}`, mainClock.timezone, mainClock.color);
+      drawAnalogClock(`main-analog-clock-${mainClockId}`, mainClock.timezone, mainClock.color, scope);
     }
   }
   
@@ -214,22 +223,24 @@ function updateClocksUI() {
     const clock = visibleClocks[i];
     const clockId = clock.name.replace(/\s+/g, '-');
     
-    const timeElement = document.getElementById(`small-clock-time-${i}-${clockId}`);
-    const nameElement = document.getElementById(`small-clock-name-${i}-${clockId}`);
+    const timeElement = getElementById(scope, `small-clock-time-${i}-${clockId}`);
+    const nameElement = getElementById(scope, `small-clock-name-${i}-${clockId}`);
     
     if (timeElement) {
-      timeElement.textContent = getDigitalTime(clock.timezone);
+      setTextContent(timeElement, getDigitalTime(clock.timezone));
     }
     if (nameElement) {
-      nameElement.textContent = clock.name.split('(')[0].trim();
+      setTextContent(nameElement, clock.name.split('(')[0].trim());
     }
   }
 }
 
 /**
  * Rotates the clocks array (moves first element to the end)
+ * @param {Event} event - Click event
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function rotateClocks(event) {
+function rotateClocks(event, scope = document) {
   if (event) {
     event.stopPropagation();
   }
@@ -237,32 +248,29 @@ function rotateClocks(event) {
   if (timeZoneClocks.length > 1) {
     const firstClock = timeZoneClocks.shift();
     timeZoneClocks.push(firstClock);
-    updateClocksUI();
+    updateClocksUI(scope);
   }
 }
 
 /**
  * Sets up or stops the clock update interval
  * @param {boolean} shouldStart - Whether to start or stop the interval
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function setupClockInterval(shouldStart) {
+function setupClockInterval(shouldStart, scope = document) {
   if (clockUpdateInterval) {
     clearInterval(clockUpdateInterval);
     clockUpdateInterval = null;
   }
   if (shouldStart) {
-    updateClocksUI();
-    clockUpdateInterval = setInterval(updateClocksUI, 1000);
+    updateClocksUI(scope);
+    clockUpdateInterval = setInterval(() => updateClocksUI(scope), 1000);
   }
 }
 
 // Export functions for use in other modules
-// eslint-disable-next-line no-undef
-if (typeof module !== 'undefined' && module.exports) {
-  // eslint-disable-next-line no-undef
-  module.exports = {
-    initializeClockWidget,
-    setupClockInterval,
-    rotateClocks
-  };
-}
+export {
+  initializeClockWidget,
+  setupClockInterval,
+  rotateClocks
+};

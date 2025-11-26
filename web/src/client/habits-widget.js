@@ -4,6 +4,17 @@
  */
 /* global document, lucide */
 
+import {
+  getElementById,
+  setTextContent,
+  setStyle,
+  setAttribute,
+  createElement,
+  appendChild,
+  clearChildren,
+  addClass
+} from './dom-utils.js';
+
 // Global variable for habit items
 let habitItems = [
   { 
@@ -51,20 +62,22 @@ let habitItems = [
 /**
  * Initializes the habits widget with provided items
  * @param {Array} items - Array of habit items
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function initializeHabitsWidget(items) {
+function initializeHabitsWidget(items, scope = document) {
   if (items && items.length > 0) {
     habitItems = items;
   }
-  updateWidgetDisplay();
-  updateTrackingCounts();
+  updateWidgetDisplay(scope);
+  updateTrackingCounts(scope);
 }
 
 /**
  * Adds an item consumption
  * @param {string} itemId - ID of the item to increment
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function addItem(itemId) {
+function addItem(itemId, scope = document) {
   const item = habitItems.find(i => i.id === itemId);
   if (!item) return;
   
@@ -79,17 +92,18 @@ function addItem(itemId) {
       time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     });
     
-    updateTrackingCounts();
-    renderConsumptionList();
-    updateProgressBar(itemId);
+    updateTrackingCounts(scope);
+    renderConsumptionList(scope);
+    updateProgressBar(itemId, scope);
   }
 }
 
 /**
  * Removes last item consumption
  * @param {string} itemId - ID of the item to decrement
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function removeItem(itemId) {
+function removeItem(itemId, scope = document) {
   const item = habitItems.find(i => i.id === itemId);
   if (!item || item.currentValue <= item.minValue) return;
   
@@ -101,27 +115,28 @@ function removeItem(itemId) {
     item.history.pop();
   }
   
-  updateTrackingCounts();
-  renderConsumptionList();
-  updateProgressBar(itemId);
+  updateTrackingCounts(scope);
+  renderConsumptionList(scope);
+  updateProgressBar(itemId, scope);
 }
 
 /**
  * Updates progress bar color based on value
  * @param {string} itemId - ID of the item to update
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function updateProgressBar(itemId) {
+function updateProgressBar(itemId, scope = document) {
   const item = habitItems.find(i => i.id === itemId);
   if (!item) return;
   
-  const progressBar = document.getElementById(`${itemId}-progress`);
+  const progressBar = getElementById(scope, `${itemId}-progress`);
   if (!progressBar) return;
   
   // Calculate percentage
   const percentage = ((item.currentValue - item.minValue) / (item.maxValue - item.minValue)) * 100;
   
   // Set width
-  progressBar.style.width = `${percentage}%`;
+  setStyle(progressBar, 'width', `${percentage}%`);
   
   // Set color based on value
   if (percentage <= 33) {
@@ -136,111 +151,113 @@ function updateProgressBar(itemId) {
   }
   
   // Update the text display for current/max
-  const textElement = document.getElementById(`${itemId}-count-text`);
+  const textElement = getElementById(scope, `${itemId}-count-text`);
   if (textElement) {
-    textElement.textContent = `${item.currentValue} / ${item.maxValue}`;
+    setTextContent(textElement, `${item.currentValue} / ${item.maxValue}`);
   }
 }
 
 /**
  * Updates counts display
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function updateTrackingCounts() {
+function updateTrackingCounts(scope = document) {
   habitItems.forEach(item => {
-    const countElement = document.getElementById(`${item.id}-count`);
+    const countElement = getElementById(scope, `${item.id}-count`);
     if (countElement) {
-      countElement.textContent = item.currentValue;
+      setTextContent(countElement, item.currentValue);
     }
     
     // Update progress bar
-    updateProgressBar(item.id);
+    updateProgressBar(item.id, scope);
   });
 }
 
 /**
  * Updates widget display to show all items
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function updateWidgetDisplay() {
-  const widgetContent = document.getElementById('habits-widget-content');
+function updateWidgetDisplay(scope = document) {
+  const widgetContent = getElementById(scope, 'habits-widget-content');
   if (!widgetContent) return;
   
   // Clear existing content
-  widgetContent.innerHTML = '';
+  clearChildren(widgetContent);
   
   // Create container for top 3 items with icons and progress
-  const topItemsContainer = document.createElement('div');
+  const topItemsContainer = createElement(document, 'div');
   topItemsContainer.className = 'grid grid-cols-3 gap-2 mt-2';
   
   // Create container for remaining items as simple text
-  const remainingItemsContainer = document.createElement('div');
+  const remainingItemsContainer = createElement(document, 'div');
   remainingItemsContainer.className = 'flex flex-wrap gap-3 mt-2 text-sm';
   
   // Process items
   habitItems.forEach((item, index) => {
     if (index < 3) {
       // Top 3 items with icons and progress
-      const itemElement = document.createElement('div');
+      const itemElement = createElement(document, 'div');
       itemElement.className = 'flex flex-col items-center';
       
       // Icon and count container
-      const iconCountContainer = document.createElement('div');
+      const iconCountContainer = createElement(document, 'div');
       iconCountContainer.className = 'flex items-center justify-center w-8 h-8 mb-1';
       
-      const icon = document.createElement('i');
-      icon.setAttribute('data-lucide', item.icon);
+      const icon = createElement(document, 'i');
+      setAttribute(icon, 'data-lucide', item.icon);
       icon.className = `w-5 h-5 text-${item.color}-500`;
       
-      const count = document.createElement('span');
+      const count = createElement(document, 'span');
       count.className = 'text-lg font-bold text-gray-800 ml-1';
-      count.id = `${item.id}-count`;
-      count.textContent = item.currentValue;
+      setAttribute(count, 'id', `${item.id}-count`);
+      setTextContent(count, item.currentValue);
       
-      iconCountContainer.appendChild(icon);
-      iconCountContainer.appendChild(count);
+      appendChild(iconCountContainer, icon);
+      appendChild(iconCountContainer, count);
       
-      const label = document.createElement('p');
+      const label = createElement(document, 'p');
       label.className = 'text-xs text-gray-500 text-center';
-      label.textContent = item.name;
+      setTextContent(label, item.name);
       
-      const progressContainer = document.createElement('div');
+      const progressContainer = createElement(document, 'div');
       progressContainer.className = 'w-full bg-gray-200 rounded-full h-1.5 mt-1';
       
-      const progressBar = document.createElement('div');
-      progressBar.id = `${item.id}-progress`;
+      const progressBar = createElement(document, 'div');
+      setAttribute(progressBar, 'id', `${item.id}-progress`);
       progressBar.className = 'h-1.5 rounded-full bg-red-500 transition-all duration-500';
-      progressBar.style.width = '0%';
+      setStyle(progressBar, 'width', '0%');
       
-      progressContainer.appendChild(progressBar);
+      appendChild(progressContainer, progressBar);
       
-      itemElement.appendChild(iconCountContainer);
-      itemElement.appendChild(label);
-      itemElement.appendChild(progressContainer);
+      appendChild(itemElement, iconCountContainer);
+      appendChild(itemElement, label);
+      appendChild(itemElement, progressContainer);
       
-      topItemsContainer.appendChild(itemElement);
+      appendChild(topItemsContainer, itemElement);
     } else {
       // Remaining items as simple text
-      const itemElement = document.createElement('div');
+      const itemElement = createElement(document, 'div');
       itemElement.className = 'flex items-center';
       
-      const text = document.createElement('span');
+      const text = createElement(document, 'span');
       text.className = 'text-gray-600';
-      text.textContent = `${item.name}: `;
+      setTextContent(text, `${item.name}: `);
       
-      const value = document.createElement('span');
+      const value = createElement(document, 'span');
       value.className = 'font-bold text-gray-800';
-      value.id = `${item.id}-count`;
-      value.textContent = item.currentValue;
+      setAttribute(value, 'id', `${item.id}-count`);
+      setTextContent(value, item.currentValue);
       
-      itemElement.appendChild(text);
-      itemElement.appendChild(value);
+      appendChild(itemElement, text);
+      appendChild(itemElement, value);
       
-      remainingItemsContainer.appendChild(itemElement);
+      appendChild(remainingItemsContainer, itemElement);
     }
   });
   
-  widgetContent.appendChild(topItemsContainer);
+  appendChild(widgetContent, topItemsContainer);
   if (habitItems.length > 3) {
-    widgetContent.appendChild(remainingItemsContainer);
+    appendChild(widgetContent, remainingItemsContainer);
   }
   
   // Refresh Lucide icons
@@ -251,77 +268,80 @@ function updateWidgetDisplay() {
 
 /**
  * Renders modal items dynamically
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function renderModalItems() {
-  const container = document.getElementById('habits-items-container');
+function renderModalItems(scope = document) {
+  const container = getElementById(scope, 'habits-items-container');
   if (!container) return;
   
   // Clear existing content
-  container.innerHTML = '';
+  clearChildren(container);
   
   // Set up grid
   container.className = 'grid gap-4 mb-8';
   
   // Determine grid columns based on number of items
   if (habitItems.length <= 2) {
-    container.classList.add('grid-cols-2');
+    addClass(container, 'grid-cols-2');
   } else if (habitItems.length <= 4) {
-    container.classList.add('grid-cols-2', 'sm:grid-cols-4');
+    addClass(container, 'grid-cols-2');
+    addClass(container, 'sm:grid-cols-4');
   } else {
-    container.classList.add('grid-cols-2', 'sm:grid-cols-3');
+    addClass(container, 'grid-cols-2');
+    addClass(container, 'sm:grid-cols-3');
   }
   
   // Add each item to the modal
   habitItems.forEach(item => {
-    const itemElement = document.createElement('div');
+    const itemElement = createElement(document, 'div');
     itemElement.className = `bg-${item.color}-50 dark:bg-${item.color}-900/30 p-4 rounded-2xl flex flex-col items-center`;
     
-    const icon = document.createElement('i');
-    icon.setAttribute('data-lucide', item.icon);
+    const icon = createElement(document, 'i');
+    setAttribute(icon, 'data-lucide', item.icon);
     icon.className = `w-8 h-8 text-${item.color}-500 mb-3`;
     
-    const name = document.createElement('h3');
+    const name = createElement(document, 'h3');
     name.className = 'text-lg font-bold text-gray-800 dark:text-white mb-4';
-    name.textContent = item.name;
+    setTextContent(name, item.name);
     
-    const buttonsContainer = document.createElement('div');
+    const buttonsContainer = createElement(document, 'div');
     buttonsContainer.className = 'flex gap-3';
     
-    const minusButton = document.createElement('button');
-    minusButton.onclick = () => removeItem(item.id);
+    const minusButton = createElement(document, 'button');
+    minusButton.onclick = () => removeItem(item.id, scope);
     minusButton.className = 'w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-red-600 transition-colors';
-    minusButton.textContent = '-';
+    setTextContent(minusButton, '-');
     
-    const plusButton = document.createElement('button');
-    plusButton.onclick = () => addItem(item.id);
+    const plusButton = createElement(document, 'button');
+    plusButton.onclick = () => addItem(item.id, scope);
     plusButton.className = `w-12 h-12 rounded-full bg-${item.color}-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-${item.color}-600 transition-colors`;
-    plusButton.textContent = '+';
+    setTextContent(plusButton, '+');
     
-    buttonsContainer.appendChild(minusButton);
-    buttonsContainer.appendChild(plusButton);
+    appendChild(buttonsContainer, minusButton);
+    appendChild(buttonsContainer, plusButton);
     
-    const progressContainer = document.createElement('div');
+    const progressContainer = createElement(document, 'div');
     progressContainer.className = 'w-full bg-gray-200 rounded-full h-2 mt-3';
     
-    const progressBar = document.createElement('div');
-    progressBar.id = `${item.id}-progress`;
+    const progressBar = createElement(document, 'div');
+    setAttribute(progressBar, 'id', `${item.id}-progress`);
     progressBar.className = 'h-2 rounded-full bg-red-500 transition-all duration-500';
-    progressBar.style.width = '0%';
+    setStyle(progressBar, 'width', '0%');
     
-    progressContainer.appendChild(progressBar);
+    appendChild(progressContainer, progressBar);
     
-    const countText = document.createElement('div');
-    countText.id = `${item.id}-count-text`;
+    const countText = createElement(document, 'div');
+    setAttribute(countText, 'id', `${item.id}-count-text`);
     countText.className = 'text-xs text-gray-500 mt-1';
-    countText.textContent = `${item.currentValue} / ${item.maxValue}`;
+    setTextContent(countText, `${item.currentValue} / ${item.maxValue}`);
     
-    itemElement.appendChild(icon);
-    itemElement.appendChild(name);
-    itemElement.appendChild(buttonsContainer);
-    itemElement.appendChild(progressContainer);
-    itemElement.appendChild(countText);
+    appendChild(itemElement, icon);
+    appendChild(itemElement, name);
+    appendChild(itemElement, buttonsContainer);
+    appendChild(itemElement, progressContainer);
+    appendChild(itemElement, countText);
     
-    container.appendChild(itemElement);
+    appendChild(container, itemElement);
   });
   
   // Refresh Lucide icons
@@ -332,13 +352,14 @@ function renderModalItems() {
 
 /**
  * Renders consumption list in modal
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function renderConsumptionList() {
-  const listElement = document.getElementById('consumption-list');
+function renderConsumptionList(scope = document) {
+  const listElement = getElementById(scope, 'consumption-list');
   if (!listElement) return;
 
   // Clear the list
-  listElement.innerHTML = '';
+  clearChildren(listElement);
 
   // Combine and sort all consumption by time
   let allConsumption = [];
@@ -356,33 +377,33 @@ function renderConsumptionList() {
   allConsumption.sort((a, b) => b.id - a.id);
 
   // Show/hide no consumption message
-  const noConsumptionMessage = document.getElementById('no-consumption-message');
+  const noConsumptionMessage = getElementById(scope, 'no-consumption-message');
   if (noConsumptionMessage) {
-    noConsumptionMessage.style.display = allConsumption.length > 0 ? 'none' : 'block';
+    setStyle(noConsumptionMessage, 'display', allConsumption.length > 0 ? 'none' : 'block');
   }
-  listElement.style.display = allConsumption.length > 0 ? 'block' : 'none';
+  setStyle(listElement, 'display', allConsumption.length > 0 ? 'block' : 'none');
 
   // Create list items
   allConsumption.forEach(item => {
-    const listItem = document.createElement('div');
+    const listItem = createElement(document, 'div');
     listItem.className = 'flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700 mb-2';
     
-    const iconContainer = document.createElement('div');
+    const iconContainer = createElement(document, 'div');
     iconContainer.className = 'flex items-center';
     
-    const icon = document.createElement('i');
-    icon.setAttribute('data-lucide', habitItems.find(i => i.id === item.type)?.icon || 'circle');
+    const icon = createElement(document, 'i');
+    setAttribute(icon, 'data-lucide', habitItems.find(i => i.id === item.type)?.icon || 'circle');
     icon.className = `w-5 h-5 mr-3 text-${item.color}-500`;
     
-    const text = document.createElement('span');
+    const text = createElement(document, 'span');
     text.className = 'text-gray-700 dark:text-gray-300';
-    text.textContent = `${item.typeName} at ${item.time}`;
+    setTextContent(text, `${item.typeName} at ${item.time}`);
     
-    iconContainer.appendChild(icon);
-    iconContainer.appendChild(text);
+    appendChild(iconContainer, icon);
+    appendChild(iconContainer, text);
     
-    listItem.appendChild(iconContainer);
-    listElement.appendChild(listItem);
+    appendChild(listItem, iconContainer);
+    appendChild(listElement, listItem);
   });
 
   // Refresh Lucide icons
@@ -393,25 +414,22 @@ function renderConsumptionList() {
 
 /**
  * Initializes tracking items
+ * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
  */
-function initTrackingItems() {
+function initTrackingItems(scope = document) {
   // Update widget display to show all items
-  updateWidgetDisplay();
-  updateTrackingCounts();
+  updateWidgetDisplay(scope);
+  updateTrackingCounts(scope);
 }
 
 // Export functions for use in other modules
-// eslint-disable-next-line no-undef
-if (typeof module !== 'undefined' && module.exports) {
-  // eslint-disable-next-line no-undef
-  module.exports = {
-    initializeHabitsWidget,
-    addItem,
-    removeItem,
-    updateTrackingCounts,
-    updateWidgetDisplay,
-    renderModalItems,
-    renderConsumptionList,
-    initTrackingItems
-  };
-}
+export {
+  initializeHabitsWidget,
+  addItem,
+  removeItem,
+  updateTrackingCounts,
+  updateWidgetDisplay,
+  renderModalItems,
+  renderConsumptionList,
+  initTrackingItems
+};
