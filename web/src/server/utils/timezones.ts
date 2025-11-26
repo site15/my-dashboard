@@ -65,3 +65,12 @@ export const TIMEZONE_OFFSET_TO_IANA: Record<string, string> = {
   '11': 'Pacific/Guadalcanal',
   '12': 'Pacific/Auckland',
 };
+
+/**
+ * Converts timezone offset to IANA timezone identifier
+ * @param offset - Timezone offset (e.g., "-8", "3.5")
+ * @returns IANA timezone identifier
+ */
+export function getTimezoneFromOffset(offset: string): string {
+  return TIMEZONE_OFFSET_TO_IANA[offset] || 'Etc/UTC';
+}

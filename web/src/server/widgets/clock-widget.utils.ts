@@ -7,11 +7,15 @@
 
 import { WINDOW } from '../../app/utils/window';
 import { getElementById, setStyle, setTextContent } from '../utils/dom-utils';
+import { getTimezoneFromOffset } from '../utils/timezones';
 
 // Global variables for clock management
+const timeZoneClocks: Record<
+  string,
+  Array<{ name: string; timezone: string; color: string }>
+> = {};
+
 let clockUpdateInterval: NodeJS.Timeout | null = null;
-let timeZoneClocks: Array<{ name: string; timezone: string; color: string }> =
-  [];
 
 // Type definitions
 interface ClockConfig {
@@ -20,79 +24,24 @@ interface ClockConfig {
   color: string;
 }
 
-interface WindowWithClockWidget extends Window {
-  initializeClockWidget?: (
-    clocks: ClockConfig[],
-    scope?: Document | HTMLElement
-  ) => void;
-  setupClockInterval?: (
-    shouldStart: boolean,
-    scope?: Document | HTMLElement
-  ) => void;
-  rotateClocks?: (event?: Event, scope?: Document | HTMLElement) => void;
-}
-
-declare const window: WindowWithClockWidget;
-
 /**
  * Initializes the clock widget with the provided configuration
  * @param clocks - Array of clock configurations
  * @param scope - Document or element scope for DOM operations
  */
 function initializeClockWidget(
+  widgetId: string,
   clocks: ClockConfig[],
+  staticMode: boolean,
   scope: Document | HTMLElement = document
 ): void {
-  timeZoneClocks = clocks.map(clock => ({
+  timeZoneClocks[widgetId] = clocks.map(clock => ({
     name: clock.name,
     timezone: getTimezoneFromOffset(clock.timezone),
-    color: getColorForClock(clock.name),
+    color: getColorForClock(widgetId, clock.name),
   }));
 
-  setupClockInterval(true, scope);
-}
-
-/**
- * Converts timezone offset to IANA timezone identifier
- * @param offset - Timezone offset (e.g., "-8", "3.5")
- * @returns IANA timezone identifier
- */
-function getTimezoneFromOffset(offset: string): string {
-  const TIMEZONE_OFFSET_TO_IANA: Record<string, string> = {
-    '-12': 'Etc/GMT+12',
-    '-11': 'Pacific/Midway',
-    '-10': 'Pacific/Honolulu',
-    '-9': 'America/Anchorage',
-    '-8': 'America/Los_Angeles',
-    '-7': 'America/Denver',
-    '-6': 'America/Chicago',
-    '-5': 'America/New_York',
-    '-4': 'America/Halifax',
-    '-3.5': 'America/St_Johns',
-    '-3': 'America/Argentina/Buenos_Aires',
-    '-2': 'America/Noronha',
-    '-1': 'Atlantic/Azores',
-    '0': 'Etc/UTC',
-    '1': 'Europe/Paris',
-    '2': 'Europe/Kaliningrad',
-    '3': 'Europe/Moscow',
-    '3.5': 'Asia/Tehran',
-    '4': 'Asia/Baku',
-    '4.5': 'Asia/Kabul',
-    '5': 'Asia/Karachi',
-    '5.5': 'Asia/Kolkata',
-    '5.75': 'Asia/Kathmandu',
-    '6': 'Asia/Dhaka',
-    '7': 'Asia/Bangkok',
-    '8': 'Asia/Shanghai',
-    '9': 'Asia/Tokyo',
-    '9.5': 'Australia/Darwin',
-    '10': 'Australia/Sydney',
-    '11': 'Pacific/Guadalcanal',
-    '12': 'Pacific/Auckland',
-  };
-
-  return TIMEZONE_OFFSET_TO_IANA[offset] || 'Etc/UTC';
+  setupClockInterval(widgetId, true, staticMode, scope);
 }
 
 /**
@@ -100,10 +49,13 @@ function getTimezoneFromOffset(offset: string): string {
  * @param name - Clock name
  * @returns Color hex code
  */
-function getColorForClock(name: string): string {
+function getColorForClock(widgetId: string, name: string): string {
   const colors = ['#8A89F0', '#F5A2C0', '#A2F5C0', '#A2C0F5', '#FF988A'];
   // Find index in the global timeZoneClocks array
-  const index = timeZoneClocks.findIndex(clock => clock && clock.name === name);
+  const index =
+    timeZoneClocks[widgetId]?.findIndex(
+      clock => clock && clock.name === name
+    ) || 0;
   return colors[index % colors.length] || '#8A89F0';
 }
 
@@ -228,13 +180,16 @@ function drawAnalogClock(
  * Updates all clocks in the UI
  * @param scope - Document or element scope for DOM operations
  */
-function updateClocksUI(scope: Document | HTMLElement = document): void {
-  const visibleClocks = timeZoneClocks.slice(0, 3);
+function updateClocksUI(
+  widgetId: string,
+  scope: Document | HTMLElement = document
+): void {
+  const visibleClocks = timeZoneClocks[widgetId].slice(0, 3);
 
   // Main clock (Widget)
   if (visibleClocks[0]) {
     const mainClock = visibleClocks[0];
-    const mainClockId = mainClock.name.replace(/\s+/g, '-');
+    const mainClockId = getClockName(widgetId, mainClock.name);
 
     const timeElement = getElementById(scope, `main-clock-time-${mainClockId}`);
     const nameElement = getElementById(scope, `main-clock-name-${mainClockId}`);
@@ -242,6 +197,12 @@ function updateClocksUI(scope: Document | HTMLElement = document): void {
       scope,
       `main-analog-clock-${mainClockId}`
     );
+
+    console.log({
+      timeElement,
+      nameElement,
+      canvasElement,
+    });
 
     if (timeElement) {
       setTextContent(timeElement, getDigitalTime(mainClock.timezone));
@@ -265,16 +226,10 @@ function updateClocksUI(scope: Document | HTMLElement = document): void {
   // Small clocks 1 and 2 (Widget)
   for (let i = 1; i < Math.min(3, visibleClocks.length); i++) {
     const clock = visibleClocks[i];
-    const clockId = clock.name.replace(/\s+/g, '-');
+    const clockId = getClockName(widgetId, clock.name);
 
-    const timeElement = getElementById(
-      scope,
-      `small-clock-time-${i}-${clockId}`
-    );
-    const nameElement = getElementById(
-      scope,
-      `small-clock-name-${i}-${clockId}`
-    );
+    const timeElement = getElementById(scope, `small-clock-time-${clockId}`);
+    const nameElement = getElementById(scope, `small-clock-name-${clockId}`);
 
     if (timeElement) {
       setTextContent(timeElement, getDigitalTime(clock.timezone));
@@ -285,12 +240,17 @@ function updateClocksUI(scope: Document | HTMLElement = document): void {
   }
 }
 
+export function getClockName(widgetId: string, name: string) {
+  return `${widgetId}-${name.replace(/\s+/g, '-')}`;
+}
+
 /**
  * Rotates the clocks array (moves first element to the end)
  * @param event - Click event
  * @param scope - Document or element scope for DOM operations
  */
 function rotateClocks(
+  widgetId: string,
   event?: Event,
   scope: Document | HTMLElement = document
 ): void {
@@ -298,11 +258,11 @@ function rotateClocks(
     event.stopPropagation();
   }
 
-  if (timeZoneClocks.length > 1) {
-    const firstClock = timeZoneClocks.shift();
+  if (timeZoneClocks[widgetId].length > 1) {
+    const firstClock = timeZoneClocks[widgetId].shift();
     if (firstClock) {
-      timeZoneClocks.push(firstClock);
-      updateClocksUI(scope);
+      timeZoneClocks[widgetId].push(firstClock);
+      updateClocksUI(widgetId, scope);
     }
   }
 }
@@ -313,7 +273,9 @@ function rotateClocks(
  * @param scope - Document or element scope for DOM operations
  */
 function setupClockInterval(
+  widgetId: string,
   shouldStart: boolean,
+  staticMode: boolean,
   scope: Document | HTMLElement = document
 ): void {
   if (clockUpdateInterval) {
@@ -321,8 +283,13 @@ function setupClockInterval(
     clockUpdateInterval = null;
   }
   if (shouldStart) {
-    updateClocksUI(scope);
-    clockUpdateInterval = setInterval(() => updateClocksUI(scope), 1000);
+    updateClocksUI(widgetId, scope);
+    if (!staticMode) {
+      clockUpdateInterval = setInterval(
+        () => updateClocksUI(widgetId, scope),
+        1000
+      );
+    }
   }
 }
 

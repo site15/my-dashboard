@@ -1,31 +1,30 @@
 import { AsyncPipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  SecurityContext,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
-import { first, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { first, map, shareReplay, tap } from 'rxjs';
 
-import {
-  WIDGETS_FORMLY_FIELDS,
-  WIDGETS_RENDERERS,
-  WidgetsType,
-} from '../../../../../../server/widgets/widgets';
-import { mapFormlyTypes } from '../../../../../formly/get-formly-type';
-import { DashboardsService } from '../../../../../services/dashboards.service';
+import { WidgetsType } from '../../../../../../server/widgets/widgets';
+import { NoSanitizePipe } from '../../../../../directives/no-sanitize.directive';
 import { WidgetsService } from '../../../../../services/widgets.service';
+import {
+  mapToRenderDataByDashboardIdAndWidgetId,
+  mapToRenderHtml,
+} from '../../../../../utils/render.utils';
 
 @Component({
   selector: 'dashboards-widgets-edit-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormlyBootstrapModule, ReactiveFormsModule, FormlyForm, AsyncPipe],
+  imports: [
+    FormlyBootstrapModule,
+    ReactiveFormsModule,
+    FormlyForm,
+    AsyncPipe,
+    NoSanitizePipe,
+  ],
   template: ` @if (data$ | async; as data) {
     <section>
       <div class="pico">
@@ -69,18 +68,16 @@ import { WidgetsService } from '../../../../../services/widgets.service';
         <hr />
       </div>
 
-      <div [innerHTML]="safeHtmlContent$ | async"></div>
+      <div [innerHTML]="html$ | async | noSanitize"></div>
 
       <hr />
     </section>
   }`,
 })
 export default class DashboardsWidgetsEditPageComponent {
-  private readonly dashboardsService = inject(DashboardsService);
   private readonly widgetsService = inject(WidgetsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly sanitizer = inject(DomSanitizer);
 
   form = new UntypedFormGroup({});
   fields: FormlyFieldConfig[] = [];
@@ -91,52 +88,17 @@ export default class DashboardsWidgetsEditPageComponent {
       dashboardId: params.get('dashboardId'),
       widgetId: params.get('widgetId'),
     })),
-    switchMap(({ dashboardId, widgetId }) =>
-      dashboardId && widgetId
-        ? forkJoin({
-            dashboard: this.dashboardsService.read(dashboardId),
-            widget: this.widgetsService.read(widgetId).pipe(
-              map(widget => {
-                this.model = widget.options;
-                this.fields = mapFormlyTypes(
-                  WIDGETS_FORMLY_FIELDS[widget.type] || []
-                );
-                return widget;
-              })
-            ),
-          })
-        : of(null)
-    ),
+    mapToRenderDataByDashboardIdAndWidgetId(),
+    tap(data => {
+      if (data) {
+        this.model = data.model;
+        this.fields = data.fields;
+      }
+    }),
     shareReplay(1)
   );
 
-  safeHtmlContent$ = this.data$.pipe(
-    switchMap(data => {
-      const render =
-        data?.widget.type && WIDGETS_RENDERERS[data.widget.type]
-          ? WIDGETS_RENDERERS[data.widget.type]
-          : null;
-      return forkJoin({
-        render: of(render),
-        html:
-          render && data?.widget
-            ? render.render(data?.widget, {
-                static: true,
-              })
-            : '',
-        widget: of(data?.widget),
-      });
-    }),
-    map(({ render, html, widget }) => {
-      setTimeout(() => {
-        if (widget) {
-          render?.init?.(widget);
-          render?.afterRender?.(widget);
-        }
-      });
-      return this.sanitizer.sanitize(SecurityContext.HTML, html);
-    })
-  );
+  html$ = this.data$.pipe(mapToRenderHtml(true));
 
   onSubmit(data: { type: string; id: string }) {
     this.widgetsService

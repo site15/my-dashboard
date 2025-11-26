@@ -19,6 +19,7 @@ export function getElementById(
   scope: Document | ExtendedHTMLElement,
   id: string
 ): HTMLElement | null | any {
+  console.log({ scope, id });
   if (!scope) return null;
   return scope.getElementById
     ? scope.getElementById(id)

@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { interval, map, of } from 'rxjs';
+import { of, tap } from 'rxjs';
 import { z } from 'zod';
 
-import { linkFunctionsToWindow } from './clock-widget.utils';
+import { getClockName, linkFunctionsToWindow } from './clock-widget.utils';
 import { WINDOW } from '../../app/utils/window';
 import {
   WidgetRender,
-  WidgetRenderFunctionOptions,
+  WidgetRenderInitFunctionOptions,
+  WidgetRenderRenderFunctionOptions,
   WidgetRenderType,
 } from '../types/WidgetSchema';
-import { isSSR } from '../utils/is-ssr';
 import { Timezone, TIMEZONE_OFFSET_TO_IANA } from '../utils/timezones';
 
 export const CLOCK_WIDGET_TIMEZONE_TITLE: Record<string, string> =
@@ -142,109 +142,106 @@ function getDigitalTime(timezoneOffset: string): string {
 }
 
 export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
-  inited = false;
-  init(widget: WidgetRenderType<ClockWidgetType>) {
+  private inited = false;
+  init(
+    widget: WidgetRenderType<ClockWidgetType>,
+    options?: WidgetRenderInitFunctionOptions
+  ) {
     if (this.inited) {
       return;
     }
     this.inited = true;
 
     linkFunctionsToWindow();
+
     WINDOW?.initializeClockWidget?.(
+      widget.id,
       widget.options.timezones.map((tz: ClockWidgetTimezoneType) => {
         return {
           name: tz.label,
           timezone: getDigitalTime(tz.timezone),
           color: '#8A89F0',
         };
-      })
+      }),
+      options?.static || false
     );
   }
 
   render(
     widget: WidgetRenderType<ClockWidgetType>,
-    options?: WidgetRenderFunctionOptions
+    options?: WidgetRenderRenderFunctionOptions
   ) {
+    if (!options) {
+      options = {};
+    }
+    if (options.init === undefined) {
+      options.init = true;
+    }
     const render = () => {
-      // For SSR or static rendering, return a simplified version with actual time
-      if (isSSR || options?.static) {
-        // Get current times for the timezones
-        const mainTime = widget.options.timezones[0]
-          ? getDigitalTime(widget.options.timezones[0].timezone)
-          : '--:--';
-        const smallTime1 = widget.options.timezones[1]
-          ? getDigitalTime(widget.options.timezones[1].timezone)
-          : '--:--';
-        const smallTime2 = widget.options.timezones[2]
-          ? getDigitalTime(widget.options.timezones[2].timezone)
-          : '--:--';
+      // Get current times for the timezones
+      const mainTime = widget.options.timezones[0]
+        ? getDigitalTime(widget.options.timezones[0].timezone)
+        : '--:--';
+      const smallTime1 = widget.options.timezones[1]
+        ? getDigitalTime(widget.options.timezones[1].timezone)
+        : '--:--';
+      const smallTime2 = widget.options.timezones[2]
+        ? getDigitalTime(widget.options.timezones[2].timezone)
+        : '--:--';
 
-        return `
-        <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-48 flex flex-col justify-between border-l-4 border-pastel-green">
-          <div class="flex items-center justify-center flex-grow">
-            <div class="w-24 h-24 mr-6 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <div class="flex flex-col items-center">
-              <p class="text-4xl font-extrabold text-gray-800">${mainTime}</p>
-              <p class="text-md font-medium mt-1 text-center text-gray-600">${widget.options.timezones[0]?.label || 'Clock'}</p>
-            </div>
-          </div>
-          <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
-            <div class="text-center w-1/2">
-              <p class="text-xl font-bold text-gray-800">${smallTime1}</p>
-              <p class="text-xs text-gray-500">${widget.options.timezones[1]?.label || 'Timezone 1'}</p>
-            </div>
-            <div class="text-center w-1/2">
-              <p class="text-xl font-bold text-gray-800">${smallTime2}</p>
-              <p class="text-xs text-gray-500">${widget.options.timezones[2]?.label || 'Timezone 2'}</p>
-            </div>
-          </div>
-        </div>
-      `;
-      }
-
-      // For client-side rendering, return the widget container that will be populated by JavaScript
-      // Generate unique IDs for the clocks based on the widget configuration
-      const mainClockId = widget.options.timezones[0]?.label
-        ? widget.options.timezones[0].label.replace(/\s+/g, '-')
-        : 'main-clock';
+      // Get current times for the timezones
+      const mainTimeName = widget.options.timezones[0].label
+        ? getClockName(widget.id, widget.options.timezones[0].label)
+        : '--:--';
+      const smallTime1Name = widget.options.timezones[1]
+        ? getClockName(widget.id, widget.options.timezones[1].label)
+        : '--:--';
+      const smallTime2Name = widget.options.timezones[2]
+        ? getClockName(widget.id, widget.options.timezones[2].label)
+        : '--:--';
 
       return `
-      <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-48 flex flex-col justify-between border-l-4 border-pastel-green">
-        <div class="flex items-center justify-center flex-grow">
-          <!-- Canvas for analog clock - will be populated by JavaScript -->
-          <canvas id="main-analog-clock-${mainClockId}" class="w-24 h-24 mr-6 cursor-pointer" 
-                  onclick="event.stopPropagation(); showModal('clocks-modal');"></canvas>
-          <!-- Digital time and name - will be populated by JavaScript -->
-          <div class="flex flex-col items-center cursor-pointer" onclick="rotateClocks(event);">
-            <p id="main-clock-time-${mainClockId}" class="text-4xl font-extrabold transition-colors duration-300 tracking-tight text-gray-800">--:--</p>
-            <p id="main-clock-name-${mainClockId}" class="text-md font-medium mt-1 text-center text-gray-600"></p>
-          </div>
+<!-- Виджет 1: Мировое Время (АНАЛОГОВЫЕ И ЦИФРОВЫЕ ЧАСЫ) -->
+<!-- Область для ротации и клика по аналоговому циферблату -->
+<div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-48 flex flex-col justify-between border-l-4 border-pastel-green">
+    
+    <!-- Главные часы (Аналоговые + Цифровые + Имя). Клик по цифровому блоку - ротация. Клик по canvas - модалка -->
+    <div class="flex items-center justify-center flex-grow">
+        
+        <!-- Canvas для аналоговых часов - ОТКРЫТИЕ МОДАЛКИ -->
+        <canvas id="main-analog-clock" class="w-24 h-24 mr-6 cursor-pointer" 
+                onclick="event.stopPropagation(); showModal('${widget.id}', 'clocks-modal');"></canvas> 
+        
+        <!-- Цифровое время и Имя - СМЕНА ГЛАВНЫХ ЧАСОВ -->
+        <div class="flex flex-col items-center cursor-pointer" onclick="rotateClocks('${widget.id}', event);">
+            <!-- Цифровые часы (уменьшенный шрифт, без секунд) -->
+            <p id="main-clock-time-${mainTimeName}" class="text-4xl font-extrabold transition-colors duration-300 tracking-tight text-gray-800 dark:text-gray-100">${mainTime}</p>
+            <!-- Имя часов (под цифровым временем) -->
+            <p id="main-clock-name-${mainTimeName}" class="text-md font-medium mt-1 text-center text-gray-600 dark:text-gray-300">${widget.options.timezones[0]?.label || ''}</p>
         </div>
-        <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
-          ${widget.options.timezones
-            .slice(1, 3)
-            .map((clock: ClockWidgetTimezoneType, index: number) => {
-              const clockId = clock.label.replace(/\s+/g, '-');
-              return `
-            <div class="text-center w-1/2">
-              <p id="small-clock-time-${index + 1}-${clockId}" class="text-xl font-bold text-gray-800">--:--</p>
-              <p id="small-clock-name-${index + 1}-${clockId}" class="text-xs text-gray-500"></p>
-            </div>
-          `;
-            })
-            .join('')}
+    </div>
+        
+    <!-- Маленькие часы (Горизонтальный стек) -->
+    <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100 dark:border-gray-700">
+        <div class="text-center w-1/2">
+            <p id="small-clock-time-${smallTime1Name}" class="text-xl font-bold text-gray-800 dark:text-gray-200">${smallTime1}</p>
+            <p id="small-clock-name-${smallTime1Name}" class="text-xs text-gray-500">${widget.options.timezones[1]?.label || ''}</p>
         </div>
-      </div>
-    `;
+        <div class="text-center w-1/2">
+            <p id="small-clock-time-${smallTime2Name}" class="text-xl font-bold text-gray-800 dark:text-gray-200">${smallTime2}</p>
+            <p id="small-clock-name-${smallTime2Name}" class="text-xs text-gray-500">${widget.options.timezones[2]?.label || ''}</p>
+        </div>
+    </div>
+</div>
+<!-- END Виджет 1 -->
+`;
     };
 
     // For client-side, we still need to update the clocks periodically
-    return !isSSR && !options?.static
-      ? interval(1000).pipe(map(() => render()))
-      : of(render());
+    return of(render()).pipe(
+      tap(() => {
+        this.init(widget, options);
+      })
+    );
   }
 }

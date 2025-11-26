@@ -74,17 +74,24 @@ export const UpdateWidgetStateSchema = z.object({
 
 export type UpdateWidgetStateType = z.infer<typeof UpdateWidgetStateSchema>;
 
-export type WidgetRenderFunctionOptions = {
-  static: boolean;
+export type WidgetRenderInitFunctionOptions = {
+  static?: boolean;
+};
+
+export type WidgetRenderRenderFunctionOptions = {
+  static?: boolean;
+  init?: boolean;
 };
 
 export type WidgetRenderType<T> = WidgetType & { options?: T };
 
 export interface WidgetRender<T> {
-  init?(widget: WidgetRenderType<T>): void;
+  init?(
+    widget: WidgetRenderType<T>,
+    options?: WidgetRenderInitFunctionOptions
+  ): void;
   render(
     widget: WidgetRenderType<T>,
-    options?: WidgetRenderFunctionOptions
+    options?: WidgetRenderRenderFunctionOptions
   ): Observable<string>;
-  afterRender?(widget: WidgetRenderType<T>): void;
 }
