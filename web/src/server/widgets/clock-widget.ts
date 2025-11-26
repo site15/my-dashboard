@@ -18,9 +18,7 @@ export const CLOCK_WIDGET_TIMEZONE_TITLE: Record<string, string> =
 export const ClockWidgetTimezoneKeys = Object.keys(CLOCK_WIDGET_TIMEZONE_TITLE);
 
 export const ClockWidgetTimezoneSchema = z.object({
-  timezone: z
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .enum(ClockWidgetTimezoneKeys as any),
+  timezone: z.enum(ClockWidgetTimezoneKeys as any),
   label: z.string(),
 });
 
@@ -43,7 +41,6 @@ export const ClockWidgetHourFormatKeys = Object.keys(
 export const ClockWidgetSchema = z.object({
   type: z.literal('clock'),
   hourFormat: z
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .enum(ClockWidgetHourFormatKeys as any)
     .default(HourFormat['24h']),
   timezones: z.array(ClockWidgetTimezoneSchema),

@@ -5,21 +5,8 @@ import { z } from 'zod';
 import { WidgetRenderFunction } from '../types/WidgetSchema';
 
 // Define the habit item structure
-export interface HabitItem {
-  id: string;
-  name: string;
-  icon: string;
-  color: string;
-  minValue: number;
-  maxValue: number;
-  currentValue: number;
-  history?: Array<{
-    id: number;
-    time: string;
-  }> | null;
-}
 
-export const HABITS_WIDGET_ITEM_SCHEMA = z.object({
+export const HabitsWidgetItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   icon: z.string(),
@@ -38,9 +25,12 @@ export const HABITS_WIDGET_ITEM_SCHEMA = z.object({
     .optional(),
 });
 
+export type HabitsWidgetItemType = z.infer<typeof HabitsWidgetItemSchema>;
+
 export const HabitsWidgetSchema = z.object({
   type: z.literal('habits'),
-  items: z.array(HABITS_WIDGET_ITEM_SCHEMA).default([]),
+  name: z.string(),
+  items: z.array(HabitsWidgetItemSchema).default([]),
 });
 
 export type HabitsWidgetType = z.infer<typeof HabitsWidgetSchema>;
@@ -130,7 +120,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
 ];
 
 // Function to calculate progress percentage
-function calculateProgressPercentage(item: HabitItem): number {
+function calculateProgressPercentage(item: HabitsWidgetItemType): number {
   if (item.maxValue === item.minValue) return 0;
   return (
     ((item.currentValue - item.minValue) / (item.maxValue - item.minValue)) *
@@ -218,7 +208,7 @@ export const habitsWidgetRender: WidgetRenderFunction<HabitsWidgetType> = (
   };
 
   // Helper function to render widget content
-  function renderWidgetContent(items: HabitItem[]): string {
+  function renderWidgetContent(items: HabitsWidgetItemType[]): string {
     if (items.length === 0) {
       return '<p class="text-gray-500 text-sm">No habits configured</p>';
     }
@@ -231,7 +221,7 @@ export const habitsWidgetRender: WidgetRenderFunction<HabitsWidgetType> = (
       topItemsHtml = `
         <div class="grid grid-cols-3 gap-2 mt-2">
           ${topItems
-            .map((item, index) => {
+            .map(item => {
               const percentage = calculateProgressPercentage(item);
               const progressBarColor = getProgressBarColor(percentage);
 
