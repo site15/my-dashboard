@@ -4,6 +4,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { interval, map, of } from 'rxjs';
 import { z } from 'zod';
 
+import { linkFunctionsToWindow } from './clock-widget.utils';
 import { WINDOW } from '../../app/utils/window';
 import {
   WidgetRender,
@@ -140,26 +141,6 @@ function getDigitalTime(timezoneOffset: string): string {
   }
 }
 
-function loadScript(src: string, callback: () => void) {
-  const script = document.createElement('script');
-  script.src = src;
-  script.type = 'module';
-  script.async = true; // Scripts are async by default when dynamically added, but explicit is clear
-
-  // Optional: Add onload and onerror handlers for better control and error handling
-  script.onload = () => {
-    console.log(`${src} loaded successfully.`);
-    if (callback) {
-      callback();
-    }
-  };
-  script.onerror = () => {
-    console.error(`Error loading script: ${src}`);
-  };
-
-  document.head.appendChild(script); // Append to the head or body
-}
-
 export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
   inited = false;
   init(widget: WidgetRenderType<ClockWidgetType>) {
@@ -167,18 +148,17 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
       return;
     }
     this.inited = true;
-    loadScript('./widgets/clock-widget.js', () => {
-      WINDOW?.initializeClockWidget?.(
-        widget.options.timezones.map((tz: ClockWidgetTimezoneType) => {
-          return {
-            name: tz.label,
-            timezone: getDigitalTime(tz.timezone),
-            color: '#8A89F0',
-          };
-        })
-      );
-      alert('afterRender');
-    });
+
+    linkFunctionsToWindow();
+    WINDOW?.initializeClockWidget?.(
+      widget.options.timezones.map((tz: ClockWidgetTimezoneType) => {
+        return {
+          name: tz.label,
+          timezone: getDigitalTime(tz.timezone),
+          color: '#8A89F0',
+        };
+      })
+    );
   }
 
   render(

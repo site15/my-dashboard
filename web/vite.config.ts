@@ -3,7 +3,6 @@
 import analog from '@analogjs/platform';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -28,14 +27,6 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     tailwindcss(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: "src/app/widgets/*.js",
-          dest: "widgets",
-        }
-      ]
-    }),
   ],
   test: {
     globals: true,

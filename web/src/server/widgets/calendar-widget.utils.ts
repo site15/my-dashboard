@@ -1,40 +1,46 @@
-/* eslint-disable no-undef */
 /**
- * Client-side JavaScript for handling calendar widget updates
+ * Client-side TypeScript for handling calendar widget updates
  * This replicates the functionality from gemini-template.html
  */
 /* global document */
-
+import { WINDOW } from '../../app/utils/window';
 import {
-  domUtils
-} from './dom-utils.js';
-
-const {
-
-  getElementById,
-  setTextContent,
-  setStyle,
-  createElement,
   appendChild,
-  clearChildren } = domUtils;
+  clearChildren,
+  createElement,
+  getElementById,
+  setStyle,
+  setTextContent,
+} from '../utils/dom-utils';
+
+// Type definitions
+interface MonthlyProgress {
+  currentDay: number;
+  lastDay: number;
+  progress: string;
+}
 
 /**
  * Gets monthly progress information
- * @returns {Object} Object containing currentDay, lastDay, and progress percentage
+ * @returns Object containing currentDay, lastDay, and progress percentage
  */
-function getMonthlyProgress() {
+function getMonthlyProgress(): MonthlyProgress {
   const today = new Date();
   const currentDay = today.getDate();
-  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const lastDay = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    0
+  ).getDate();
   const progress = (currentDay / lastDay) * 100;
   return { currentDay, lastDay, progress: progress.toFixed(1) };
 }
 
 /**
  * Updates the date widget with current date and progress information
- * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
+ * @param scope - Document or element scope for DOM operations
  */
-function updateDateWidget(scope = document) {
+function updateDateWidget(scope: Document | HTMLElement = document): void {
   const { progress } = getMonthlyProgress();
   const today = new Date();
 
@@ -43,10 +49,13 @@ function updateDateWidget(scope = document) {
   const progressTextElement = getElementById(scope, 'monthly-progress-text');
 
   if (dateElement) {
-    setTextContent(dateElement, today.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'long'
-    }));
+    setTextContent(
+      dateElement,
+      today.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+      })
+    );
   }
 
   if (progressElement) {
@@ -60,9 +69,9 @@ function updateDateWidget(scope = document) {
 
 /**
  * Renders calendar days in the modal
- * @param {Document|HTMLElement} scope - Document or element scope for DOM operations
+ * @param scope - Document or element scope for DOM operations
  */
-function renderCalendarDays(scope = document) {
+function renderCalendarDays(scope: Document | HTMLElement = document): void {
   const calendarContainer = getElementById(scope, 'calendar-grid');
   const monthTitle = getElementById(scope, 'calendar-month-title');
   if (!calendarContainer || !monthTitle) return;
@@ -75,7 +84,7 @@ function renderCalendarDays(scope = document) {
 
   const monthName = today.toLocaleDateString('en-US', {
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
   });
   setTextContent(monthTitle, monthName);
 
@@ -93,14 +102,24 @@ function renderCalendarDays(scope = document) {
   // Add cells for each day of the month
   for (let day = 1; day <= lastDay; day++) {
     const dayCell = createElement(document, 'div');
-    dayCell.className = 'text-center p-2 rounded-lg font-medium transition-colors duration-200';
+    dayCell.className =
+      'text-center p-2 rounded-lg font-medium transition-colors duration-200';
 
-    setTextContent(dayCell, day);
+    setTextContent(dayCell, day.toString());
 
     if (day < currentDay) {
-      dayCell.classList.add('bg-pastel-blue/20', 'text-gray-800', 'dark:bg-pastel-blue/50');
+      dayCell.classList.add(
+        'bg-pastel-blue/20',
+        'text-gray-800',
+        'dark:bg-pastel-blue/50'
+      );
     } else if (day === currentDay) {
-      dayCell.classList.add('bg-pastel-blue', 'text-white', 'font-bold', 'long-shadow');
+      dayCell.classList.add(
+        'bg-pastel-blue',
+        'text-white',
+        'font-bold',
+        'long-shadow'
+      );
       dayCell.style.boxShadow = '5px 5px 0 0 rgba(138, 137, 240, 0.4)';
     } else {
       dayCell.classList.add('text-gray-600', 'dark:text-gray-400');
@@ -110,13 +129,10 @@ function renderCalendarDays(scope = document) {
   }
 }
 
-// Export functions for use in other modules
-export {
-  renderCalendarDays, updateDateWidget
+export const linkFunctionsToWindow = (): void => {
+  // Export all utility functions
+  if (WINDOW) {
+    WINDOW.renderCalendarDays = renderCalendarDays;
+    WINDOW.updateDateWidget = updateDateWidget;
+  }
 };
-
-// Export all utility functions
-if (typeof window !== 'undefined') {
-  window.renderCalendarDays = renderCalendarDays;
-  window.updateDateWidget = updateDateWidget;
-}
