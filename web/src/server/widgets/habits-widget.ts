@@ -38,6 +38,16 @@ export type HabitsWidgetType = z.infer<typeof HabitsWidgetSchema>;
 // Formly field configuration for the habits widget
 export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
+    key: 'name',
+    type: 'input',
+    props: {
+      label: 'Widget name',
+      required: true,
+      placeholder: 'Widget name',
+      attributes: { 'aria-label': 'Enter widget name' },
+    },
+  },
+  {
     key: 'items',
     type: 'repeat',
     props: {

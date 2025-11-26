@@ -40,6 +40,7 @@ export const ClockWidgetHourFormatKeys = Object.keys(
 
 export const ClockWidgetSchema = z.object({
   type: z.literal('clock'),
+  name: z.string(),
   hourFormat: z
     .enum(ClockWidgetHourFormatKeys as any)
     .default(HourFormat['24h']),
@@ -51,6 +52,16 @@ export type ClockWidgetTimezoneType = z.infer<typeof ClockWidgetTimezoneSchema>;
 export type ClockWidgetType = z.infer<typeof ClockWidgetSchema>;
 
 export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
+  {
+    key: 'name',
+    type: 'input',
+    props: {
+      label: 'Widget name',
+      required: true,
+      placeholder: 'Widget name',
+      attributes: { 'aria-label': 'Enter widget name' },
+    },
+  },
   {
     key: 'hourFormat',
     type: 'select',
