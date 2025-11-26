@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable } from '@angular/core';
+import { injectRequest } from '@analogjs/router/tokens';
+import { inject, Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
+
+import { isSSR } from '../../server/utils/is-ssr';
 
 /**
  * Global error handler service for the web application
@@ -12,8 +15,8 @@ import { Observable } from 'rxjs';
 })
 export class ErrorHandlerService {
   private globalErrorHandlingEnabled = true;
-
-  constructor(private readonly toastrService: ToastrService) {}
+  private request = injectRequest();
+  private toastrService = inject(ToastrService);
 
   /**
    * Enable or disable global error handling
@@ -40,12 +43,20 @@ export class ErrorHandlerService {
         message = error.error.message;
       }
     }
-
-    this.toastrService.error(message, 'Error', {
-      timeOut: 3000,
-      positionClass: 'toast-bottom-center',
-      progressBar: true,
-    });
+    try {
+      if (!isSSR) {
+        this.toastrService.error(message, 'Error', {
+          timeOut: 3000,
+          positionClass: 'toast-bottom-center',
+          progressBar: true,
+        });
+      } else {
+        (this.request as any)?.logger?.errorWithStack(message, 'Error');
+      }
+    } catch (err) {
+      console.error(err);
+      console.error({ message });
+    }
   }
 
   /**
