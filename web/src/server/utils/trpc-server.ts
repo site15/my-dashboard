@@ -2,9 +2,9 @@
 
 /**
  * Enhanced tRPC → Nitro handler
- * ✔ Красивое Zod-логирование (ctx.logger.zodError)
- * ✔ errorWithStack для остальных ошибок
- * ✔ Полная совместимость с tRPC v10.45.2
+ * ✔ Beautiful Zod logging (ctx.logger.zodError)
+ * ✔ errorWithStack for other errors
+ * ✔ Full compatibility with tRPC v10.45.2
  */
 
 import type {

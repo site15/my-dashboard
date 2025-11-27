@@ -314,7 +314,7 @@ function setupClockInterval(
 }
 
 /**
- * Заполняет модальное окно всеми доступными часами.
+ * Populates the modal window with all available clocks.
  */
 function renderAllClocksModal(
   modalId: string,
@@ -325,7 +325,7 @@ function renderAllClocksModal(
   console.log({ modalGrid });
   if (!modalGrid) return;
 
-  modalGrid.innerHTML = ''; // Очистка
+  modalGrid.innerHTML = ''; // Clear
 
   timeZoneClocks[widgetId].forEach((clock, index) => {
     const clockCard = createElement(scope as Document, 'div');
@@ -333,7 +333,7 @@ function renderAllClocksModal(
       'bg-gray-50 dark:bg-gray-800 p-4 rounded-xl flex flex-col items-center long-shadow';
     clockCard.innerHTML = `
                     <canvas id="${modalId}-modal-analog-clock-${index}" class="w-20 h-20 mb-2"></canvas>
-                    <!-- ID для динамического обновления времени -->
+                    <!-- ID for dynamic time updates -->
                     <p id="${modalId}-modal-clock-time-${index}" class="text-2xl font-extrabold text-gray-800 dark:text-white transition-colors duration-300">--:--</p>
                     <p class="mt-2 text-md font-semibold text-gray-800 dark:text-gray-200 text-center" style="color: ${clock.color}">${clock.name}</p>
                     <p class="text-sm text-gray-500">${clock.timezone.split('/')[1].replace('_', ' ')}</p>
@@ -341,15 +341,15 @@ function renderAllClocksModal(
     appendChild(modalGrid, clockCard);
   });
 
-  // Вызываем немедленное обновление для установки времени и отрисовки
+  // Call immediate update to set time and draw
   updateAllClocksModalTimes(modalId, widgetId);
-  // Обновляем общее количество в заголовке модалки
+  // Update total count in modal header
   setTextContent(
     getElementById(scope, `${modalId}-modal-total-clocks`),
     String(timeZoneClocks[widgetId].length)
   );
 
-  // Обновляем текст кнопки
+  // Update button text
   setTimeout(() => {
     const modalButton = getElementById(
       scope,
@@ -362,14 +362,14 @@ function renderAllClocksModal(
     if (modalButton) {
       setTextContent(
         modalButton,
-        `Сменить Главные Часы (Сейчас: ${timeZoneClocks[widgetId][0].name})`
+        `Change Main Clocks (Now: ${timeZoneClocks[widgetId][0].name})`
       );
     }
   });
 }
 
 /**
- * Обновляет время и рисует аналоговые часы во всех часах в модальном окне.
+ * Updates time and draws analog clocks for all clocks in the modal window.
  */
 function updateAllClocksModalTimes(
   modalId: string,
@@ -387,7 +387,7 @@ function updateAllClocksModalTimes(
       timeElement.textContent = getDigitalTime(clock.timezone);
     }
 
-    // Обновление аналоговых часов в модалке
+    // Update analog clocks in modal
     drawAnalogClock(canvasId, clock.timezone, clock.color);
   });
 }

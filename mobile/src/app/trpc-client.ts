@@ -17,7 +17,7 @@ function customFetch(
     return (globalThis as any).$fetch
       .raw(input.toString(), {
         ...init,
-        credentials: 'include', // важно для CORS с куки
+        credentials: 'include', // important for CORS with cookies
         headers: {
           ...(init?.headers || {}),
         },
@@ -51,7 +51,7 @@ function customFetch(
 
   return fetch(input, {
     ...init,
-    credentials: 'include', // важно для CORS с куки
+    credentials: 'include', // important for CORS with cookies
     headers: {
       ...(init?.headers || {}),
     },
@@ -67,7 +67,7 @@ export const { provideTrpcClient, TrpcClient, TrpcHeaders } =
   createTrpcClient<AppRouter>({
     url: `${environment.apiUrl}/api/trpc`,
     options: { transformer: superjson },
-    batchLinkOptions: { fetch: customFetch, transformer: superjson } as any, // используем кастомный fetch
+    batchLinkOptions: { fetch: customFetch, transformer: superjson } as any, // use custom fetch
   });
 
 export function injectTrpcClient() {

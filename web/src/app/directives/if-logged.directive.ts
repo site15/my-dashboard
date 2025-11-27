@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// if-logged.directive.ts
 import {
   Directive,
   Input,
@@ -43,7 +42,7 @@ export class IfLoggedDirective implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.subscription) {
-      this.subscription.unsubscribe(); // Предотвращаем утечку памяти
+      this.subscription.unsubscribe(); // Prevent memory leak
     }
   }
 
@@ -83,7 +82,7 @@ export class IfNotLoggedDirective implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.subscription) {
-      this.subscription.unsubscribe(); // Предотвращаем утечку памяти
+      this.subscription.unsubscribe(); // Prevent memory leak
     }
   }
 

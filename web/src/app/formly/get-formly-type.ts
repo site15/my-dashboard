@@ -34,23 +34,23 @@ export function mapFormlyTypes<T extends FormlyFieldConfig = FormlyFieldConfig>(
               const arrayField = vm.field?.parent.parent;
               console.log({ itemIndex, arrayField });
 
-              // 1. удалить контрол из FormArray (если он есть)
+              // 1. remove control from FormArray (if it exists)
               const formArray = arrayField.formControl;
               if (formArray && typeof formArray.removeAt === 'function') {
                 try {
                   formArray.removeAt(itemIndex);
                 } catch (e) {
-                  // игнорируем, но логируем для отладки
+                  // ignore, but log for debugging
                   console.warn('removeAt failed', e);
                 }
               }
 
-              // 2. удалить конфиг поля из fieldGroup (чтобы Formly UI обновился)
+              // 2. remove field config from fieldGroup (so Formly UI updates)
               if (Array.isArray(arrayField.fieldGroup)) {
                 arrayField.fieldGroup.splice(itemIndex, 1);
               }
 
-              // 3. удалить элемент из модели (если модель — массив)
+              // 3. remove element from model (if model is an array)
               if (Array.isArray(arrayField.model)) {
                 arrayField.model.splice(itemIndex, 1);
               }

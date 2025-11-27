@@ -36,7 +36,7 @@ import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 import { ErrorHandlerService } from '../services/error-handler.service';
 
 //
-// --- 1. Снять фото через камеру ---
+// --- 1. Take photo via camera ---
 //
 export async function takeCameraPhoto(): Promise<string | null> {
   try {
@@ -54,14 +54,14 @@ export async function takeCameraPhoto(): Promise<string | null> {
 }
 
 //
-// --- 2. Декодирование через ZXing (основной путь) ---
+// --- 2. Decoding via ZXing (main path) ---
 //
 export async function decodeZXing(dataUrl: string): Promise<string | null> {
   const reader = new BrowserQRCodeReader();
 
   try {
     const result = await reader.decodeFromImageUrl(dataUrl);
-    return result.getText(); // <- новый API ZXing
+    return result.getText(); // <- new ZXing API
   } catch (err) {
     console.warn('ZXing decode error:', err);
     return null;
@@ -69,7 +69,7 @@ export async function decodeZXing(dataUrl: string): Promise<string | null> {
 }
 
 //
-// --- 3. Fallback: jsQR (читает даже сильно повреждённые QR) ---
+// --- 3. Fallback: jsQR (reads even heavily damaged QR codes) ---
 //
 export async function decodeJsQR(dataUrl: string): Promise<string | null> {
   const img = new Image();
@@ -94,7 +94,7 @@ export async function decodeJsQR(dataUrl: string): Promise<string | null> {
 }
 
 //
-// --- 4. Комбинированная обработка + улучшение изображения ---
+// --- 4. Combined processing + image enhancement ---
 //
 async function preprocess(dataUrl: string): Promise<string> {
   try {
@@ -105,13 +105,13 @@ async function preprocess(dataUrl: string): Promise<string> {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
-    // увеличиваем изображение ×2 для лучшего качества
+    // Increase image size ×2 for better quality
     canvas.width = img.width * 2;
     canvas.height = img.height * 2;
 
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    // чёткая бинаризация (улучшает читаемость QR)
+    // Sharp binarization (improves QR readability)
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
 
@@ -131,26 +131,26 @@ async function preprocess(dataUrl: string): Promise<string> {
 }
 
 //
-// --- 5. Основная функция: сделать фото + распознать QR ---
+// --- 5. Main function: take photo + recognize QR ---
 //
 export async function scanQRFromCamera(): Promise<string | null> {
   try {
     const dataUrl = await takeCameraPhoto();
     if (!dataUrl) return null;
 
-    // 1) Пробуем ZXing в чистом виде
+    // 1) Try ZXing in pure form
 
     const zxing = await decodeZXing(dataUrl);
     if (zxing) return zxing;
 
-    // 2) Предобрабатываем (улучшение контраста)
+    // 2) Preprocess (contrast enhancement)
     const enhanced = await preprocess(dataUrl);
 
-    // 3) Пробуем ZXing снова
+    // 3) Try ZXing again
     const zxingEnhanced = await decodeZXing(enhanced);
     if (zxingEnhanced) return zxingEnhanced;
 
-    // 4) Пробуем jsQR (часто спасает разрушенный QR)
+    // 4) Try jsQR (often saves damaged QR)
     const jsqr = await decodeJsQR(dataUrl);
     if (jsqr) return jsqr;
 

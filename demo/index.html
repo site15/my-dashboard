@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой Дашборд | Flat Design 2.0 Админка</title>
+    <title>My Dashboard | Flat Design 2.0 Admin</title>
     <!-- Подключение Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Подключение библиотеки Lucide Icons (минималистичные иконки) -->
@@ -161,11 +161,11 @@
 
         // --- GLOBAL DATA: CLOCK CONFIGURATION ---
         let timeZoneClocks = [
-            { name: "Москва (HQ)", timezone: "Europe/Moscow", color: "#8A89F0" },
-            { name: "Нью-Йорк (США)", timezone: "America/New_York", color: "#F5A2C0" },
-            { name: "Токио (Азия)", timezone: "Asia/Tokyo", color: "#A2F5C0" },
-            { name: "Лондон (EU)", timezone: "Europe/London", color: "#A2C0F5" },
-            { name: "Сидней (AUS)", timezone: "Australia/Sydney", color: "#FF988A" }
+            { name: "Moscow (HQ)", timezone: "Europe/Moscow", color: "#8A89F0" },
+            { name: "New York (USA)", timezone: "America/New_York", color: "#F5A2C0" },
+            { name: "Tokyo (Asia)", timezone: "Asia/Tokyo", color: "#A2F5C0" },
+            { name: "London (EU)", timezone: "Europe/London", color: "#A2C0F5" },
+            { name: "Sydney (AUS)", timezone: "Australia/Sydney", color: "#FF988A" }
         ];
 
         // --- DARK MODE LOGIC (Redacted for brevity) ---
@@ -207,7 +207,7 @@
         function pcmToWav(pcm16, sampleRate) { /* ... */ }
         function generateReportAudio() { /* ... */ }
 
-        // --- FEATURE 1: Monthly Calendar Widget Logic (Redacted for brevity) ---
+        // --- FEATURE 1: Monthly Calendar Widget Logic ---
 
         function getMonthlyProgress() {
             const today = new Date();
@@ -225,13 +225,13 @@
             const progressTextElement = document.getElementById('monthly-progress-text');
 
             if (dateElement) {
-                dateElement.textContent = today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+                dateElement.textContent = today.toLocaleDateString('en-US', { day: 'numeric', month: 'long' });
             }
             if (progressElement) {
                 progressElement.style.width = `${progress}%`;
             }
             if (progressTextElement) {
-                progressTextElement.textContent = `${progress}% месяца пройдено`;
+                progressTextElement.textContent = `${progress}% of month passed`;
             }
         }
 
@@ -246,7 +246,7 @@
             const currentYear = today.getFullYear();
             const currentDay = today.getDate();
 
-            const monthName = today.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+            const monthName = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             monthTitle.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
             const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
@@ -280,30 +280,30 @@
         // --- FEATURE 2: CLOCK WIDGET LOGIC (ANALOG & DIGITAL) ---
 
         /**
-         * Получает цифровую строку времени для указанного часового пояса (без секунд).
-         * @param {string} timezone - IANA часовой пояс (e.g., "Europe/Moscow").
-         * @returns {string} Строка времени (HH:MM)
+         * Gets digital time string for specified timezone (without seconds).
+         * @param {string} timezone - IANA timezone (e.g., "Europe/Moscow").
+         * @returns {string} Time string (HH:MM)
          */
         function getDigitalTime(timezone) {
             const date = new Date();
             const options = {
                 hour: '2-digit', 
                 minute: '2-digit', 
-                hour12: false, // Без AM/PM
+                hour12: false, // Without AM/PM
                 timeZone: timezone 
             };
-            // Используем 'en-US' для получения формата HH:MM
+            // Use 'en-US' to get HH:MM format
             return new Intl.DateTimeFormat('en-US', options).format(date);
         }
 
         /**
-         * Рисует аналоговые часы на указанном canvas.
+         * Draws analog clock on specified canvas.
          */
         function drawAnalogClock(canvasId, timezone, color = '#8A89F0') {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
 
-            // Установка размера canvas для высокой плотности пикселей
+            // Set canvas size for high pixel density
             const size = canvas.clientWidth;
             const scale = window.devicePixelRatio || 1;
             canvas.width = size * scale;
@@ -313,26 +313,26 @@
 
             const radius = size / 2;
             ctx.clearRect(0, 0, size, size);
-            ctx.translate(radius, radius); // Перенос начала координат в центр
+            ctx.translate(radius, radius); // Move origin to center
 
             const now = new Date();
-            // Получаем местное время для указанного часового пояса
+            // Get local time for specified timezone
             const timeZoneString = now.toLocaleString('en-US', { timeZone: timezone });
             const localTime = new Date(timeZoneString);
             
             let hours = localTime.getHours();
             let minutes = localTime.getMinutes();
             
-            // Рисование циферблата
+            // Draw clock face
             ctx.beginPath();
             ctx.arc(0, 0, radius * 0.95, 0, 2 * Math.PI);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0)'; // Прозрачный фон
+            ctx.fillStyle = 'rgba(255, 255, 255, 0)'; // Transparent background
             ctx.fill();
             ctx.strokeStyle = color;
             ctx.lineWidth = 1;
             ctx.stroke();
 
-            // Рисование отметок 3, 6, 9, 12
+            // Draw 3, 6, 9, 12 markers
             const numbers = [12, 3, 6, 9];
             ctx.font = radius * 0.15 + "px Inter";
             ctx.textAlign = "center";
@@ -340,17 +340,17 @@
             ctx.fillStyle = color;
 
             numbers.forEach(num => {
-                // Преобразование номера в угол (12=0, 3=PI/2, 6=PI, 9=3PI/2)
+                // Convert number to angle (12=0, 3=PI/2, 6=PI, 9=3PI/2)
                 const angle = (num === 12 ? 0 : num) * Math.PI / 6;
                 
-                // Вычисляем позицию на окружности
+                // Calculate position on circle
                 const x = radius * 0.85 * Math.sin(angle);
-                const y = -radius * 0.85 * Math.cos(angle); // Минус, так как y-координата идет вниз
+                const y = -radius * 0.85 * Math.cos(angle); // Minus because y-coordinate goes down
 
                 ctx.fillText(num.toString(), x, y);
             });
             
-            // Рисование часовой и минутной стрелок
+            // Draw hour and minute hands
             function drawHand(ctx, pos, length, width, style) {
                 ctx.beginPath();
                 ctx.lineWidth = width;
@@ -363,65 +363,65 @@
                 ctx.rotate(-pos);
             }
             
-            // Часы
-            hours = hours % 12; // Преобразование 24-часового формата
+            // Hours
+            hours = hours % 12; // Convert to 12-hour format
             let hourPos = (hours * Math.PI / 6) + 
-                          (minutes * Math.PI / (6 * 60)); // Учитываем минуты для плавности
+                          (minutes * Math.PI / (6 * 60)); // Account for minutes for smoothness
             drawHand(ctx, hourPos, radius * 0.5, radius * 0.07, color);
 
-            // Минуты
+            // Minutes
             let minutePos = (minutes * Math.PI / 30);
             drawHand(ctx, minutePos, radius * 0.8, radius * 0.05, color);
 
-            // Центральная точка
+            // Center dot
             ctx.beginPath();
             ctx.arc(0, 0, radius * 0.05, 0, 2 * Math.PI);
             ctx.fillStyle = color;
             ctx.fill();
 
-            ctx.translate(-radius, -radius); // Возврат начала координат
+            ctx.translate(-radius, -radius); // Return origin
         }
 
         /**
-         * Обновляет все часы в UI (виджет и модалка).
+         * Updates all clocks in UI (widget and modal).
          */
         function updateClocksUI() {
             const visibleClocks = timeZoneClocks.slice(0, 3);
             
-            // Главные часы (Виджет)
+            // Main clocks (Widget)
             if (visibleClocks[0]) {
                 const mainClock = visibleClocks[0];
                 document.getElementById('main-clock-time').textContent = getDigitalTime(mainClock.timezone);
                 document.getElementById('main-clock-name').textContent = mainClock.name;
                 document.getElementById('main-clock-name').style.color = mainClock.color;
                 
-                // Обновление аналоговых часов
+                // Update analog clocks
                 drawAnalogClock('main-analog-clock', mainClock.timezone, mainClock.color);
             } else {
                 document.getElementById('main-clock-time').textContent = '--:--';
-                document.getElementById('main-clock-name').textContent = 'Нет данных';
+                document.getElementById('main-clock-name').textContent = 'No data';
                 document.getElementById('main-clock-name').style.color = 'gray';
             }
             
-            // Маленькие часы 1 (Виджет)
+            // Small clocks 1 (Widget)
             if (visibleClocks[1]) {
                 document.getElementById('small-clock-time-1').textContent = getDigitalTime(visibleClocks[1].timezone);
                 document.getElementById('small-clock-name-1').textContent = visibleClocks[1].name.split('(')[0].trim();
             } else {
                  document.getElementById('small-clock-time-1').textContent = '--:--';
-                 document.getElementById('small-clock-name-1').textContent = 'Локация 1';
+                 document.getElementById('small-clock-name-1').textContent = 'Location 1';
             }
             
-            // Маленькие часы 2 (Виджет)
+            // Small clocks 2 (Widget)
             if (visibleClocks[2]) {
                 document.getElementById('small-clock-time-2').textContent = getDigitalTime(visibleClocks[2].timezone);
                 document.getElementById('small-clock-name-2').textContent = visibleClocks[2].name.split('(')[0].trim();
             } else {
                  document.getElementById('small-clock-time-2').textContent = '--:--';
-                 document.getElementById('small-clock-name-2').textContent = 'Локация 2';
+                 document.getElementById('small-clock-name-2').textContent = 'Location 2';
             }
 
-            // Обновление модального окна, если оно открыто
+            // Update modal window if it's open
             const modal = document.getElementById('clocks-modal');
             if (modal && !modal.classList.contains('hidden')) {
                 updateAllClocksModalTimes();
@@ -429,11 +429,11 @@
         }
 
         /**
-         * Ротирует массив часов (сдвигает первый элемент в конец).
-         * @param {Event} event - Событие клика, используемое для остановки всплытия.
+         * Rotates array of clocks (shifts first element to end).
+         * @param {Event} event - Click event used to stop propagation.
          */
         function rotateClocks(event) {
-            // Останавливаем всплытие, чтобы клик не открывал модальное окно (если бы оно было на родителе)
+            // Stop propagation so click doesn't open modal (if it was on parent)
             if (event) {
                 event.stopPropagation();
             }
@@ -441,18 +441,18 @@
             if (timeZoneClocks.length > 1) {
                 const firstClock = timeZoneClocks.shift();
                 timeZoneClocks.push(firstClock);
-                updateClocksUI(); // Обновляем UI после ротации
+                updateClocksUI(); // Update UI after rotation
                 
-                // Обновляем текст кнопки модального окна, так как главные часы сменились
+                // Update modal button text since main clocks changed
                 const modalButton = document.querySelector('#clocks-modal button.flat-btn-shadow');
                 if (modalButton) {
-                    modalButton.textContent = `Сменить Главные Часы (Сейчас: ${timeZoneClocks[0].name})`;
+                    modalButton.textContent = `Change Main Clocks (Currently: ${timeZoneClocks[0].name})`;
                 }
             }
         }
 
         /**
-         * Обновляет время и рисует аналоговые часы во всех часах в модальном окне.
+         * Updates time and draws analog clocks in all clocks in modal window.
          */
         function updateAllClocksModalTimes() {
             timeZoneClocks.forEach((clock, index) => {
@@ -463,26 +463,26 @@
                     timeElement.textContent = getDigitalTime(clock.timezone);
                 }
                 
-                // Обновление аналоговых часов в модалке
+                // Update analog clocks in modal
                 drawAnalogClock(canvasId, clock.timezone, clock.color);
             });
         }
 
         /**
-         * Заполняет модальное окно всеми доступными часами.
+         * Fills modal window with all available clocks.
          */
         function renderAllClocksModal() {
             const modalGrid = document.getElementById('all-clocks-grid');
             if (!modalGrid) return;
             
-            modalGrid.innerHTML = ''; // Очистка
+            modalGrid.innerHTML = ''; // Clear
             
             timeZoneClocks.forEach((clock, index) => {
                 const clockCard = document.createElement('div');
                 clockCard.className = 'bg-gray-50 dark:bg-gray-800 p-4 rounded-xl flex flex-col items-center long-shadow';
                 clockCard.innerHTML = `
                     <canvas id="modal-analog-clock-${index}" class="w-20 h-20 mb-2"></canvas>
-                    <!-- ID для динамического обновления времени -->
+                    <!-- ID for dynamic time update -->
                     <p id="modal-clock-time-${index}" class="text-2xl font-extrabold text-gray-800 dark:text-white transition-colors duration-300">--:--</p>
                     <p class="mt-2 text-md font-semibold text-gray-800 dark:text-gray-200 text-center" style="color: ${clock.color}">${clock.name}</p>
                     <p class="text-sm text-gray-500">${clock.timezone.split('/')[1].replace('_', ' ')}</p>
@@ -490,20 +490,20 @@
                 modalGrid.appendChild(clockCard);
             });
             
-            // Вызываем немедленное обновление для установки времени и отрисовки
+            // Call immediate update to set time and draw
             updateAllClocksModalTimes();
-            // Обновляем общее количество в заголовке модалки
+            // Update total count in modal header
             document.getElementById('modal-total-clocks').textContent = timeZoneClocks.length;
             
-            // Обновляем текст кнопки
+            // Update button text
             const modalButton = document.querySelector('#clocks-modal button.flat-btn-shadow');
             if (modalButton) {
-                modalButton.textContent = `Сменить Главные Часы (Сейчас: ${timeZoneClocks[0].name})`;
+                modalButton.textContent = `Change Main Clocks (Currently: ${timeZoneClocks[0].name})`;
             }
         }
         
         /**
-         * Устанавливает или останавливает интервал обновления часов.
+         * Sets or stops interval for clock updates.
          */
         function setupClockInterval(shouldStart) {
             if (clockUpdateInterval) {
@@ -511,8 +511,8 @@
                 clockUpdateInterval = null;
             }
             if (shouldStart) {
-                updateClocksUI(); // Первое обновление сразу
-                clockUpdateInterval = setInterval(updateClocksUI, 1000); // Обновление каждую секунду
+                updateClocksUI(); // First update immediately
+                clockUpdateInterval = setInterval(updateClocksUI, 1000); // Update every second
             }
         }
 
@@ -580,10 +580,10 @@
                 
                 if (viewName === 'dashboard-edit') {
                     updateDateWidget();
-                    setupClockInterval(true); // Запускаем интервал цифровых часов
-                    // Обновляем общее количество локаций в заметке виджета
+                    setupClockInterval(true); // Start digital clock interval
+                    // Update total locations count in widget note
                     const totalNote = document.getElementById('total-clocks-note');
-                    if(totalNote) totalNote.textContent = `Всего: ${timeZoneClocks.length} локаций`;
+                    if(totalNote) totalNote.textContent = `Total: ${timeZoneClocks.length} locations`;
                 }
 
                 lucide.createIcons();
@@ -594,7 +594,7 @@
         let trackingItems = [
             { 
                 id: 'water', 
-                name: 'Вода', 
+                name: 'Water', 
                 icon: 'droplet', 
                 color: 'blue', 
                 minValue: 0, 
@@ -604,7 +604,7 @@
             },
             { 
                 id: 'food', 
-                name: 'Еда', 
+                name: 'Food', 
                 icon: 'utensils', 
                 color: 'orange', 
                 minValue: 0, 
@@ -614,7 +614,7 @@
             },
             { 
                 id: 'medication', 
-                name: 'Лекарство', 
+                name: 'Medication', 
                 icon: 'pill', 
                 color: 'purple', 
                 minValue: 0, 
@@ -624,7 +624,7 @@
             },
             { 
                 id: 'exercise', 
-                name: 'Упражнения', 
+                name: 'Exercise', 
                 icon: 'dumbbell', 
                 color: 'green', 
                 minValue: 0, 
@@ -980,12 +980,12 @@
                     <path d="M12 16v-4"></path>
                     <path d="M9 12l3 3 3-3"></path>
                 </svg>
-                <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Добро пожаловать</h2>
-                <p class="text-gray-600 text-lg">Создайте свой идеальный дашборд. Просто. Красиво. Быстро.</p>
+                <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Welcome</h2>
+                <p class="text-gray-600 text-lg">Create your perfect dashboard. Simple. Beautiful. Fast.</p>
             </div>
             
             <div class="lg:w-1/2 p-6 sm:p-10 lg:p-12">
-                <h1 class="text-4xl font-black text-gray-800 mb-8">Войти</h1>
+                <h1 class="text-4xl font-black text-gray-800 mb-8">Sign In</h1>
                 
                 <form class="space-y-6">
                     <div>
@@ -993,23 +993,23 @@
                         <input type="email" id="email" class="flat-input" placeholder="you@saas.com">
                     </div>
                     <div>
-                        <label for="password" class="block text-lg font-medium text-gray-700 mb-2">Пароль</label>
+                        <label for="password" class="block text-lg font-medium text-gray-700 mb-2">Password</label>
                         <input type="password" id="password" class="flat-input" placeholder="••••••••">
                     </div>
                     
                     <button type="button" onclick="showView('dashboard-list')" class="w-full text-xl font-bold py-4 rounded-2xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow 
                         bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide">
-                        Войти в аккаунт
+                        Sign In
                     </button>
                 </form>
 
                 <div class="mt-8 text-center">
                     <button onclick="showView('guest-continue')" class="text-pastel-blue font-semibold hover:text-pastel-blue/80 transition-colors">
-                        Зарегистрироваться
+                        Register
                     </button>
                     <span class="text-gray-400 mx-2">|</span>
                     <button onclick="showView('guest-continue')" class="text-gray-500 font-medium hover:text-gray-800 transition-colors">
-                        Войти как Гость
+                        Continue as Guest
                     </button>
                 </div>
             </div>
@@ -1029,19 +1029,19 @@
                 <i data-lucide="smile" class="w-24 h-24 text-pastel-pink"></i>
             </div>
 
-            <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Начать без регистрации?</h1>
+            <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Start without registration?</h1>
             <p class="text-lg text-gray-600 mb-10 max-w-md mx-auto">
-                Вы можете продолжить как гость, но для сохранения данных потребуется регистрация.
+                You can continue as a guest, but registration will be required to save data.
             </p>
 
             <button onclick="showView('dashboard-list')" class="w-full text-2xl font-bold py-5 rounded-2xl text-white transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow 
                 bg-gradient-to-tr from-pastel-green to-[#A2F5C0] text-gray-800 tracking-wide">
                 <i data-lucide="rocket" class="w-6 h-6 inline-block mr-2"></i>
-                Продолжить как Гость
+                Continue as Guest
             </button>
 
             <button onclick="showView('login-register')" class="mt-6 text-pastel-blue font-semibold hover:text-pastel-blue/80 transition-colors">
-                Вернуться к входу
+                Back to Sign In
             </button>
         </div>
     </div>
@@ -1056,57 +1056,57 @@
         <div class="w-16 lg:w-64 bg-white long-shadow p-4 flex flex-col items-center lg:items-start border-r border-gray-100 transition-all duration-300">
             <div class="text-2xl font-bold text-pastel-blue mb-10 mt-2">
                 <i data-lucide="layout-dashboard" class="w-8 h-8 lg:mr-2"></i>
-                <span class="hidden lg:inline">Дашборды</span>
+                <span class="hidden lg:inline">Dashboards</span>
             </div>
             
             <nav class="flex flex-col space-y-4 w-full">
                 <a href="#" class="flex items-center p-3 rounded-xl bg-pastel-blue/10 text-pastel-blue font-semibold transition-all duration-300 hover:bg-pastel-blue/20">
                     <i data-lucide="grid-3x3" class="w-6 h-6 mr-0 lg:mr-3"></i>
-                    <span class="hidden lg:inline">Мои Дашборды</span>
+                    <span class="hidden lg:inline">My Dashboards</span>
                 </a>
                 
                 <a href="#" class="flex items-center p-3 rounded-xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-100 hover:text-gray-800" onclick="showView('seo-page')">
                     <i data-lucide="chart-bar-big" class="w-6 h-6 mr-0 lg:mr-3"></i>
-                    <span class="hidden lg:inline">Статистика</span>
+                    <span class="hidden lg:inline">Analytics</span>
                 </a>
                 
                 <a href="#" class="flex items-center p-3 rounded-xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-100 hover:text-gray-800">
                     <i data-lucide="settings" class="w-6 h-6 mr-0 lg:mr-3"></i>
-                    <span class="hidden lg:inline">Настройки</span>
+                    <span class="hidden lg:inline">Settings</span>
                 </a>
             </nav>
             
             <div class="mt-auto pt-6 w-full flex flex-col items-center lg:items-start">
-                <p class="text-sm text-gray-500 hidden lg:block">Гость</p>
+                <p class="text-sm text-gray-500 hidden lg:block">Guest</p>
                 <button onclick="showView('login-register')" class="mt-2 text-red-500 font-medium hover:text-red-700 transition-colors flex items-center">
                     <i data-lucide="log-out" class="w-5 h-5 mr-0 lg:mr-2"></i>
-                    <span class="hidden lg:inline">Выйти</span>
+                    <span class="hidden lg:inline">Sign Out</span>
                 </button>
             </div>
         </div>
         
         <div class="flex-1 p-6 lg:p-10 overflow-y-auto">
-            <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Мои Дашборды</h1>
-            <p class="text-xl text-gray-500 mb-8">Управляйте всеми вашими проектами в одном месте.</p>
+            <h1 class="text-4xl font-extrabold text-gray-800 mb-2">My Dashboards</h1>
+            <p class="text-xl text-gray-500 mb-8">Manage all your projects in one place.</p>
             
             <button class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
                 bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide" onclick="showView('dashboard-edit')">
                 <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>
-                Создать новый Дашборд
+                Create New Dashboard
             </button>
             
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.01] cursor-pointer" onclick="showView('dashboard-edit')">
                     <div class="flex justify-between items-start mb-4">
                         <i data-lucide="database" class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg"></i>
-                        <span class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full">Активен</span>
+                        <span class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full">Active</span>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">CRM: Продажи за Q4</h2>
-                    <p class="text-gray-500 mb-4">Отслеживание ключевых метрик продаж и воронки конверсии.</p>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">CRM: Q4 Sales</h2>
+                    <p class="text-gray-500 mb-4">Tracking key sales metrics and conversion funnel.</p>
                     <div class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100">
-                        <span>Виджетов: 12</span>
+                        <span>Widgets: 12</span>
                         <span class="flex items-center text-pastel-blue hover:text-pastel-blue/80">
-                            Открыть
+                            Open
                             <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                         </span>
                     </div>
@@ -1115,14 +1115,14 @@
                 <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.01] cursor-pointer" onclick="showView('dashboard-edit')">
                     <div class="flex justify-between items-start mb-4">
                         <i data-lucide="pie-chart" class="w-10 h-10 text-pastel-pink bg-pastel-pink/10 p-2 rounded-lg"></i>
-                        <span class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full">Черновик</span>
+                        <span class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full">Draft</span>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Аналитика сайта (SEO)</h2>
-                    <p class="text-gray-500 mb-4">Позиции, трафик, поведенческие факторы.</p>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Website Analytics (SEO)</h2>
+                    <p class="text-gray-500 mb-4">Positions, traffic, behavioral factors.</p>
                     <div class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100">
-                        <span>Виджетов: 5</span>
+                        <span>Widgets: 5</span>
                         <span class="flex items-center text-pastel-blue hover:text-pastel-blue/80">
-                            Открыть
+                            Open
                             <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                         </span>
                     </div>
@@ -1131,14 +1131,14 @@
                 <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.01] cursor-pointer" onclick="showView('dashboard-edit')">
                     <div class="flex justify-between items-start mb-4">
                         <i data-lucide="users" class="w-10 h-10 text-pastel-green bg-pastel-green/10 p-2 rounded-lg"></i>
-                        <span class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full">Активен</span>
+                        <span class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full">Active</span>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">HR: Оценка Команды</h2>
-                    <p class="text-gray-500 mb-4">KPI, нагрузка и обратная связь сотрудников.</p>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">HR: Team Assessment</h2>
+                    <p class="text-gray-500 mb-4">KPI, workload and employee feedback.</p>
                     <div class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100">
-                        <span>Виджетов: 8</span>
+                        <span>Widgets: 8</span>
                         <span class="flex items-center text-pastel-blue hover:text-pastel-blue/80">
-                            Открыть
+                            Open
                             <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                         </span>
                     </div>
@@ -1158,38 +1158,38 @@
          <div class="w-16 lg:w-64 bg-white long-shadow p-4 flex flex-col items-center lg:items-start border-r border-gray-100">
             <button onclick="showView('dashboard-list')" class="text-gray-500 hover:text-pastel-blue transition-colors mb-10 mt-2 flex items-center">
                 <i data-lucide="arrow-left" class="w-6 h-6 mr-0 lg:mr-2"></i>
-                <span class="hidden lg:inline text-lg font-medium">К списку</span>
+                <span class="hidden lg:inline text-lg font-medium">Back to List</span>
             </button>
-            <h3 class="text-xl font-bold text-gray-800 mb-4 hidden lg:block">Настройки</h3>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 hidden lg:block">Settings</h3>
             
             <nav class="flex flex-col space-y-4 w-full">
                 <a href="#" class="flex items-center p-3 rounded-xl bg-pastel-blue/10 text-pastel-blue font-semibold transition-all duration-300 hover:bg-pastel-blue/20">
                     <i data-lucide="grid" class="w-6 h-6 mr-0 lg:mr-3"></i>
-                    <span class="hidden lg:inline">Виджеты</span>
+                    <span class="hidden lg:inline">Widgets</span>
                 </a>
                 
                 <a href="#" class="flex items-center p-3 rounded-xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-100 hover:text-gray-800">
                     <i data-lucide="users" class="w-6 h-6 mr-0 lg:mr-3"></i>
-                    <span class="hidden lg:inline">Доступ</span>
+                    <span class="hidden lg:inline">Access</span>
                 </a>
             </nav>
         </div>
 
         <!-- Main Editor Area -->
         <div class="flex-1 p-6 lg:p-10 overflow-y-auto">
-            <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Редактирование: CRM Продажи</h1>
-            <p class="text-xl text-gray-500 mb-8">Обновите настройки и виджеты.</p>
+            <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Editing: CRM Sales</h1>
+            <p class="text-xl text-gray-500 mb-8">Update settings and widgets.</p>
 
-            <!-- Панель управления (Redacted for brevity) -->
+            <!-- Control Panel (Redacted for brevity) -->
             <div class="bg-white p-6 rounded-2xl long-shadow mb-8 space-y-4">
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div class="flex-1">
-                        <label for="dashboard-name" class="block text-lg font-medium text-gray-700 mb-2">Название Дашборда</label>
-                        <input type="text" id="dashboard-name" class="flat-input" value="CRM: Продажи за Q4">
+                        <label for="dashboard-name" class="block text-lg font-medium text-gray-700 mb-2">Dashboard Name</label>
+                        <input type="text" id="dashboard-name" class="flat-input" value="CRM: Q4 Sales">
                     </div>
                     
                     <div class="flex items-center gap-4">
-                        <label for="theme-switch" class="text-lg font-medium text-gray-700">Тёмная тема</label>
+                        <label for="theme-switch" class="text-lg font-medium text-gray-700">Dark Theme</label>
                         <label class="flat-switch">
                             <input type="checkbox" id="theme-switch">
                             <span class="flat-switch-slider"></span>

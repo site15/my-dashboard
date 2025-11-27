@@ -6,7 +6,7 @@ import { ColorSchemeSwitcherComponent } from './components/theme/color-scheme-sw
 import {
   IfLoggedDirective,
   IfNotLoggedDirective,
-} from './directives/ if-logged.directive';
+} from './directives/if-logged.directive';
 import { AuthService } from './services/auth.service';
 
 @Component({
