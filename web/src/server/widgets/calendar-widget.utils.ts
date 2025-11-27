@@ -193,12 +193,6 @@ export function hideCalendarModal(
   }
 }
 
-// Export functions to global scope directly
-if (typeof window !== 'undefined') {
-  (window as any).showCalendarModal = showCalendarModal;
-  (window as any).hideCalendarModal = hideCalendarModal;
-}
-
 export const linkFunctionsToWindow = (): void => {
   // Export all utility functions
   if (WINDOW) {

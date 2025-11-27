@@ -13,6 +13,7 @@ import {
   clearChildren,
   createElement,
   getElementById,
+  removeClass,
   setAttribute,
   setStyle,
   setTextContent,
@@ -122,7 +123,7 @@ function addItem(
     });
 
     updateTrackingCounts(scope);
-    renderConsumptionList(scope);
+    renderConsumptionListForWidget();
     updateProgressBar(itemId, scope);
   }
 }
@@ -148,7 +149,7 @@ function removeItem(
   }
 
   updateTrackingCounts(scope);
-  renderConsumptionList(scope);
+  renderConsumptionListForWidget();
   updateProgressBar(itemId, scope);
 }
 
@@ -308,10 +309,17 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
 
 /**
  * Renders modal items dynamically
+ * @param modalId - ID of the modal element
  * @param scope - Document or element scope for DOM operations
  */
-function renderModalItems(scope: Document | HTMLElement = document): void {
-  const container = getElementById(scope, 'habits-items-container');
+function renderModalItems(
+  modalId: string,
+  scope: Document | HTMLElement = document
+): void {
+  const container = getElementById(
+    scope,
+    `${modalId}-tracking-items-container`
+  );
   if (!container) return;
 
   // Clear existing content
@@ -391,10 +399,14 @@ function renderModalItems(scope: Document | HTMLElement = document): void {
 
 /**
  * Renders consumption list in modal
+ * @param modalId - ID of the modal element
  * @param scope - Document or element scope for DOM operations
  */
-function renderConsumptionList(scope: Document | HTMLElement = document): void {
-  const listElement = getElementById(scope, 'consumption-list');
+function renderConsumptionList(
+  modalId: string,
+  scope: Document | HTMLElement = document
+): void {
+  const listElement = getElementById(scope, `${modalId}-consumption-list`);
   if (!listElement) return;
 
   // Clear the list
@@ -420,7 +432,10 @@ function renderConsumptionList(scope: Document | HTMLElement = document): void {
   allConsumption.sort((a, b) => b.id - a.id);
 
   // Show/hide no consumption message
-  const noConsumptionMessage = getElementById(scope, 'no-consumption-message');
+  const noConsumptionMessage = getElementById(
+    scope,
+    `${modalId}-no-consumption-message`
+  );
   if (noConsumptionMessage) {
     setStyle(
       noConsumptionMessage,
@@ -463,6 +478,15 @@ function renderConsumptionList(scope: Document | HTMLElement = document): void {
 }
 
 /**
+ * Renders consumption list for widget (simplified version)
+ */
+function renderConsumptionListForWidget(): void {
+  // This is a simplified version for the widget itself, not used in modal
+  // In the widget context, we don't need to render the full consumption list
+  // This function exists to satisfy the call from addItem and removeItem
+}
+
+/**
  * Initializes tracking items
  * @param scope - Document or element scope for DOM operations
  */
@@ -470,6 +494,87 @@ function initTrackingItems(scope: Document | HTMLElement = document): void {
   // Update widget display to show all items
   updateWidgetDisplay(scope);
   updateTrackingCounts(scope);
+}
+
+/**
+ * Shows the habits modal for a specific widget
+ * @param modalId - ID of the modal element
+ * @param scope - Document or element scope for DOM operations
+ */
+export function showHabitsModal(
+  modalId: string,
+  scope: Document | HTMLElement = document
+): void {
+  const modal = getElementById(scope, modalId);
+  if (modal) {
+    modal.classList.remove('hidden', 'opacity-0');
+    modal.classList.add('opacity-100');
+    addClass(document.body, 'overflow-hidden');
+
+    // Add click event listener to close modal when clicking on background
+    const closeModalOnBackgroundClick = (event: Event) => {
+      if (event.target === modal) {
+        hideHabitsModal(modalId, scope);
+      }
+    };
+
+    // Store the event listener so we can remove it later
+    (modal as any).closeModalOnBackgroundClick = closeModalOnBackgroundClick;
+    modal.addEventListener('click', closeModalOnBackgroundClick);
+
+    renderModalItems(modalId, scope);
+    renderConsumptionList(modalId, scope);
+    updateTrackingCounts(scope);
+
+    // Show/hide no consumption message
+    const noConsumptionMessage = getElementById(
+      scope,
+      `${modalId}-no-consumption-message`
+    );
+    const consumptionList = getElementById(
+      scope,
+      `${modalId}-consumption-list`
+    );
+    if (noConsumptionMessage && consumptionList) {
+      // Check if any item has history
+      const hasConsumption = habitItems.some(item => item.history.length > 0);
+      setStyle(
+        noConsumptionMessage,
+        'display',
+        hasConsumption ? 'none' : 'block'
+      );
+      setStyle(consumptionList, 'display', hasConsumption ? 'block' : 'none');
+    }
+
+    createIcons({ icons });
+  }
+}
+
+/**
+ * Hides the habits modal for a specific widget
+ * @param modalId - ID of the modal element
+ * @param scope - Document or element scope for DOM operations
+ */
+export function hideHabitsModal(
+  modalId: string,
+  scope: Document | HTMLElement = document
+): void {
+  const modal = getElementById(scope, modalId);
+  if (modal) {
+    // Remove the event listener
+    if ((modal as any).closeModalOnBackgroundClick) {
+      modal.removeEventListener(
+        'click',
+        (modal as any).closeModalOnBackgroundClick
+      );
+      delete (modal as any).closeModalOnBackgroundClick;
+    }
+
+    modal.classList.remove('opacity-100');
+    modal.classList.add('opacity-0');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+    removeClass(document.body, 'overflow-hidden');
+  }
 }
 
 export const linkFunctionsToWindow = (): void => {
@@ -483,5 +588,7 @@ export const linkFunctionsToWindow = (): void => {
     WINDOW.renderModalItems = renderModalItems;
     WINDOW.renderConsumptionList = renderConsumptionList;
     WINDOW.initTrackingItems = initTrackingItems;
+    WINDOW.showHabitsModal = showHabitsModal;
+    WINDOW.hideHabitsModal = hideHabitsModal;
   }
 };

@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { of } from 'rxjs';
+import { of, tap } from 'rxjs';
 import { z } from 'zod';
 
-import { WidgetRender, WidgetRenderType } from '../types/WidgetSchema';
+import { linkFunctionsToWindow } from './habits-widget.utils';
+import {
+  WidgetRender,
+  WidgetRenderInitFunctionOptions,
+  WidgetRenderType,
+} from '../types/WidgetSchema';
 
 // Define the habit item structure
 
@@ -150,8 +156,24 @@ function getProgressBarColor(percentage: number): string {
 }
 
 export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
-  render(widget: WidgetRenderType<HabitsWidgetType>) {
-    const render = () => {
+  private inited = false;
+  init(
+    widget: WidgetRenderType<HabitsWidgetType>,
+    options?: WidgetRenderInitFunctionOptions
+  ) {
+    if (this.inited) {
+      return;
+    }
+    this.inited = true;
+
+    linkFunctionsToWindow();
+  }
+
+  render(
+    widget: WidgetRenderType<HabitsWidgetType>,
+    options?: WidgetRenderInitFunctionOptions
+  ) {
+    const render = (): string => {
       // Default items if none provided
       const items =
         widget.options.items && widget.options.items.length > 0
@@ -199,8 +221,11 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
               },
             ];
 
+      // Generate unique IDs for this widget instance
+      const modalId = `habits-modal-${widget.id}`;
+
       return `
-      <div class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-green">
+      <div class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-green" onclick="showHabitsModal('${modalId}')">
         <button class="absolute top-2 right-2 text-gray-400 hover:text-pastel-blue opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full bg-white/70 backdrop-blur-sm dark:bg-[#1e1e1e]/70">
           <i data-lucide="pencil" class="w-5 h-5"></i>
         </button>
@@ -211,6 +236,33 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
         <div id="habits-widget-content">
           <!-- Dynamic content will be inserted here -->
           ${renderWidgetContent(items)}
+        </div>
+      </div>
+      
+      <!-- Habits Modal -->
+      <div id="${modalId}" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
+        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300 dark:bg-[#1E1E1E]">
+          <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6 dark:border-gray-700">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+              <i data-lucide="activity" class="w-6 h-6 mr-2 text-pastel-green"></i>
+              Habits Tracking
+            </h2>
+            <button onclick="hideHabitsModal('${modalId}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+              <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" id="${modalId}-tracking-items-container">
+            <!-- Dynamic items will be inserted here by JavaScript -->
+          </div>
+          
+          <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-3">History</h3>
+            <div id="${modalId}-consumption-list" class="max-h-60 overflow-y-auto pr-2">
+              <!-- Items will be added dynamically -->
+              <p class="text-gray-500 text-center py-4" id="${modalId}-no-consumption-message">No records</p>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -278,6 +330,6 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
       );
     }
 
-    return of(render());
+    return of(render()).pipe(tap(() => this.init(widget, options)));
   }
 }
