@@ -3,6 +3,7 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
 import { ButtonTypeComponent } from './button-type.component';
+import { IconSelectTypeComponent } from './icon-select-type.component';
 import { RepeatTypeComponent } from './repeat-type.component';
 
 export function mapFormlyTypes<T extends FormlyFieldConfig = FormlyFieldConfig>(
@@ -15,6 +16,10 @@ export function mapFormlyTypes<T extends FormlyFieldConfig = FormlyFieldConfig>(
 
     if (f.type === 'button') {
       f.type = ButtonTypeComponent;
+    }
+
+    if (f.type === 'icon-select') {
+      f.type = IconSelectTypeComponent;
     }
 
     if (Array.isArray(f.fieldGroup)) {
@@ -39,33 +44,24 @@ export function mapFormlyTypes<T extends FormlyFieldConfig = FormlyFieldConfig>(
               if (formArray && typeof formArray.removeAt === 'function') {
                 try {
                   formArray.removeAt(itemIndex);
-                } catch (e) {
-                  // ignore, but log for debugging
-                  console.warn('removeAt failed', e);
+                } catch (error) {
+                  console.error('Error removing form control:', error);
                 }
               }
 
-              // 2. remove field config from fieldGroup (so Formly UI updates)
-              if (Array.isArray(arrayField.fieldGroup)) {
-                arrayField.fieldGroup.splice(itemIndex, 1);
-              }
+              // 2. remove field from fieldGroup
+              arrayField.fieldGroup.splice(itemIndex, 1);
 
-              // 3. remove element from model (if model is an array)
-              if (Array.isArray(arrayField.model)) {
+              // 3. update parent formControl
+              if (arrayField.model && Array.isArray(arrayField.model)) {
                 arrayField.model.splice(itemIndex, 1);
-              }
-
-              for (let i = itemIndex; i < arrayField.fieldGroup.length; i++) {
-                const field = arrayField.fieldGroup[i];
-                if (field && field.key) {
-                  field.key = `${field.key}-${i}`;
-                }
               }
             },
           },
         },
       ];
     }
+
     return f;
-  }) as T[];
+  });
 }
