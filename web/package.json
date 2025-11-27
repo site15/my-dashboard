@@ -58,6 +58,8 @@
     "cors": "^2.8.5",
     "es-toolkit": "^1.41.0",
     "isomorphic-fetch": "^3.0.0",
+    "lucide": "^0.555.0",
+    "lucide-angular": "^0.555.0",
     "ngx-toastr": "^19.1.0",
     "patch-package": "^8.0.1",
     "pino": "^10.1.0",

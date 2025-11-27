@@ -199,7 +199,40 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
         ? getClockName(widget.id, 'small2')
         : '--:--';
 
+      const modalId = getClockName(widget.id, 'clocks-modal');
+
+      console.log({ modalId });
       return `
+<!--
+    ========================================
+    9. CLOCKS MODAL (ЦИФРОВЫЕ ЧАСЫ)
+    ========================================
+-->
+<div id="${modalId}" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
+    <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300 dark:bg-[#1E1E1E]">
+        <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6 dark:border-gray-700">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                <i data-lucide="globe" class="w-6 h-6 mr-2 text-pastel-green"></i>
+                Все Часовые Пояса (<span id="${modalId}-modal-total-clocks">${widget.options.timezones.length}</span>)
+            </h2>
+            <button onclick="hideClockModal('${modalId}','${widget.id}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <p class="text-sm text-gray-600 mb-6">Всего настроено <span id="${modalId}-modal-total-clocks-text">${widget.options.timezones.length}</span> локаций для отслеживания.</p>
+
+        <!-- Сетка для всех часов (заполняется динамически) -->
+        <div id="${modalId}-all-clocks-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto pr-2">
+            <!-- Digital and Analog Clocks will be inserted here by renderAllClocksModal() -->
+        </div>
+        
+        <button onclick="rotateClocks('${modalId}', '${widget.id}')" class="mt-6 w-full text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 flat-btn-shadow 
+            bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide">
+            Сменить Главные Часы (Сейчас: ----)
+        </button>
+    </div>
+</div>
 <!-- Виджет 1: Мировое Время (АНАЛОГОВЫЕ И ЦИФРОВЫЕ ЧАСЫ) -->
 <!-- Область для ротации и клика по аналоговому циферблату -->
 <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-48 flex flex-col justify-between border-l-4 border-pastel-green">
@@ -209,10 +242,10 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
         
         <!-- Canvas для аналоговых часов - ОТКРЫТИЕ МОДАЛКИ -->
         <canvas id="main-analog-clock-${mainTimeName}" class="w-24 h-24 mr-6 cursor-pointer" 
-                onclick="event.stopPropagation(); showModal('${widget.id}', 'clocks-modal');"></canvas> 
+                onclick="event.stopPropagation(); showClockModal('${modalId}', '${widget.id}');"></canvas> 
         
         <!-- Цифровое время и Имя - СМЕНА ГЛАВНЫХ ЧАСОВ -->
-        <div class="flex flex-col items-center cursor-pointer" onclick="rotateClocks('${widget.id}', event);">
+        <div class="flex flex-col items-center cursor-pointer" onclick="rotateClocks('${modalId}', '${widget.id}', event);">
             <!-- Цифровые часы (уменьшенный шрифт, без секунд) -->
             <p id="main-clock-time-${mainTimeName}" class="text-4xl font-extrabold transition-colors duration-300 tracking-tight text-gray-800 dark:text-gray-100">${mainTime}</p>
             <!-- Имя часов (под цифровым временем) -->

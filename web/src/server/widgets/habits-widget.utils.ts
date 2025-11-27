@@ -4,6 +4,8 @@
  */
 /* global document */
 
+import { createIcons, icons } from 'lucide';
+
 import { WINDOW } from '../../app/utils/window';
 import {
   addClass,
@@ -301,10 +303,7 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
     appendChild(widgetContent, remainingItemsContainer);
   }
 
-  // Refresh Lucide icons
-  // if (typeof lucide !== 'undefined' && lucide.createIcons) {
-  //   lucide.createIcons();
-  // }
+  createIcons({ icons });
 }
 
 /**
@@ -387,10 +386,7 @@ function renderModalItems(scope: Document | HTMLElement = document): void {
     appendChild(container, itemElement);
   });
 
-  // Refresh Lucide icons
-  // if (typeof lucide !== 'undefined' && lucide.createIcons) {
-  //   lucide.createIcons();
-  // }
+  createIcons({ icons });
 }
 
 /**
@@ -463,10 +459,7 @@ function renderConsumptionList(scope: Document | HTMLElement = document): void {
     appendChild(listElement, listItem);
   });
 
-  // Refresh Lucide icons
-  // if (typeof lucide !== 'undefined' && lucide.createIcons) {
-  //   lucide.createIcons();
-  // }
+  createIcons({ icons });
 }
 
 /**

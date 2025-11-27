@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
-import { forkJoin, map, mergeMap, of, switchMap } from 'rxjs';
+import { createIcons, icons } from 'lucide';
+import { forkJoin, map, mergeMap, of, switchMap, tap } from 'rxjs';
 
 import { WidgetRender, WidgetType } from '../../server/types/WidgetSchema';
 import {
@@ -13,7 +14,15 @@ import { WidgetsService } from '../services/widgets.service';
 export function mapToRenderHtml(staticMode = true) {
   return mergeMap(
     (data: { render: WidgetRender<unknown>; widget: WidgetType } | null) =>
-      data?.render?.render(data.widget, { static: staticMode }) || of('')
+      data?.render?.render(data.widget, { static: staticMode }).pipe(
+        tap(() =>
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              createIcons({ icons });
+            });
+          })
+        )
+      ) || of('')
   );
 }
 

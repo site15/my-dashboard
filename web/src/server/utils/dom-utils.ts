@@ -4,6 +4,8 @@
  * This approach improves testability and SSR compatibility
  */
 
+import { createIcons, icons } from 'lucide';
+
 // Type definitions
 interface ExtendedHTMLElement extends HTMLElement {
   getElementById?(id: string): HTMLElement | null;
@@ -21,7 +23,7 @@ export function getElementById(
 ): HTMLElement | null | any {
   console.log({ scope, id });
   if (!scope) return null;
-  return scope.getElementById
+  return scope.getElementById && !id.includes(' ')
     ? scope.getElementById(id)
     : scope.querySelector(`#${id}`);
 }
@@ -137,6 +139,9 @@ export function setAttribute(
 ): void {
   if (element && element.setAttribute) {
     element.setAttribute(name, value);
+    if (name === 'data-lucide') {
+      createIcons({ icons });
+    }
   }
 }
 

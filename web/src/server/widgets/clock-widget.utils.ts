@@ -3,10 +3,20 @@
  * Client-side TypeScript for handling clock widget updates
  * This replicates the functionality from gemini-template.html
  */
-/* global document, setInterval, clearInterval */
+/* global document, setInterval, clearInterval*/
+
+import { createIcons, icons } from 'lucide';
 
 import { WINDOW } from '../../app/utils/window';
-import { getElementById, setStyle, setTextContent } from '../utils/dom-utils';
+import {
+  addClass,
+  appendChild,
+  createElement,
+  getElementById,
+  removeClass,
+  setStyle,
+  setTextContent,
+} from '../utils/dom-utils';
 import { getTimezoneFromOffset } from '../utils/timezones';
 
 // Global variables for clock management
@@ -257,6 +267,7 @@ export function getClockName(widgetId: string, name: string) {
  * @param scope - Document or element scope for DOM operations
  */
 function rotateClocks(
+  modalId: string,
   widgetId: string,
   event?: Event,
   scope: Document | HTMLElement = document
@@ -271,6 +282,7 @@ function rotateClocks(
       timeZoneClocks[widgetId].push(firstClock);
       console.log(timeZoneClocks);
       updateClocksUI(widgetId, scope);
+      renderAllClocksModal(modalId, widgetId);
     }
   }
 }
@@ -301,10 +313,122 @@ function setupClockInterval(
   }
 }
 
+/**
+ * Заполняет модальное окно всеми доступными часами.
+ */
+function renderAllClocksModal(
+  modalId: string,
+  widgetId: string,
+  scope: Document | HTMLElement = document
+) {
+  const modalGrid = getElementById(scope, `${modalId}-all-clocks-grid`);
+  console.log({ modalGrid });
+  if (!modalGrid) return;
+
+  modalGrid.innerHTML = ''; // Очистка
+
+  timeZoneClocks[widgetId].forEach((clock, index) => {
+    const clockCard = createElement(scope as Document, 'div');
+    clockCard.className =
+      'bg-gray-50 dark:bg-gray-800 p-4 rounded-xl flex flex-col items-center long-shadow';
+    clockCard.innerHTML = `
+                    <canvas id="${modalId}-modal-analog-clock-${index}" class="w-20 h-20 mb-2"></canvas>
+                    <!-- ID для динамического обновления времени -->
+                    <p id="${modalId}-modal-clock-time-${index}" class="text-2xl font-extrabold text-gray-800 dark:text-white transition-colors duration-300">--:--</p>
+                    <p class="mt-2 text-md font-semibold text-gray-800 dark:text-gray-200 text-center" style="color: ${clock.color}">${clock.name}</p>
+                    <p class="text-sm text-gray-500">${clock.timezone.split('/')[1].replace('_', ' ')}</p>
+                `;
+    appendChild(modalGrid, clockCard);
+  });
+
+  // Вызываем немедленное обновление для установки времени и отрисовки
+  updateAllClocksModalTimes(modalId, widgetId);
+  // Обновляем общее количество в заголовке модалки
+  setTextContent(
+    getElementById(scope, `${modalId}-modal-total-clocks`),
+    String(timeZoneClocks[widgetId].length)
+  );
+
+  // Обновляем текст кнопки
+  setTimeout(() => {
+    const modalButton = getElementById(
+      scope,
+      `${modalId} button.flat-btn-shadow`
+    );
+    console.log({
+      modalButton,
+      c: `${modalId} button.flat-btn-shadow`,
+    });
+    if (modalButton) {
+      setTextContent(
+        modalButton,
+        `Сменить Главные Часы (Сейчас: ${timeZoneClocks[widgetId][0].name})`
+      );
+    }
+  });
+}
+
+/**
+ * Обновляет время и рисует аналоговые часы во всех часах в модальном окне.
+ */
+function updateAllClocksModalTimes(
+  modalId: string,
+  widgetId: string,
+  scope: Document | HTMLElement = document
+) {
+  timeZoneClocks[widgetId].forEach((clock, index) => {
+    const timeElement = getElementById(
+      scope,
+      `${modalId}-modal-clock-time-${index}`
+    );
+    const canvasId = `${modalId}-modal-analog-clock-${index}`;
+
+    if (timeElement) {
+      timeElement.textContent = getDigitalTime(clock.timezone);
+    }
+
+    // Обновление аналоговых часов в модалке
+    drawAnalogClock(canvasId, clock.timezone, clock.color);
+  });
+}
+
+export function showClockModal(
+  modalId: string,
+  widgetId: string,
+  scope: Document | HTMLElement = document
+) {
+  const modal = getElementById(scope, modalId);
+  if (modal) {
+    modal.classList.remove('hidden', 'opacity-0');
+    modal.classList.add('opacity-100');
+    addClass(document.body, 'overflow-hidden');
+
+    renderAllClocksModal(modalId, widgetId);
+
+    createIcons({ icons });
+  }
+}
+
+export function hideClockModal(
+  modalId: string,
+  widgetId: string,
+  scope: Document | HTMLElement = document
+) {
+  const modal = getElementById(scope, modalId);
+  if (modal) {
+    modal.classList.remove('opacity-100');
+    modal.classList.add('opacity-0');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+    removeClass(document.body, 'overflow-hidden');
+  }
+}
+
 export const linkFunctionsToWindow = (): void => {
   // Export all utility functions
   if (WINDOW) {
     WINDOW.initializeClockWidget = initializeClockWidget;
     WINDOW.rotateClocks = rotateClocks;
+    WINDOW.showClockModal = showClockModal;
+    WINDOW.hideClockModal = hideClockModal;
   }
 };
