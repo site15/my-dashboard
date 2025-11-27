@@ -5,7 +5,6 @@
 /* global document */
 import { createIcons, icons } from 'lucide';
 
-import { WINDOW } from '../../app/utils/window';
 import {
   addClass,
   appendChild,
@@ -16,60 +15,6 @@ import {
   setStyle,
   setTextContent,
 } from '../utils/dom-utils';
-
-// Type definitions
-interface MonthlyProgress {
-  currentDay: number;
-  lastDay: number;
-  progress: string;
-}
-
-/**
- * Gets monthly progress information
- * @returns Object containing currentDay, lastDay, and progress percentage
- */
-function getMonthlyProgress(): MonthlyProgress {
-  const today = new Date();
-  const currentDay = today.getDate();
-  const lastDay = new Date(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    0
-  ).getDate();
-  const progress = (currentDay / lastDay) * 100;
-  return { currentDay, lastDay, progress: progress.toFixed(1) };
-}
-
-/**
- * Updates the date widget with current date and progress information
- * @param scope - Document or element scope for DOM operations
- */
-function updateDateWidget(scope: Document | HTMLElement = document): void {
-  const { progress } = getMonthlyProgress();
-  const today = new Date();
-
-  const dateElement = getElementById(scope, 'monthly-progress-date');
-  const progressElement = getElementById(scope, 'monthly-progress-value');
-  const progressTextElement = getElementById(scope, 'monthly-progress-text');
-
-  if (dateElement) {
-    setTextContent(
-      dateElement,
-      today.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'long',
-      })
-    );
-  }
-
-  if (progressElement) {
-    setStyle(progressElement, 'width', `${progress}%`);
-  }
-
-  if (progressTextElement) {
-    setTextContent(progressTextElement, `${progress}% of month passed`);
-  }
-}
 
 /**
  * Renders calendar days in the modal
@@ -198,13 +143,3 @@ if (typeof window !== 'undefined') {
   (window as any).showCalendarModal = showCalendarModal;
   (window as any).hideCalendarModal = hideCalendarModal;
 }
-
-export const linkFunctionsToWindow = (): void => {
-  // Export all utility functions
-  if (WINDOW) {
-    WINDOW.renderCalendarDays = renderCalendarDays;
-    WINDOW.updateDateWidget = updateDateWidget;
-    WINDOW.showCalendarModal = showCalendarModal;
-    WINDOW.hideCalendarModal = hideCalendarModal;
-  }
-};
