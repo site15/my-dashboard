@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { of, tap } from 'rxjs';
+import { delay, of, tap } from 'rxjs';
 import { z } from 'zod';
 
 import { getClockName, linkFunctionsToWindow } from './clock-widget.utils';
@@ -159,8 +159,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
       widget.options.timezones.map((tz: ClockWidgetTimezoneType) => {
         return {
           name: tz.label,
-          timezone: getDigitalTime(tz.timezone),
-          color: '#8A89F0',
+          timezone: tz.timezone,
         };
       }),
       options?.static || false
@@ -191,13 +190,13 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
 
       // Get current times for the timezones
       const mainTimeName = widget.options.timezones[0].label
-        ? getClockName(widget.id, widget.options.timezones[0].label)
+        ? getClockName(widget.id, 'main')
         : '--:--';
       const smallTime1Name = widget.options.timezones[1]
-        ? getClockName(widget.id, widget.options.timezones[1].label)
+        ? getClockName(widget.id, 'small1')
         : '--:--';
       const smallTime2Name = widget.options.timezones[2]
-        ? getClockName(widget.id, widget.options.timezones[2].label)
+        ? getClockName(widget.id, 'small2')
         : '--:--';
 
       return `
@@ -209,7 +208,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
     <div class="flex items-center justify-center flex-grow">
         
         <!-- Canvas для аналоговых часов - ОТКРЫТИЕ МОДАЛКИ -->
-        <canvas id="main-analog-clock" class="w-24 h-24 mr-6 cursor-pointer" 
+        <canvas id="main-analog-clock-${mainTimeName}" class="w-24 h-24 mr-6 cursor-pointer" 
                 onclick="event.stopPropagation(); showModal('${widget.id}', 'clocks-modal');"></canvas> 
         
         <!-- Цифровое время и Имя - СМЕНА ГЛАВНЫХ ЧАСОВ -->
@@ -239,9 +238,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
 
     // For client-side, we still need to update the clocks periodically
     return of(render()).pipe(
-      tap(() => {
-        this.init(widget, options);
-      })
+      tap(() => setTimeout(() => this.init(widget, options)))
     );
   }
 }

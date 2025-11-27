@@ -21,7 +21,7 @@ let clockUpdateInterval: NodeJS.Timeout | null = null;
 interface ClockConfig {
   name: string;
   timezone: string;
-  color: string;
+  color?: string;
 }
 
 /**
@@ -35,11 +35,17 @@ function initializeClockWidget(
   staticMode: boolean,
   scope: Document | HTMLElement = document
 ): void {
-  timeZoneClocks[widgetId] = clocks.map(clock => ({
-    name: clock.name,
-    timezone: getTimezoneFromOffset(clock.timezone),
-    color: getColorForClock(widgetId, clock.name),
-  }));
+  timeZoneClocks[widgetId] = [];
+
+  for (let i = 0; i < clocks.length; i++) {
+    timeZoneClocks[widgetId].push({
+      name: clocks[i].name,
+      timezone: getTimezoneFromOffset(clocks[i].timezone),
+      color: getColorForClock(i),
+    });
+  }
+
+  console.log(timeZoneClocks[widgetId]);
 
   setupClockInterval(widgetId, true, staticMode, scope);
 }
@@ -49,14 +55,9 @@ function initializeClockWidget(
  * @param name - Clock name
  * @returns Color hex code
  */
-function getColorForClock(widgetId: string, name: string): string {
+function getColorForClock(index: number): string {
   const colors = ['#8A89F0', '#F5A2C0', '#A2F5C0', '#A2C0F5', '#FF988A'];
-  // Find index in the global timeZoneClocks array
-  const index =
-    timeZoneClocks[widgetId]?.findIndex(
-      clock => clock && clock.name === name
-    ) || 0;
-  return colors[index % colors.length] || '#8A89F0';
+  return colors[index];
 }
 
 /**
@@ -89,7 +90,7 @@ function getDigitalTime(timezone: string): string {
 function drawAnalogClock(
   canvasId: string,
   timezone: string,
-  color: string = '#8A89F0',
+  color: string,
   scope: Document | HTMLElement = document
 ): void {
   const canvas = getElementById(scope, canvasId);
@@ -115,6 +116,7 @@ function drawAnalogClock(
 
   let hours = localTime.getHours();
   const minutes = localTime.getMinutes();
+  const seconds = localTime.getSeconds();
 
   // Draw clock face
   ctx.beginPath();
@@ -167,6 +169,10 @@ function drawAnalogClock(
   const minutePos = (minutes * Math.PI) / 30;
   drawHand(ctx, minutePos, radius * 0.8, radius * 0.05, color);
 
+  // Seconds
+  const secondPos = (seconds * Math.PI) / 30;
+  drawHand(ctx, secondPos, radius * 0.8, radius * 0.03, color);
+
   // Center dot
   ctx.beginPath();
   ctx.arc(0, 0, radius * 0.05, 0, 2 * Math.PI);
@@ -189,7 +195,7 @@ function updateClocksUI(
   // Main clock (Widget)
   if (visibleClocks[0]) {
     const mainClock = visibleClocks[0];
-    const mainClockId = getClockName(widgetId, mainClock.name);
+    const mainClockId = getClockName(widgetId, 'main');
 
     const timeElement = getElementById(scope, `main-clock-time-${mainClockId}`);
     const nameElement = getElementById(scope, `main-clock-name-${mainClockId}`);
@@ -226,7 +232,7 @@ function updateClocksUI(
   // Small clocks 1 and 2 (Widget)
   for (let i = 1; i < Math.min(3, visibleClocks.length); i++) {
     const clock = visibleClocks[i];
-    const clockId = getClockName(widgetId, clock.name);
+    const clockId = getClockName(widgetId, `small${i}`);
 
     const timeElement = getElementById(scope, `small-clock-time-${clockId}`);
     const nameElement = getElementById(scope, `small-clock-name-${clockId}`);
@@ -236,6 +242,7 @@ function updateClocksUI(
     }
     if (nameElement) {
       setTextContent(nameElement, clock.name.split('(')[0].trim());
+      setStyle(nameElement, 'color', clock.color);
     }
   }
 }
@@ -262,6 +269,7 @@ function rotateClocks(
     const firstClock = timeZoneClocks[widgetId].shift();
     if (firstClock) {
       timeZoneClocks[widgetId].push(firstClock);
+      console.log(timeZoneClocks);
       updateClocksUI(widgetId, scope);
     }
   }
