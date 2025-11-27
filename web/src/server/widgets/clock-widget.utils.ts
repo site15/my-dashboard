@@ -403,6 +403,17 @@ export function showClockModal(
     modal.classList.add('opacity-100');
     addClass(document.body, 'overflow-hidden');
 
+    // Add click event listener to close modal when clicking on background
+    const closeModalOnBackgroundClick = (event: Event) => {
+      if (event.target === modal) {
+        hideClockModal(modalId, widgetId, scope);
+      }
+    };
+    
+    // Store the event listener so we can remove it later
+    (modal as any).closeModalOnBackgroundClick = closeModalOnBackgroundClick;
+    modal.addEventListener('click', closeModalOnBackgroundClick);
+
     renderAllClocksModal(modalId, widgetId);
 
     createIcons({ icons });
@@ -416,6 +427,12 @@ export function hideClockModal(
 ) {
   const modal = getElementById(scope, modalId);
   if (modal) {
+    // Remove the event listener
+    if ((modal as any).closeModalOnBackgroundClick) {
+      modal.removeEventListener('click', (modal as any).closeModalOnBackgroundClick);
+      delete (modal as any).closeModalOnBackgroundClick;
+    }
+    
     modal.classList.remove('opacity-100');
     modal.classList.add('opacity-0');
     setTimeout(() => modal.classList.add('hidden'), 300);
