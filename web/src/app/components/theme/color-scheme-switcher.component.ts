@@ -11,7 +11,7 @@ import { ThemeService } from '../../services/theme.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (theme$ | async; as theme) {
-      <a [ariaLabel]="theme" (click)="switchTheme()">
+      <a [ariaLabel]="theme" (click)="switchTheme()" class="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors">
         @switch (theme) {
           @case ('light') {
             <svg

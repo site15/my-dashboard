@@ -258,7 +258,7 @@ function updateClocksUI(
 }
 
 export function getClockName(widgetId: string, name: string) {
-  return `${widgetId}-${name.replace(/\s+/g, '-')}`;
+  return `clock-${widgetId}-${name.replace(/\s+/g, '-')}`;
 }
 
 /**

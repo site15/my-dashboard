@@ -22,10 +22,18 @@ export function getElementById(
   id: string
 ): HTMLElement | null | any {
   console.log({ scope, id });
-  if (!scope) return null;
-  return scope.getElementById && !id.includes(' ')
-    ? scope.getElementById(id)
-    : scope.querySelector(`#${id}`);
+  if (!scope) {
+    return null;
+  }
+  if (scope.getElementById) {
+    if (!id.includes(' ')) {
+      return scope.getElementById(id);
+    }
+    return scope.querySelector(
+      `#${id}`.replace(/\s+/g, ' ').trim().split(' ').join(' > ')
+    );
+  }
+  return scope.querySelector(`#${id}`);
 }
 
 /**

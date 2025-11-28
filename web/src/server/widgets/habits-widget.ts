@@ -312,11 +312,11 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
               <div class="flex flex-col items-center">
                 <div class="flex items-center justify-center w-8 h-8 mb-1">
                   <i data-lucide="${item.icon}" class="w-5 h-5 text-${item.color}-500"></i>
-                  <span class="text-lg font-bold text-gray-800 ml-1" id="${item.id}-count">${item.currentValue}</span>
+                  <span class="text-lg font-bold text-gray-800 ml-1" id="habit-${item.id}-count">${item.currentValue}</span>
                 </div>
                 <p class="text-xs text-gray-500 text-center">${item.name}</p>
                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                  <div id="${item.id}-progress" class="h-1.5 rounded-full ${progressBarColor} transition-all duration-500" style="width: ${percentage}%"></div>
+                  <div id="habit-${item.id}-progress" class="h-1.5 rounded-full ${progressBarColor} transition-all duration-500" style="width: ${percentage}%"></div>
                 </div>
               </div>
             `;
@@ -338,7 +338,7 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
               item => `
             <div class="flex items-center">
               <span class="text-gray-600">${item.name}: </span>
-              <span class="font-bold text-gray-800" id="${item.id}-count">${item.currentValue}</span>
+              <span class="font-bold text-gray-800" id="habit-${item.id}-count">${item.currentValue}</span>
             </div>
           `
             )

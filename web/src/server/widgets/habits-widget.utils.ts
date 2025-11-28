@@ -165,7 +165,7 @@ function updateProgressBar(
   const item = habitItems.find(i => i.id === itemId);
   if (!item) return;
 
-  const progressBar = getElementById(scope, `${itemId}-progress`);
+  const progressBar = getElementById(scope, `habit-${itemId}-progress`);
   if (!progressBar) return;
 
   // Calculate percentage
@@ -192,7 +192,7 @@ function updateProgressBar(
   }
 
   // Update the text display for current/max
-  const textElement = getElementById(scope, `${itemId}-count-text`);
+  const textElement = getElementById(scope, `habit-${itemId}-count-text`);
   if (textElement) {
     setTextContent(textElement, `${item.currentValue} / ${item.maxValue}`);
   }
@@ -204,7 +204,7 @@ function updateProgressBar(
  */
 function updateTrackingCounts(scope: Document | HTMLElement = document): void {
   habitItems.forEach(item => {
-    const countElement = getElementById(scope, `${item.id}-count`);
+    const countElement = getElementById(scope, `habit-${item.id}-count`);
     if (countElement) {
       setTextContent(countElement, item.currentValue.toString());
     }
@@ -251,7 +251,7 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
 
       const count = createElement(document, 'span');
       count.className = 'text-lg font-bold text-gray-800 ml-1';
-      setAttribute(count, 'id', `${item.id}-count`);
+      setAttribute(count, 'id', `habit-${item.id}-count`);
       setTextContent(count, item.currentValue.toString());
 
       appendChild(iconCountContainer, icon);
@@ -266,7 +266,7 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
         'w-full bg-gray-200 rounded-full h-1.5 mt-1';
 
       const progressBar = createElement(document, 'div');
-      setAttribute(progressBar, 'id', `${item.id}-progress`);
+      setAttribute(progressBar, 'id', `habit-${item.id}-progress`);
       progressBar.className =
         'h-1.5 rounded-full bg-red-500 transition-all duration-500';
       setStyle(progressBar, 'width', '0%');
@@ -289,7 +289,7 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
 
       const value = createElement(document, 'span');
       value.className = 'font-bold text-gray-800';
-      setAttribute(value, 'id', `${item.id}-count`);
+      setAttribute(value, 'id', `habit-${item.id}-count`);
       setTextContent(value, item.currentValue.toString());
 
       appendChild(itemElement, text);
@@ -373,7 +373,7 @@ function renderModalItems(
     progressContainer.className = 'w-full bg-gray-200 rounded-full h-2 mt-3';
 
     const progressBar = createElement(document, 'div');
-    setAttribute(progressBar, 'id', `${item.id}-progress`);
+    setAttribute(progressBar, 'id', `habit-${item.id}-progress`);
     progressBar.className =
       'h-2 rounded-full bg-red-500 transition-all duration-500';
     setStyle(progressBar, 'width', '0%');
@@ -381,7 +381,7 @@ function renderModalItems(
     appendChild(progressContainer, progressBar);
 
     const countText = createElement(document, 'div');
-    setAttribute(countText, 'id', `${item.id}-count-text`);
+    setAttribute(countText, 'id', `habit-${item.id}-count-text`);
     countText.className = 'text-xs text-gray-500 mt-1';
     setTextContent(countText, `${item.currentValue} / ${item.maxValue}`);
 
