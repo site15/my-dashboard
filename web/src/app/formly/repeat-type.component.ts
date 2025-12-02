@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FieldArrayType, FormlyField } from '@ngx-formly/core';
 
 @Component({
@@ -27,6 +27,7 @@ import { FieldArrayType, FormlyField } from '@ngx-formly/core';
     </article>
   `,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIf, FormlyField],
 })
 export class RepeatTypeComponent extends FieldArrayType {}

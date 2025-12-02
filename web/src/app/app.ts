@@ -1,13 +1,22 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { first, tap } from 'rxjs';
+import { RouteMeta } from '@analogjs/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { concatMap, first, tap } from 'rxjs';
 
+import { AppInitializerService } from './app.initializer';
 import { ColorSchemeSwitcherComponent } from './components/theme/color-scheme-switcher.component';
 import {
   IfLoggedDirective,
   IfNotLoggedDirective,
 } from './directives/if-logged.directive';
+import { IfNavShownDirective } from './directives/if-nav.directive';
+import { ShowNavGuard } from './guards/nav.guard';
 import { AuthService } from './services/auth.service';
+import { LayoutService } from './services/layout.service';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'app-root',
@@ -16,8 +25,10 @@ import { AuthService } from './services/auth.service';
     ColorSchemeSwitcherComponent,
     IfNotLoggedDirective,
     IfLoggedDirective,
+    IfNavShownDirective,
   ],
-  template: ` <header class="container pico">
+  template: `
+    <header *ifNavShown class="container pico">
       <nav>
         <ul>
           <li>
@@ -35,7 +46,7 @@ import { AuthService } from './services/auth.service';
     <main class="container">
       <router-outlet></router-outlet>
     </main>
-    <footer class="container pico">
+    <footer *ifNavShown class="container pico">
       <nav>
         <ul>
           <li>Copyright © 2025 MyDashboard. Licensed under MIT.</li>
@@ -55,11 +66,28 @@ import { AuthService } from './services/auth.service';
           </li>
         </ul>
       </nav>
-    </footer>`,
+    </footer>
+  `,
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly appInitializerService = inject(AppInitializerService);
+  private readonly layoutService = inject(LayoutService);
+
+  ngOnInit(): void {
+    this.router.events
+      .pipe(
+        concatMap(async event => {
+          if (event instanceof NavigationEnd) {
+            console.log('Навигация завершена:', event);
+
+            return await this.appInitializerService.init();
+          }
+        })
+      )
+      .subscribe();
+  }
 
   signOut() {
     this.authService

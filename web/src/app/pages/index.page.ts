@@ -1,4 +1,11 @@
+import { RouteMeta } from '@analogjs/router';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+
+import { ShowNavGuard } from '../guards/nav.guard';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'home-page',

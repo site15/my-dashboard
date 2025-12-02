@@ -1,7 +1,13 @@
+import { RouteMeta } from '@analogjs/router';
 import { AsyncPipe, JsonPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
+import { ShowNavGuard } from '../../guards/nav.guard';
 import { DashboardsService } from '../../services/dashboards.service';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'dashboards-list-page',

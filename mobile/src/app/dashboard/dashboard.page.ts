@@ -1,5 +1,10 @@
 import { JsonPipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -27,6 +32,7 @@ import { DeviceInfoType } from '../../../../web/src/server/types/DeviceSchema';
 
 @Component({
   selector: 'app-dashboard',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 
-import { DeviceLinkType } from '../../server/types/DashboardSchema';
+import { DeviceLinkType } from '../../server/types/DeviceSchema';
 import { injectTrpcClient } from '../trpc-client';
 import { ErrorHandlerService } from './error-handler.service';
 

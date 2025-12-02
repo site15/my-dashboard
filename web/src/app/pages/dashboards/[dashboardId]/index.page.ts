@@ -1,3 +1,4 @@
+import { RouteMeta } from '@analogjs/router';
 import { AsyncPipe, JsonPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
@@ -7,8 +8,13 @@ import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
 import { first, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import { UpdateDashboardType } from '../../../../server/types/DashboardSchema';
+import { ShowNavGuard } from '../../../guards/nav.guard';
 import { DashboardsService } from '../../../services/dashboards.service';
 import { WidgetsService } from '../../../services/widgets.service';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'dashboards-edit-page',

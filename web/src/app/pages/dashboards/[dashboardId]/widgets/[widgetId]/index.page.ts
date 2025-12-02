@@ -1,3 +1,4 @@
+import { RouteMeta } from '@analogjs/router';
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
@@ -8,11 +9,16 @@ import { first, map, shareReplay, tap } from 'rxjs';
 
 import { WidgetsType } from '../../../../../../server/widgets/widgets';
 import { NoSanitizePipe } from '../../../../../directives/no-sanitize.directive';
+import { ShowNavGuard } from '../../../../../guards/nav.guard';
 import { WidgetsService } from '../../../../../services/widgets.service';
 import {
   mapToRenderDataByDashboardIdAndWidgetId,
   mapToRenderHtml,
 } from '../../../../../utils/render.utils';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'dashboards-widgets-edit-page',

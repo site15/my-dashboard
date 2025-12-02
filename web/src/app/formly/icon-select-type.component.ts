@@ -1,5 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core';
 import { createIcons, icons } from 'lucide';
@@ -11,6 +11,7 @@ interface SelectOption {
 
 @Component({
   selector: 'formly-icon-select-type',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <label [attr.for]="id" class="form-label" *ngIf="props.label">
       {{ props.label }}

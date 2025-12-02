@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FieldArrayType } from '@ngx-formly/core';
 
 @Component({
@@ -14,6 +14,7 @@ import { FieldArrayType } from '@ngx-formly/core';
       <span *ngIf="props.label">{{ props.label }}</span>
     </button>`,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIf],
 })
 export class ButtonTypeComponent extends FieldArrayType {

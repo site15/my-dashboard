@@ -1,3 +1,4 @@
+import { RouteMeta } from '@analogjs/router';
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
@@ -5,8 +6,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { first, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
+import { ShowNavGuard } from '../../../../../guards/nav.guard';
 import { DashboardsService } from '../../../../../services/dashboards.service';
 import { WidgetsService } from '../../../../../services/widgets.service';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'dashboards-widgets-delete-page',

@@ -1,3 +1,4 @@
+import { RouteMeta } from '@analogjs/router';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,7 +7,12 @@ import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
 import { catchError, EMPTY, first, tap } from 'rxjs';
 
 import { CreateDashboardType } from '../../../server/types/DashboardSchema';
+import { ShowNavGuard } from '../../guards/nav.guard';
 import { DashboardsService } from '../../services/dashboards.service';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'dashboards-new-page',

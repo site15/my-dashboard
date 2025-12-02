@@ -1,3 +1,4 @@
+import { RouteMeta } from '@analogjs/router';
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
@@ -11,8 +12,13 @@ import {
   WidgetsType,
 } from '../../../../../../../server/widgets/widgets';
 import { mapFormlyTypes } from '../../../../../../formly/get-formly-type';
+import { ShowNavGuard } from '../../../../../../guards/nav.guard';
 import { DashboardsService } from '../../../../../../services/dashboards.service';
 import { WidgetsService } from '../../../../../../services/widgets.service';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'dashboards-widgets-add-by-type-page',

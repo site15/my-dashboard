@@ -1,3 +1,4 @@
+import { RouteMeta } from '@analogjs/router';
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -5,7 +6,12 @@ import { ActivatedRoute } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { map, of, shareReplay, switchMap } from 'rxjs';
 
+import { ShowNavGuard } from '../../../guards/nav.guard';
 import { DashboardsService } from '../../../services/dashboards.service';
+
+export const routeMeta: RouteMeta = {
+  canActivate: [ShowNavGuard],
+};
 
 @Component({
   selector: 'dashboards-link-device-page',
