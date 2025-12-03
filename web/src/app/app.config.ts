@@ -11,6 +11,7 @@ import {
 import {
   ApplicationConfig,
   DestroyRef,
+  importProvidersFrom,
   inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
@@ -25,6 +26,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { withComponentInputBinding } from '@angular/router';
 import { withFormlyBootstrap } from '@ngx-formly/bootstrap';
 import { provideFormlyCore } from '@ngx-formly/core';
+import { icons, LucideAngularModule } from 'lucide-angular';
 import { provideToastr } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 
@@ -48,6 +50,7 @@ export const appConfig: ApplicationConfig = {
     provideTrpcClient(),
     provideNoopAnimations(),
     provideToastr(),
+    importProvidersFrom(LucideAngularModule.pick(icons)),
     provideAppInitializer(async () => {
       const destroyRef = inject(DestroyRef);
 

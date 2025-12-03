@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import 'tailwindcss';
 
 @import '../node_modules/@picocss/pico/css/pico.conditional.min.css';
@@ -9,7 +5,7 @@
 
 @import './assets/fonts/inter/fonts.css';
 /* You can add global styles to this file, and also import other style files */
-html,
+/*html,
 body {
   display: block;
   height: 100%;
@@ -19,7 +15,7 @@ layout > footer,
 layout > header,
 layout > main {
   padding-block: var(--pico-block-spacing-vertical);
-}
+}*/
 
 /* Настройка шрифта Inter */
 body {

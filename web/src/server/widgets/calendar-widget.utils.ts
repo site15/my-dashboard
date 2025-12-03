@@ -16,6 +16,7 @@ import {
   setStyle,
   setTextContent,
 } from '../utils/dom-utils';
+import { isSSR } from '../utils/is-ssr';
 
 // Type definitions
 interface MonthlyProgress {
@@ -164,8 +165,9 @@ export function showCalendarModal(
     modal.addEventListener('click', closeModalOnBackgroundClick);
 
     renderCalendarDays(modalId, scope);
-
+if (!isSSR) {
     createIcons({ icons });
+}
   }
 }
 

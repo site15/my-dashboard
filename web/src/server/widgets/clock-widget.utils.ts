@@ -18,6 +18,7 @@ import {
   setTextContent,
 } from '../utils/dom-utils';
 import { getTimezoneFromOffset } from '../utils/timezones';
+import { isSSR } from '../utils/is-ssr';
 
 // Global variables for clock management
 const timeZoneClocks: Record<
@@ -409,14 +410,15 @@ export function showClockModal(
         hideClockModal(modalId, widgetId, scope);
       }
     };
-    
+
     // Store the event listener so we can remove it later
     (modal as any).closeModalOnBackgroundClick = closeModalOnBackgroundClick;
     modal.addEventListener('click', closeModalOnBackgroundClick);
 
     renderAllClocksModal(modalId, widgetId);
-
-    createIcons({ icons });
+    if (!isSSR) {
+      createIcons({ icons });
+    }
   }
 }
 
@@ -429,10 +431,13 @@ export function hideClockModal(
   if (modal) {
     // Remove the event listener
     if ((modal as any).closeModalOnBackgroundClick) {
-      modal.removeEventListener('click', (modal as any).closeModalOnBackgroundClick);
+      modal.removeEventListener(
+        'click',
+        (modal as any).closeModalOnBackgroundClick
+      );
       delete (modal as any).closeModalOnBackgroundClick;
     }
-    
+
     modal.classList.remove('opacity-100');
     modal.classList.add('opacity-0');
     setTimeout(() => modal.classList.add('hidden'), 300);

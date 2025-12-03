@@ -51,7 +51,7 @@
     "@picocss/pico": "^2.1.1",
     "@prisma/adapter-pg": "^6.18.0",
     "@prisma/client": "^6.19.0",
-    "@tailwindcss/vite": "^4.1.4",
+    "@tailwindcss/vite": "^4.1.17",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
     "@zxing/browser": "^0.1.5",
@@ -68,7 +68,7 @@
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "superjson": "^2.2.5",
-    "tailwindcss": "^4.1.4",
+    "tailwindcss": "^4.1.17",
     "tslib": "^2.6.2",
     "zone.js": "~0.15.0"
   },

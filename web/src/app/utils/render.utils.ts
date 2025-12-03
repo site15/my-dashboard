@@ -10,6 +10,7 @@ import {
 import { mapFormlyTypes } from '../formly/get-formly-type';
 import { DashboardsService } from '../services/dashboards.service';
 import { WidgetsService } from '../services/widgets.service';
+import { isSSR } from '../../server/utils/is-ssr';
 
 export function mapToRenderHtml(staticMode = true) {
   return mergeMap(
@@ -18,7 +19,9 @@ export function mapToRenderHtml(staticMode = true) {
         tap(() =>
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              createIcons({ icons });
+              if (!isSSR) {
+                createIcons({ icons });
+              }
             });
           })
         )

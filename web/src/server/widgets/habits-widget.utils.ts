@@ -18,6 +18,7 @@ import {
   setStyle,
   setTextContent,
 } from '../utils/dom-utils';
+import { isSSR } from '../utils/is-ssr';
 
 // Type definitions
 interface HabitHistoryEntry {
@@ -303,8 +304,9 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
   if (habitItems.length > 3) {
     appendChild(widgetContent, remainingItemsContainer);
   }
-
-  createIcons({ icons });
+  if (!isSSR) {
+    createIcons({ icons });
+  }
 }
 
 /**
@@ -393,8 +395,9 @@ function renderModalItems(
 
     appendChild(container, itemElement);
   });
-
-  createIcons({ icons });
+  if (!isSSR) {
+    createIcons({ icons });
+  }
 }
 
 /**
@@ -473,8 +476,9 @@ function renderConsumptionList(
     appendChild(listItem, iconContainer);
     appendChild(listElement, listItem);
   });
-
-  createIcons({ icons });
+  if (!isSSR) {
+    createIcons({ icons });
+  }
 }
 
 /**
@@ -545,8 +549,9 @@ export function showHabitsModal(
       );
       setStyle(consumptionList, 'display', hasConsumption ? 'block' : 'none');
     }
-
-    createIcons({ icons });
+    if (!isSSR) {
+      createIcons({ icons });
+    }
   }
 }
 

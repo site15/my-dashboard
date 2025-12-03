@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./src/**/*.{html,ts}",
   ],
@@ -7,11 +7,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'pastel-blue': '#8A89F0',
-        'pastel-light': '#F4F7FB',
-        'pastal-accent': '#A2C0F5',
-        'pastel-pink': '#F5A2C0',
-        'pastel-green': '#A2F5C0',
+        'pastel-blue': '#8a89f0',
+        'pastel-light': '#f4f7fb',
+        'pastel-accent': '#a2c0f5',
+        'pastel-pink': '#f5a2c0',
+        'pastel-green': '#a2f5c0',
+      },
+      spacing: {
+        '4px': '4px',
       }
     }
   },

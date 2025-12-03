@@ -252,7 +252,7 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
           <i data-lucide="pencil" class="w-5 h-5"></i>
         </button>
         <div class="flex items-center">
-          <i data-lucide="activity" class="w-8 h-8 text-pastel-green mr-3"></i>
+          <i ngSkipHydration="activity" class="w-8 h-8 text-pastel-green mr-3"></i>
           <p class="text-lg font-medium text-gray-600">Habits</p>
         </div>
         <div id="habits-widget-content">

@@ -129,7 +129,7 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
           </div>
           <button class="text-pastel-blue hover:text-pastel-blue/80 p-2 rounded-full transition-colors bg-pastel-blue/10 dark:bg-pastel-blue/30" 
                   onclick="showCalendarModal('${modalId}')">
-            <i data-lucide="calendar" class="w-6 h-6"></i>
+            <i ngSkipHydration="calendar" class="w-6 h-6"></i>
           </button>
         </div>
 

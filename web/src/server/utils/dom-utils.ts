@@ -5,6 +5,7 @@
  */
 
 import { createIcons, icons } from 'lucide';
+import { isSSR } from './is-ssr';
 
 // Type definitions
 interface ExtendedHTMLElement extends HTMLElement {
@@ -148,7 +149,9 @@ export function setAttribute(
   if (element && element.setAttribute) {
     element.setAttribute(name, value);
     if (name === 'data-lucide') {
-      createIcons({ icons });
+      if (!isSSR) {
+        createIcons({ icons });
+      }
     }
   }
 }
