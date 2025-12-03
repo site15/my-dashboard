@@ -27,7 +27,10 @@ export class AuthService {
           await this.profileService.set(user as unknown as User);
           return { sessionId, user };
         } catch (error) {
-          await this.errorHandler.handleError(error, 'Failed to sign in as anonymous');
+          await this.errorHandler.handleError(
+            error,
+            'Failed to sign in as anonymous'
+          );
           throw error;
         }
       })

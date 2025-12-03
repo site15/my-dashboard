@@ -24,14 +24,20 @@ export const dashboardsRouter = router({
           message: 'User not found!',
         });
       }
-      return (await prisma.dashboard.create({
-        data: {
-          name: input.name,
-          userId: ctx.user.id,
-          isBlackTheme: input.isBlackTheme,
-          createdAt: new Date(),
-        },
-      })) satisfies DashboardType;
+      return (await prisma.dashboard
+        .create({
+          data: {
+            name: input.name,
+            userId: ctx.user.id,
+            isActive: input.isActive,
+            isBlackTheme: input.isBlackTheme,
+            createdAt: new Date(),
+          },
+        })
+        .then(result => ({
+          ...result,
+          widgetsCount: 0,
+        }))) satisfies DashboardType;
     }),
   read: publicProcedure
     .input(
@@ -47,12 +53,19 @@ export const dashboardsRouter = router({
           message: 'User not found!',
         });
       }
-      return (await prisma.dashboard.findFirstOrThrow({
-        where: {
-          id: input.id,
-          userId: ctx.user.id,
-        },
-      })) satisfies DashboardType;
+      return (await prisma.dashboard
+        .findFirstOrThrow({
+          where: {
+            id: input.id,
+            userId: ctx.user.id,
+          },
+        })
+        .then(result => {
+          return {
+            ...result,
+            widgetsCount: 0,
+          };
+        })) satisfies DashboardType;
     }),
   update: publicProcedure
     .input(UpdateDashboardSchema)
@@ -64,14 +77,22 @@ export const dashboardsRouter = router({
           message: 'User not found!',
         });
       }
-      return (await prisma.dashboard.update({
-        data: {
-          name: input.name,
-          isBlackTheme: input.isBlackTheme,
-          updatedAt: new Date(),
-        },
-        where: { id: input.id, userId: ctx.user.id },
-      })) satisfies DashboardType;
+      return (await prisma.dashboard
+        .update({
+          data: {
+            name: input.name,
+            isActive: input.isActive,
+            isBlackTheme: input.isBlackTheme,
+            updatedAt: new Date(),
+          },
+          where: { id: input.id, userId: ctx.user.id },
+        })
+        .then(result => {
+          return {
+            ...result,
+            widgetsCount: 0,
+          };
+        })) satisfies DashboardType;
     }),
   delete: publicProcedure
     .input(
@@ -103,9 +124,16 @@ export const dashboardsRouter = router({
         message: 'User not found!',
       });
     }
-    return (await prisma.dashboard.findMany({
-      where: { deletedAt: { equals: null }, userId: { equals: ctx.user.id } },
-    })) as DashboardType[];
+    return (await prisma.dashboard
+      .findMany({
+        where: { deletedAt: { equals: null }, userId: { equals: ctx.user.id } },
+      })
+      .then(items =>
+        items.map(item => ({
+          ...item,
+          widgetsCount: 0,
+        }))
+      )) satisfies DashboardType[];
   }),
   generateQrCode: publicProcedure
     .input(

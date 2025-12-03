@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-import {
-  DashboardScalarFieldEnum
-} from '../generated/prisma/internal/prismaNamespace';
+import { DashboardScalarFieldEnum } from '../generated/prisma/internal/prismaNamespace';
 
 export const DashboardSchema = z.object({
   [DashboardScalarFieldEnum.id]: z.string().uuid(),
@@ -10,9 +8,12 @@ export const DashboardSchema = z.object({
   [DashboardScalarFieldEnum.deviceId]: z.string().nullish(),
   [DashboardScalarFieldEnum.userId]: z.string().uuid(),
   [DashboardScalarFieldEnum.isBlackTheme]: z.boolean().nullish(),
+  [DashboardScalarFieldEnum.isActive]: z.boolean().nullish(),
   [DashboardScalarFieldEnum.createdAt]: z.date(),
   [DashboardScalarFieldEnum.updatedAt]: z.date(),
   [DashboardScalarFieldEnum.deletedAt]: z.date().nullish(),
+
+  widgetsCount: z.number().nullish().default(0),
 });
 
 export type DashboardType = z.infer<typeof DashboardSchema>;
@@ -22,6 +23,7 @@ export type DashboardType = z.infer<typeof DashboardSchema>;
 export const CreateDashboardSchema = z.object({
   [DashboardScalarFieldEnum.name]: z.string(),
   [DashboardScalarFieldEnum.isBlackTheme]: z.boolean(),
+  [DashboardScalarFieldEnum.isActive]: z.boolean().nullish(),
 });
 
 export type CreateDashboardType = z.infer<typeof CreateDashboardSchema>;
@@ -32,6 +34,7 @@ export const UpdateDashboardSchema = z.object({
   [DashboardScalarFieldEnum.id]: z.string().uuid(),
   [DashboardScalarFieldEnum.name]: z.string(),
   [DashboardScalarFieldEnum.isBlackTheme]: z.boolean(),
+  [DashboardScalarFieldEnum.isActive]: z.boolean(),
 });
 
 export type UpdateDashboardType = z.infer<typeof UpdateDashboardSchema>;

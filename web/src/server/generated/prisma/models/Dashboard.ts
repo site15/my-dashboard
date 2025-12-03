@@ -30,6 +30,7 @@ export type DashboardMinAggregateOutputType = {
   deviceId: string | null
   userId: string | null
   isBlackTheme: boolean | null
+  isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -41,6 +42,7 @@ export type DashboardMaxAggregateOutputType = {
   deviceId: string | null
   userId: string | null
   isBlackTheme: boolean | null
+  isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -52,6 +54,7 @@ export type DashboardCountAggregateOutputType = {
   deviceId: number
   userId: number
   isBlackTheme: number
+  isActive: number
   createdAt: number
   updatedAt: number
   deletedAt: number
@@ -65,6 +68,7 @@ export type DashboardMinAggregateInputType = {
   deviceId?: true
   userId?: true
   isBlackTheme?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -76,6 +80,7 @@ export type DashboardMaxAggregateInputType = {
   deviceId?: true
   userId?: true
   isBlackTheme?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -87,6 +92,7 @@ export type DashboardCountAggregateInputType = {
   deviceId?: true
   userId?: true
   isBlackTheme?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -171,6 +177,7 @@ export type DashboardGroupByOutputType = {
   deviceId: string | null
   userId: string
   isBlackTheme: boolean | null
+  isActive: boolean | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -203,6 +210,7 @@ export type DashboardWhereInput = {
   deviceId?: Prisma.StringNullableFilter<"Dashboard"> | string | null
   userId?: Prisma.UuidFilter<"Dashboard"> | string
   isBlackTheme?: Prisma.BoolNullableFilter<"Dashboard"> | boolean | null
+  isActive?: Prisma.BoolNullableFilter<"Dashboard"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"Dashboard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Dashboard"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Dashboard"> | Date | string | null
@@ -217,6 +225,7 @@ export type DashboardOrderByWithRelationInput = {
   deviceId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -235,6 +244,7 @@ export type DashboardWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Dashboard"> | string
   userId?: Prisma.UuidFilter<"Dashboard"> | string
   isBlackTheme?: Prisma.BoolNullableFilter<"Dashboard"> | boolean | null
+  isActive?: Prisma.BoolNullableFilter<"Dashboard"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"Dashboard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Dashboard"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Dashboard"> | Date | string | null
@@ -249,6 +259,7 @@ export type DashboardOrderByWithAggregationInput = {
   deviceId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -266,6 +277,7 @@ export type DashboardScalarWhereWithAggregatesInput = {
   deviceId?: Prisma.StringNullableWithAggregatesFilter<"Dashboard"> | string | null
   userId?: Prisma.UuidWithAggregatesFilter<"Dashboard"> | string
   isBlackTheme?: Prisma.BoolNullableWithAggregatesFilter<"Dashboard"> | boolean | null
+  isActive?: Prisma.BoolNullableWithAggregatesFilter<"Dashboard"> | boolean | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Dashboard"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Dashboard"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Dashboard"> | Date | string | null
@@ -276,6 +288,7 @@ export type DashboardCreateInput = {
   name: string
   deviceId?: string | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -290,6 +303,7 @@ export type DashboardUncheckedCreateInput = {
   deviceId?: string | null
   userId: string
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -302,6 +316,7 @@ export type DashboardUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -316,6 +331,7 @@ export type DashboardUncheckedUpdateInput = {
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -329,6 +345,7 @@ export type DashboardCreateManyInput = {
   deviceId?: string | null
   userId: string
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -339,6 +356,7 @@ export type DashboardUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -350,6 +368,7 @@ export type DashboardUncheckedUpdateManyInput = {
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -376,6 +395,7 @@ export type DashboardCountOrderByAggregateInput = {
   deviceId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -387,6 +407,7 @@ export type DashboardMaxOrderByAggregateInput = {
   deviceId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -398,6 +419,7 @@ export type DashboardMinOrderByAggregateInput = {
   deviceId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -483,6 +505,7 @@ export type DashboardCreateWithoutUserInput = {
   name: string
   deviceId?: string | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -495,6 +518,7 @@ export type DashboardUncheckedCreateWithoutUserInput = {
   name: string
   deviceId?: string | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -537,6 +561,7 @@ export type DashboardScalarWhereInput = {
   deviceId?: Prisma.StringNullableFilter<"Dashboard"> | string | null
   userId?: Prisma.UuidFilter<"Dashboard"> | string
   isBlackTheme?: Prisma.BoolNullableFilter<"Dashboard"> | boolean | null
+  isActive?: Prisma.BoolNullableFilter<"Dashboard"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"Dashboard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Dashboard"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Dashboard"> | Date | string | null
@@ -547,6 +572,7 @@ export type DashboardCreateWithoutQrCodesInput = {
   name: string
   deviceId?: string | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -560,6 +586,7 @@ export type DashboardUncheckedCreateWithoutQrCodesInput = {
   deviceId?: string | null
   userId: string
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -587,6 +614,7 @@ export type DashboardUpdateWithoutQrCodesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -600,6 +628,7 @@ export type DashboardUncheckedUpdateWithoutQrCodesInput = {
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -611,6 +640,7 @@ export type DashboardCreateWithoutWidgetInput = {
   name: string
   deviceId?: string | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -624,6 +654,7 @@ export type DashboardUncheckedCreateWithoutWidgetInput = {
   deviceId?: string | null
   userId: string
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -651,6 +682,7 @@ export type DashboardUpdateWithoutWidgetInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -664,6 +696,7 @@ export type DashboardUncheckedUpdateWithoutWidgetInput = {
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -675,6 +708,7 @@ export type DashboardCreateManyUserInput = {
   name: string
   deviceId?: string | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -685,6 +719,7 @@ export type DashboardUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -697,6 +732,7 @@ export type DashboardUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -709,6 +745,7 @@ export type DashboardUncheckedUpdateManyWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -760,6 +797,7 @@ export type DashboardSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   deviceId?: boolean
   userId?: boolean
   isBlackTheme?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -775,6 +813,7 @@ export type DashboardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   deviceId?: boolean
   userId?: boolean
   isBlackTheme?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -787,6 +826,7 @@ export type DashboardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   deviceId?: boolean
   userId?: boolean
   isBlackTheme?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -799,12 +839,13 @@ export type DashboardSelectScalar = {
   deviceId?: boolean
   userId?: boolean
   isBlackTheme?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
 }
 
-export type DashboardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "deviceId" | "userId" | "isBlackTheme" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dashboard"]>
+export type DashboardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "deviceId" | "userId" | "isBlackTheme" | "isActive" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["dashboard"]>
 export type DashboardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Widget?: boolean | Prisma.Dashboard$WidgetArgs<ExtArgs>
@@ -831,6 +872,7 @@ export type $DashboardPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     deviceId: string | null
     userId: string
     isBlackTheme: boolean | null
+    isActive: boolean | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -1265,6 +1307,7 @@ export interface DashboardFieldRefs {
   readonly deviceId: Prisma.FieldRef<"Dashboard", 'String'>
   readonly userId: Prisma.FieldRef<"Dashboard", 'String'>
   readonly isBlackTheme: Prisma.FieldRef<"Dashboard", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Dashboard", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Dashboard", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Dashboard", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"Dashboard", 'DateTime'>

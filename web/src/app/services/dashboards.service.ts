@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 
 import {
   CreateDashboardType,
@@ -6,6 +7,35 @@ import {
 } from '../../server/types/DashboardSchema';
 import { injectTrpcClient } from '../trpc-client';
 import { ErrorHandlerService } from './error-handler.service';
+
+export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
+  {
+    key: 'name',
+    type: 'input',
+    props: {
+      label: 'Name',
+      placeholder: 'Enter name',
+      required: true,
+      attributes: { 'aria-label': 'Name' },
+    },
+  },
+  {
+    key: 'isBlackTheme',
+    type: 'checkbox',
+    props: {
+      label: 'Is black theme',
+      attributes: { 'aria-label': 'Is black theme' },
+    },
+  },
+  {
+    key: 'isActive',
+    type: 'checkbox',
+    props: {
+      label: 'Is active',
+      attributes: { 'aria-label': 'Is active' },
+    },
+  },
+];
 
 @Injectable({
   providedIn: 'root',

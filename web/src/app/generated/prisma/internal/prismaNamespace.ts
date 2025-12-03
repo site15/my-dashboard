@@ -927,6 +927,7 @@ export const DashboardScalarFieldEnum = {
   deviceId: 'deviceId',
   userId: 'userId',
   isBlackTheme: 'isBlackTheme',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -957,6 +958,7 @@ export const WidgetScalarFieldEnum = {
   columnCount: 'columnCount',
   rowCount: 'rowCount',
   isBlackTheme: 'isBlackTheme',
+  isActive: 'isActive',
   backgroundColor: 'backgroundColor',
   primaryColor: 'primaryColor',
   positiveColor: 'positiveColor',

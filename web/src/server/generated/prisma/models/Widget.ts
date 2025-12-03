@@ -48,6 +48,7 @@ export type WidgetMinAggregateOutputType = {
   columnCount: number | null
   rowCount: number | null
   isBlackTheme: boolean | null
+  isActive: boolean | null
   backgroundColor: string | null
   primaryColor: string | null
   positiveColor: string | null
@@ -66,6 +67,7 @@ export type WidgetMaxAggregateOutputType = {
   columnCount: number | null
   rowCount: number | null
   isBlackTheme: boolean | null
+  isActive: boolean | null
   backgroundColor: string | null
   primaryColor: string | null
   positiveColor: string | null
@@ -86,6 +88,7 @@ export type WidgetCountAggregateOutputType = {
   columnCount: number
   rowCount: number
   isBlackTheme: number
+  isActive: number
   backgroundColor: number
   primaryColor: number
   positiveColor: number
@@ -120,6 +123,7 @@ export type WidgetMinAggregateInputType = {
   columnCount?: true
   rowCount?: true
   isBlackTheme?: true
+  isActive?: true
   backgroundColor?: true
   primaryColor?: true
   positiveColor?: true
@@ -138,6 +142,7 @@ export type WidgetMaxAggregateInputType = {
   columnCount?: true
   rowCount?: true
   isBlackTheme?: true
+  isActive?: true
   backgroundColor?: true
   primaryColor?: true
   positiveColor?: true
@@ -158,6 +163,7 @@ export type WidgetCountAggregateInputType = {
   columnCount?: true
   rowCount?: true
   isBlackTheme?: true
+  isActive?: true
   backgroundColor?: true
   primaryColor?: true
   positiveColor?: true
@@ -265,6 +271,7 @@ export type WidgetGroupByOutputType = {
   columnCount: number | null
   rowCount: number | null
   isBlackTheme: boolean | null
+  isActive: boolean | null
   backgroundColor: string | null
   primaryColor: string | null
   positiveColor: string | null
@@ -308,6 +315,7 @@ export type WidgetWhereInput = {
   columnCount?: Prisma.IntNullableFilter<"Widget"> | number | null
   rowCount?: Prisma.IntNullableFilter<"Widget"> | number | null
   isBlackTheme?: Prisma.BoolNullableFilter<"Widget"> | boolean | null
+  isActive?: Prisma.BoolNullableFilter<"Widget"> | boolean | null
   backgroundColor?: Prisma.StringNullableFilter<"Widget"> | string | null
   primaryColor?: Prisma.StringNullableFilter<"Widget"> | string | null
   positiveColor?: Prisma.StringNullableFilter<"Widget"> | string | null
@@ -330,6 +338,7 @@ export type WidgetOrderByWithRelationInput = {
   columnCount?: Prisma.SortOrderInput | Prisma.SortOrder
   rowCount?: Prisma.SortOrderInput | Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrderInput | Prisma.SortOrder
   backgroundColor?: Prisma.SortOrderInput | Prisma.SortOrder
   primaryColor?: Prisma.SortOrderInput | Prisma.SortOrder
   positiveColor?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -355,6 +364,7 @@ export type WidgetWhereUniqueInput = Prisma.AtLeast<{
   columnCount?: Prisma.IntNullableFilter<"Widget"> | number | null
   rowCount?: Prisma.IntNullableFilter<"Widget"> | number | null
   isBlackTheme?: Prisma.BoolNullableFilter<"Widget"> | boolean | null
+  isActive?: Prisma.BoolNullableFilter<"Widget"> | boolean | null
   backgroundColor?: Prisma.StringNullableFilter<"Widget"> | string | null
   primaryColor?: Prisma.StringNullableFilter<"Widget"> | string | null
   positiveColor?: Prisma.StringNullableFilter<"Widget"> | string | null
@@ -377,6 +387,7 @@ export type WidgetOrderByWithAggregationInput = {
   columnCount?: Prisma.SortOrderInput | Prisma.SortOrder
   rowCount?: Prisma.SortOrderInput | Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrderInput | Prisma.SortOrder
   backgroundColor?: Prisma.SortOrderInput | Prisma.SortOrder
   primaryColor?: Prisma.SortOrderInput | Prisma.SortOrder
   positiveColor?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -405,6 +416,7 @@ export type WidgetScalarWhereWithAggregatesInput = {
   columnCount?: Prisma.IntNullableWithAggregatesFilter<"Widget"> | number | null
   rowCount?: Prisma.IntNullableWithAggregatesFilter<"Widget"> | number | null
   isBlackTheme?: Prisma.BoolNullableWithAggregatesFilter<"Widget"> | boolean | null
+  isActive?: Prisma.BoolNullableWithAggregatesFilter<"Widget"> | boolean | null
   backgroundColor?: Prisma.StringNullableWithAggregatesFilter<"Widget"> | string | null
   primaryColor?: Prisma.StringNullableWithAggregatesFilter<"Widget"> | string | null
   positiveColor?: Prisma.StringNullableWithAggregatesFilter<"Widget"> | string | null
@@ -425,6 +437,7 @@ export type WidgetCreateInput = {
   columnCount?: number | null
   rowCount?: number | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   backgroundColor?: string | null
   primaryColor?: string | null
   positiveColor?: string | null
@@ -446,6 +459,7 @@ export type WidgetUncheckedCreateInput = {
   columnCount?: number | null
   rowCount?: number | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   backgroundColor?: string | null
   primaryColor?: string | null
   positiveColor?: string | null
@@ -467,6 +481,7 @@ export type WidgetUpdateInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -488,6 +503,7 @@ export type WidgetUncheckedUpdateInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -509,6 +525,7 @@ export type WidgetCreateManyInput = {
   columnCount?: number | null
   rowCount?: number | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   backgroundColor?: string | null
   primaryColor?: string | null
   positiveColor?: string | null
@@ -529,6 +546,7 @@ export type WidgetUpdateManyMutationInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -548,6 +566,7 @@ export type WidgetUncheckedUpdateManyInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -578,6 +597,7 @@ export type WidgetCountOrderByAggregateInput = {
   columnCount?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   backgroundColor?: Prisma.SortOrder
   primaryColor?: Prisma.SortOrder
   positiveColor?: Prisma.SortOrder
@@ -603,6 +623,7 @@ export type WidgetMaxOrderByAggregateInput = {
   columnCount?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   backgroundColor?: Prisma.SortOrder
   primaryColor?: Prisma.SortOrder
   positiveColor?: Prisma.SortOrder
@@ -621,6 +642,7 @@ export type WidgetMinOrderByAggregateInput = {
   columnCount?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   backgroundColor?: Prisma.SortOrder
   primaryColor?: Prisma.SortOrder
   positiveColor?: Prisma.SortOrder
@@ -717,6 +739,7 @@ export type WidgetCreateWithoutDashboardInput = {
   columnCount?: number | null
   rowCount?: number | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   backgroundColor?: string | null
   primaryColor?: string | null
   positiveColor?: string | null
@@ -737,6 +760,7 @@ export type WidgetUncheckedCreateWithoutDashboardInput = {
   columnCount?: number | null
   rowCount?: number | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   backgroundColor?: string | null
   primaryColor?: string | null
   positiveColor?: string | null
@@ -786,6 +810,7 @@ export type WidgetScalarWhereInput = {
   columnCount?: Prisma.IntNullableFilter<"Widget"> | number | null
   rowCount?: Prisma.IntNullableFilter<"Widget"> | number | null
   isBlackTheme?: Prisma.BoolNullableFilter<"Widget"> | boolean | null
+  isActive?: Prisma.BoolNullableFilter<"Widget"> | boolean | null
   backgroundColor?: Prisma.StringNullableFilter<"Widget"> | string | null
   primaryColor?: Prisma.StringNullableFilter<"Widget"> | string | null
   positiveColor?: Prisma.StringNullableFilter<"Widget"> | string | null
@@ -806,6 +831,7 @@ export type WidgetCreateWithoutWidgetLogInput = {
   columnCount?: number | null
   rowCount?: number | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   backgroundColor?: string | null
   primaryColor?: string | null
   positiveColor?: string | null
@@ -826,6 +852,7 @@ export type WidgetUncheckedCreateWithoutWidgetLogInput = {
   columnCount?: number | null
   rowCount?: number | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   backgroundColor?: string | null
   primaryColor?: string | null
   positiveColor?: string | null
@@ -862,6 +889,7 @@ export type WidgetUpdateWithoutWidgetLogInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -882,6 +910,7 @@ export type WidgetUncheckedUpdateWithoutWidgetLogInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -902,6 +931,7 @@ export type WidgetCreateManyDashboardInput = {
   columnCount?: number | null
   rowCount?: number | null
   isBlackTheme?: boolean | null
+  isActive?: boolean | null
   backgroundColor?: string | null
   primaryColor?: string | null
   positiveColor?: string | null
@@ -921,6 +951,7 @@ export type WidgetUpdateWithoutDashboardInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -941,6 +972,7 @@ export type WidgetUncheckedUpdateWithoutDashboardInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -961,6 +993,7 @@ export type WidgetUncheckedUpdateManyWithoutDashboardInput = {
   columnCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rowCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positiveColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1011,6 +1044,7 @@ export type WidgetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   columnCount?: boolean
   rowCount?: boolean
   isBlackTheme?: boolean
+  isActive?: boolean
   backgroundColor?: boolean
   primaryColor?: boolean
   positiveColor?: boolean
@@ -1034,6 +1068,7 @@ export type WidgetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   columnCount?: boolean
   rowCount?: boolean
   isBlackTheme?: boolean
+  isActive?: boolean
   backgroundColor?: boolean
   primaryColor?: boolean
   positiveColor?: boolean
@@ -1055,6 +1090,7 @@ export type WidgetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   columnCount?: boolean
   rowCount?: boolean
   isBlackTheme?: boolean
+  isActive?: boolean
   backgroundColor?: boolean
   primaryColor?: boolean
   positiveColor?: boolean
@@ -1076,6 +1112,7 @@ export type WidgetSelectScalar = {
   columnCount?: boolean
   rowCount?: boolean
   isBlackTheme?: boolean
+  isActive?: boolean
   backgroundColor?: boolean
   primaryColor?: boolean
   positiveColor?: boolean
@@ -1086,7 +1123,7 @@ export type WidgetSelectScalar = {
   deletedAt?: boolean
 }
 
-export type WidgetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "options" | "state" | "columnIndex" | "rowIndex" | "columnCount" | "rowCount" | "isBlackTheme" | "backgroundColor" | "primaryColor" | "positiveColor" | "negativeColor" | "dashboardId" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["widget"]>
+export type WidgetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "options" | "state" | "columnIndex" | "rowIndex" | "columnCount" | "rowCount" | "isBlackTheme" | "isActive" | "backgroundColor" | "primaryColor" | "positiveColor" | "negativeColor" | "dashboardId" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["widget"]>
 export type WidgetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Dashboard?: boolean | Prisma.DashboardDefaultArgs<ExtArgs>
   WidgetLog?: boolean | Prisma.Widget$WidgetLogArgs<ExtArgs>
@@ -1115,6 +1152,7 @@ export type $WidgetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     columnCount: number | null
     rowCount: number | null
     isBlackTheme: boolean | null
+    isActive: boolean | null
     backgroundColor: string | null
     primaryColor: string | null
     positiveColor: string | null
@@ -1557,6 +1595,7 @@ export interface WidgetFieldRefs {
   readonly columnCount: Prisma.FieldRef<"Widget", 'Int'>
   readonly rowCount: Prisma.FieldRef<"Widget", 'Int'>
   readonly isBlackTheme: Prisma.FieldRef<"Widget", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Widget", 'Boolean'>
   readonly backgroundColor: Prisma.FieldRef<"Widget", 'String'>
   readonly primaryColor: Prisma.FieldRef<"Widget", 'String'>
   readonly positiveColor: Prisma.FieldRef<"Widget", 'String'>

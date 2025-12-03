@@ -9,7 +9,10 @@ import { first, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import { UpdateDashboardType } from '../../../../server/types/DashboardSchema';
 import { ShowNavGuard } from '../../../guards/nav.guard';
-import { DashboardsService } from '../../../services/dashboards.service';
+import {
+  DASHBOARD_FORMLY_FIELDS,
+  DashboardsService,
+} from '../../../services/dashboards.service';
 import { WidgetsService } from '../../../services/widgets.service';
 
 export const routeMeta: RouteMeta = {
@@ -151,27 +154,13 @@ export default class DashboardsEditPageComponent {
   );
 
   form = new UntypedFormGroup({});
-  model: UpdateDashboardType = { id: '', name: '', isBlackTheme: false };
-  fields: FormlyFieldConfig[] = [
-    {
-      key: 'name',
-      type: 'input',
-      props: {
-        label: 'Name',
-        placeholder: 'Enter name',
-        required: true,
-        attributes: { 'aria-label': 'Name' },
-      },
-    },
-    {
-      key: 'isBlackTheme',
-      type: 'checkbox',
-      props: {
-        label: 'Is black theme',
-        attributes: { 'aria-label': 'Is black theme' },
-      },
-    },
-  ];
+  model: UpdateDashboardType = {
+    id: '',
+    name: '',
+    isBlackTheme: false,
+    isActive: true,
+  };
+  fields: FormlyFieldConfig[] = DASHBOARD_FORMLY_FIELDS;
 
   onSubmit(model: UpdateDashboardType) {
     this.dashboardsService

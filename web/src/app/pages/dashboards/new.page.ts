@@ -8,7 +8,10 @@ import { catchError, EMPTY, first, tap } from 'rxjs';
 
 import { CreateDashboardType } from '../../../server/types/DashboardSchema';
 import { ShowNavGuard } from '../../guards/nav.guard';
-import { DashboardsService } from '../../services/dashboards.service';
+import {
+  DASHBOARD_FORMLY_FIELDS,
+  DashboardsService,
+} from '../../services/dashboards.service';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],
@@ -49,29 +52,14 @@ export const routeMeta: RouteMeta = {
 export default class DashboardsNewPageComponent {
   private readonly router = inject(Router);
   private readonly dashboardsService = inject(DashboardsService);
-  
+
   form = new UntypedFormGroup({});
-  model: CreateDashboardType = { name: '', isBlackTheme: false };
-  fields: FormlyFieldConfig[] = [
-    {
-      key: 'name',
-      type: 'input',
-      props: {
-        label: 'Name',
-        placeholder: 'Enter name',
-        required: true,
-        attributes: { 'aria-label': 'Name' },
-      },
-    },
-    {
-      key: 'isBlackTheme',
-      type: 'checkbox',
-      props: {
-        label: 'Is black theme',
-        attributes: { 'aria-label': 'Is black theme' },
-      },
-    },
-  ];
+  model: CreateDashboardType = {
+    name: '',
+    isBlackTheme: false,
+    isActive: true,
+  };
+  fields: FormlyFieldConfig[] = DASHBOARD_FORMLY_FIELDS;
 
   onSubmit(model: CreateDashboardType) {
     this.dashboardsService

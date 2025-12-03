@@ -51,6 +51,7 @@ model Dashboard {
   deviceId     String?
   userId       String    @db.Uuid
   isBlackTheme Boolean?
+  isActive     Boolean?
   User         User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_DASHBOARD__USER_ID")
   Widget       Widget[]
   createdAt    DateTime  @default(now())
@@ -89,6 +90,7 @@ model Widget {
   rowCount    Int?
 
   isBlackTheme    Boolean?
+  isActive        Boolean?
   backgroundColor String?
   primaryColor    String?
   positiveColor   String?
