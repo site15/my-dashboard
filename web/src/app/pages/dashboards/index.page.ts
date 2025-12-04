@@ -33,7 +33,7 @@ export const routeMeta: RouteMeta = {
       </a>
     }
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-8">
       @for (dashboard of dashboards$ | async; track dashboard.id) {
         <a
           class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.01] cursor-pointer"

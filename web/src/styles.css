@@ -1,6 +1,4 @@
 @import 'tailwindcss';
-
-@import '../node_modules/@picocss/pico/css/pico.conditional.min.css';
 @import 'ngx-toastr/toastr';
 
 @import './assets/fonts/inter/fonts.css';
@@ -22,6 +20,7 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: #f4f7fb; /* Очень светлый пастельный фон */
   transition: all 0.5s ease-in-out;
+  color: #1f2937; /* text-gray-800 equivalent */
 }
 
 /* --- Стили для Светлой Темы (Default) --- */
@@ -35,6 +34,13 @@ body {
 
 .flat-btn-shadow {
   box-shadow: 6px 6px 0 0 #6d6cb5; /* Более выраженная длинная тень для кнопок */
+  cursor: pointer;
+}
+
+.flat-btn-shadow:hover {
+  box-shadow: 2px 2px 0 0 #6d6cb5;
+  transform: translate(4px, 4px);
+  cursor: pointer;
 }
 
 .flat-input {
@@ -42,9 +48,36 @@ body {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
 }
 
+.flat-checkbox {
+  @apply w-5 h-5 rounded-xl border-2 border-gray-200 text-[#8A89F0] focus:ring-2 focus:ring-[#8A89F0] focus:ring-offset-0 bg-white;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+  cursor: pointer;
+}
+
+.flat-checkbox:checked {
+  @apply bg-[#8A89F0] border-[#8A89F0];
+}
+
+.flat-checkbox:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 6px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
 /* --- Стили для Тёмной Темы --- */
 .dark body {
   background-color: #121212; /* Темный фон */
+  color: #fafafa; /* text-gray-800 equivalent for dark mode */
 }
 
 .dark .bg-white {
@@ -75,6 +108,14 @@ body {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+.dark .flat-checkbox {
+  @apply border-gray-700 bg-[#1e1e1e];
+}
+
+.dark .flat-checkbox:checked {
+  @apply bg-[#8A89F0] border-[#8A89F0];
+}
+
 .dark .border-gray-100 {
   border-color: #2e2e2e;
 }
@@ -82,11 +123,6 @@ body {
 .dark .bg-gray-100 {
   background-color: #2e2e2e !important;
   color: #fafafa !important;
-}
-
-.flat-btn-shadow:hover {
-  box-shadow: 2px 2px 0 0 #6d6cb5;
-  transform: translate(4px, 4px);
 }
 
 .view-transition {
@@ -146,4 +182,13 @@ body {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Button cursor styles */
+button {
+  cursor: pointer;
+}
+
+a {
+  cursor: pointer;
 }

@@ -13,14 +13,14 @@ export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
     key: 'name',
     type: 'input',
     className: 'block text-lg font-medium text-gray-700 mb-2',
-    templateOptions: {
-      className: 'block text-lg font-medium text-gray-700 mb-2',
-    },
     props: {
       label: 'Name',
       placeholder: 'Enter name',
       required: true,
-      attributes: { 'aria-label': 'Name' },
+      attributes: {
+        'aria-label': 'Name',
+        class: 'flat-input',
+      },
     },
   },
   {
@@ -29,7 +29,8 @@ export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Is black theme',
-      attributes: { 'aria-label': 'Is black theme' },
+      attributes: { 'aria-label': 'Is black theme', class: 'flat-checkbox' },
+      className: 'flat-checkbox',
     },
   },
   {
@@ -38,7 +39,8 @@ export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Is active',
-      attributes: { 'aria-label': 'Is active' },
+      attributes: { 'aria-label': 'Is active', class: 'flat-checkbox' },
+      className: 'flat-checkbox',
     },
   },
 ];
