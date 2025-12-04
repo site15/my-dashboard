@@ -25,7 +25,7 @@ export const routeMeta: RouteMeta = {
     @if ((dashboards$ | async)?.length) {
       <a
         class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
-                bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide"
+                bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide flex items-center justify-center"
         href="/dashboards/new"
       >
         <i-lucide name="plus" class="w-5 h-5 mr-2"></i-lucide>
@@ -40,10 +40,10 @@ export const routeMeta: RouteMeta = {
           href="/dashboards/{{ dashboard.id }}"
         >
           <div class="flex justify-between items-start mb-4">
-            <i
+            <!--i
               data-lucide="database"
               class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg"
-            ></i>
+            ></i-->
             <span
               class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full"
               >{{ dashboard.isActive ? 'Active' : 'Draft' }}</span

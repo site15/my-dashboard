@@ -12,6 +12,10 @@ export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'name',
     type: 'input',
+    className: 'block text-lg font-medium text-gray-700 mb-2',
+    templateOptions: {
+      className: 'block text-lg font-medium text-gray-700 mb-2',
+    },
     props: {
       label: 'Name',
       placeholder: 'Enter name',
@@ -22,6 +26,7 @@ export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'isBlackTheme',
     type: 'checkbox',
+    className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Is black theme',
       attributes: { 'aria-label': 'Is black theme' },
@@ -30,6 +35,7 @@ export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'isActive',
     type: 'checkbox',
+    className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Is active',
       attributes: { 'aria-label': 'Is active' },

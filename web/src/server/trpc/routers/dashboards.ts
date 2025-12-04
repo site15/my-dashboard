@@ -60,10 +60,13 @@ export const dashboardsRouter = router({
             userId: ctx.user.id,
           },
         })
-        .then(result => {
+        .then(async result => {
+          const widgetsCount = await prisma.widget.count({
+            where: { dashboardId: result.id },
+          });
           return {
             ...result,
-            widgetsCount: 0,
+            widgetsCount,
           };
         })) satisfies DashboardType;
     }),
@@ -87,10 +90,13 @@ export const dashboardsRouter = router({
           },
           where: { id: input.id, userId: ctx.user.id },
         })
-        .then(result => {
+        .then(async result => {
+          const widgetsCount = await prisma.widget.count({
+            where: { dashboardId: result.id },
+          });
           return {
             ...result,
-            widgetsCount: 0,
+            widgetsCount,
           };
         })) satisfies DashboardType;
     }),
@@ -128,12 +134,20 @@ export const dashboardsRouter = router({
       .findMany({
         where: { deletedAt: { equals: null }, userId: { equals: ctx.user.id } },
       })
-      .then(items =>
-        items.map(item => ({
+      .then(async items => {
+        const widgetsCountByDashboardId = await prisma.widget.groupBy({
+          by: ['dashboardId'],
+          _count: true,
+          where: { dashboardId: { in: items.map(item => item.id) } },
+        });
+        return items.map(item => ({
           ...item,
-          widgetsCount: 0,
-        }))
-      )) satisfies DashboardType[];
+          widgetsCount:
+            widgetsCountByDashboardId.find(
+              widget => widget.dashboardId === item.id
+            )?._count || 0,
+        }));
+      })) satisfies DashboardType[];
   }),
   generateQrCode: publicProcedure
     .input(
