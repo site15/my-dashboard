@@ -3,6 +3,7 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
 import { ButtonTypeComponent } from './button-type.component';
+import { ColorSelectTypeComponent } from './color-select-type.component';
 import { IconSelectTypeComponent } from './icon-select-type.component';
 import { RepeatTypeComponent } from './repeat-type.component';
 
@@ -20,6 +21,10 @@ export function mapFormlyTypes<T extends FormlyFieldConfig = FormlyFieldConfig>(
 
     if (f.type === 'icon-select') {
       f.type = IconSelectTypeComponent;
+    }
+
+    if (f.type === 'color-select') {
+      f.type = ColorSelectTypeComponent;
     }
 
     if (Array.isArray(f.fieldGroup)) {

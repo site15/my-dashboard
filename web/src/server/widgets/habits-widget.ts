@@ -13,7 +13,7 @@ import {
 // Define the habit item structure
 
 export const HabitsWidgetItemSchema = z.object({
-  id: z.string(),
+  id: z.string().optional().nullish(),
   name: z.string(),
   icon: z.string(),
   color: z.string(),
@@ -33,6 +33,23 @@ export const HabitsWidgetItemSchema = z.object({
 
 export type HabitsWidgetItemType = z.infer<typeof HabitsWidgetItemSchema>;
 
+//
+
+export const CreateHabitsWidgetItemSchema = z.object({
+  name: z.string(),
+  icon: z.string(),
+  color: z.string(),
+  minValue: z.number(),
+  maxValue: z.number(),
+  currentValue: z.number().default(0),
+});
+
+export type CreateHabitsWidgetItemType = z.infer<
+  typeof CreateHabitsWidgetItemSchema
+>;
+
+//
+
 export const HabitsWidgetSchema = z.object({
   type: z.literal('habits'),
   name: z.string(),
@@ -40,6 +57,16 @@ export const HabitsWidgetSchema = z.object({
 });
 
 export type HabitsWidgetType = z.infer<typeof HabitsWidgetSchema>;
+
+//
+
+export const CreateHabitsWidgetSchema = z.object({
+  type: z.literal('habits'),
+  name: z.string(),
+  items: z.array(CreateHabitsWidgetItemSchema).default([]),
+});
+
+export type CreateHabitsWidgetType = z.infer<typeof CreateHabitsWidgetSchema>;
 
 // Formly field configuration for the habits widget
 export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
@@ -51,7 +78,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
       label: 'Widget name',
       required: true,
       placeholder: 'Widget name',
-      attributes: { 
+      attributes: {
         'aria-label': 'Enter widget name',
         class: 'flat-input',
       },
@@ -65,22 +92,8 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
       label: 'Habits',
     },
     fieldArray: {
-      fieldGroupClassName: 'grid grid-cols-2 gap-4',
+      fieldGroupClassName: 'grid grid-cols-3 gap-4',
       fieldGroup: [
-        {
-          key: 'id',
-          type: 'input',
-          className: 'block text-lg font-medium text-gray-700 mb-2',
-          props: {
-            label: 'ID',
-            required: true,
-            placeholder: 'Unique identifier',
-            attributes: { 
-              'aria-label': 'Enter habit ID',
-              class: 'flat-input',
-            },
-          },
-        },
         {
           key: 'name',
           type: 'input',
@@ -89,7 +102,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
             label: 'Name',
             required: true,
             placeholder: 'Habit name',
-            attributes: { 
+            attributes: {
               'aria-label': 'Enter habit name',
               class: 'flat-input',
             },
@@ -124,7 +137,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
               { value: 'activity', label: 'Activity' },
             ],
             placeholder: 'Select icon',
-            attributes: { 
+            attributes: {
               'aria-label': 'Select icon',
               class: 'flat-input',
             },
@@ -132,7 +145,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
         },
         {
           key: 'color',
-          type: 'select',
+          type: 'color-select',
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Color',
@@ -146,7 +159,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
               { value: 'pink', label: 'Pink' },
             ],
             placeholder: 'Select color',
-            attributes: { 
+            attributes: {
               'aria-label': 'Select color',
               class: 'flat-input',
             },
@@ -160,7 +173,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
             label: 'Min Value',
             type: 'number',
             placeholder: '0',
-            attributes: { 
+            attributes: {
               'aria-label': 'Enter minimum value',
               class: 'flat-input',
             },
@@ -174,7 +187,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
             label: 'Max Value',
             type: 'number',
             placeholder: '5',
-            attributes: { 
+            attributes: {
               'aria-label': 'Enter maximum value',
               class: 'flat-input',
             },

@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 import { FieldWrapper } from '@ngx-formly/core';
 
 @Component({
@@ -17,7 +17,8 @@ import { FieldWrapper } from '@ngx-formly/core';
     </div>
   `,
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // todo: add onPush change detection strategy
+  // changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIf],
 })
 export class FlatInputWrapperComponent extends FieldWrapper {}

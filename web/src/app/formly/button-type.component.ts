@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { FieldArrayType } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -15,7 +15,8 @@ import { LucideAngularModule } from 'lucide-angular';
       <span *ngIf="props.label">{{ props.label }}</span>
     </button>`,
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // todo: add onPush change detection strategy
+  // changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIf, LucideAngularModule],
 })
 export class ButtonTypeComponent extends FieldArrayType {

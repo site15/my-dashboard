@@ -2,18 +2,15 @@ import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core';
-import { createIcons, icons } from 'lucide';
 import { BehaviorSubject } from 'rxjs';
 
-import { isSSR } from '../../server/utils/is-ssr';
-
-interface SelectOption {
+interface ColorOption {
   value: string;
   label: string;
 }
 
 @Component({
-  selector: 'formly-icon-select-type',
+  selector: 'formly-color-select-type',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <label [attr.for]="id" class="form-label" *ngIf="props.label">
@@ -21,32 +18,38 @@ interface SelectOption {
       <span *ngIf="props.required">*</span>
     </label>
 
-    <!-- Custom select with icons -->
+    <!-- Custom select with color circles -->
     <div
       class="custom-select flat-input"
-      [id]="'icon-select-' + componentId"
-      [class.open]="(isOpen$ | async) === true"
+      [id]="'color-select-' + componentId"
+      [class.open]="isOpen$ | async"
       (click)="toggleSelect()"
     >
       <div class="selected-option">
-        <ng-container *ngIf="selectedIcon; else placeholderTemplate">
-          <i [attr.data-lucide]="selectedIcon" class="w-5 h-5 mr-2"></i>
+        <ng-container *ngIf="selectedValue; else placeholderTemplate">
+          <span
+            class="color-circle"
+            [style.background-color]="getColorValue(selectedValue)"
+          ></span>
           <span>{{ getSelectedLabel() }}</span>
         </ng-container>
         <ng-template #placeholderTemplate>
-          <span>{{ props.placeholder || 'Select an option' }}</span>
+          <span>{{ props.placeholder || 'Select a color' }}</span>
         </ng-template>
         <i data-lucide="chevron-down" class="w-5 h-5 ml-auto"></i>
       </div>
 
-      <div class="options-dropdown" *ngIf="(isOpen$ | async) === true">
+      <div class="options-dropdown" *ngIf="isOpen$ | async">
         <div
-          class="option-item"
+          class="option-item flex items-center"
           *ngFor="let option of getOptions()"
           (click)="selectOption(option)"
           [class.selected]="option.value === selectedValue"
         >
-          <i [attr.data-lucide]="option.value" class="w-5 h-5 mr-2"></i>
+          <span
+            class="color-circle"
+            [style.background-color]="getColorValue(option.value)"
+          ></span>
           <span>{{ option.label }}</span>
         </div>
       </div>
@@ -102,14 +105,14 @@ interface SelectOption {
         right: 0;
         background-color: white;
         border: 1px solid #e5e7eb;
-        border-top: none;
-        border-radius: 0 0 0.75rem 0.75rem;
+        border-radius: 0.75rem;
         box-shadow:
           0 4px 6px -1px rgba(0, 0, 0, 0.1),
           0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        z-index: 100;
         max-height: 200px;
         overflow-y: auto;
-        z-index: 100;
+        margin-top: 0.25rem;
       }
 
       .option-item {
@@ -119,31 +122,30 @@ interface SelectOption {
         cursor: pointer;
       }
 
-      .option-item:hover {
+      .option-item:hover,
+      .option-item.selected {
         background-color: #f3f4f6;
       }
 
-      .option-item.selected {
-        background-color: #dbeafe;
-      }
-
-      .hidden {
-        display: none;
+      .color-circle {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 0.75rem;
+        border: 1px solid #ddd;
       }
     `,
   ],
   standalone: true,
   imports: [NgIf, NgFor, ReactiveFormsModule, AsyncPipe],
 })
-export class IconSelectTypeComponent
+export class ColorSelectTypeComponent
   extends FieldType<FieldTypeConfig>
   implements OnInit
 {
-  selectedIcon: string = '';
-  selectedValue: string = '';
-
-  // Use BehaviorSubject for isOpen to enable reactive updates
   isOpen$ = new BehaviorSubject<boolean>(false);
+  selectedValue: string | null = null;
 
   // Unique ID for this component instance
   componentId = Math.random().toString(36).substring(2, 15);
@@ -152,15 +154,29 @@ export class IconSelectTypeComponent
   private closeSelectListener: ((event: MouseEvent) => void) | null = null;
 
   ngOnInit() {
-    // Установим начальное значение, если оно есть
+    // Set initial value if it exists in the form control
     if (this.formControl.value) {
       this.selectedValue = this.formControl.value;
-      this.selectedIcon = this.formControl.value;
-      this.updateIcon();
     }
   }
 
-  getOptions(): SelectOption[] {
+  getColorValue(colorName: string): string {
+    // Map color names to actual color values
+    const colorMap: Record<string, string> = {
+      blue: '#3b82f6',
+      orange: '#f97316',
+      purple: '#8b5cf6',
+      green: '#10b981',
+      red: '#ef4444',
+      yellow: '#eab308',
+      pink: '#ec4899',
+      default: '#6b7280',
+    };
+
+    return colorMap[colorName.toLowerCase()] || colorMap['default'];
+  }
+
+  getOptions(): ColorOption[] {
     return Array.isArray(this.props.options) ? this.props.options : [];
   }
 
@@ -176,7 +192,7 @@ export class IconSelectTypeComponent
     const newState = !this.isOpen$.value;
     this.isOpen$.next(newState);
 
-    // Закрыть селект при клике вне его
+    // Close select when clicking outside
     if (newState) {
       // Remove any existing listener first
       if (this.closeSelectListener) {
@@ -187,7 +203,7 @@ export class IconSelectTypeComponent
         this.closeSelectListener = (event: MouseEvent) => {
           // Use unique component ID to ensure we're targeting the correct element
           const componentElement = document.getElementById(
-            `icon-select-${this.componentId}`
+            `color-select-${this.componentId}`
           );
           if (!componentElement?.contains(event.target as Node)) {
             this.isOpen$.next(false);
@@ -206,22 +222,13 @@ export class IconSelectTypeComponent
         this.closeSelectListener = null;
       }
     }
-
-    // Обновим иконки
-    if (!isSSR) {
-      setTimeout(() => {
-        createIcons({ icons });
-      }, 0);
-    }
   }
 
-  selectOption(option: SelectOption) {
+  selectOption(option: ColorOption) {
     this.selectedValue = option.value;
-    this.selectedIcon = option.value;
     this.formControl.setValue(option.value);
     setTimeout(() => {
       this.isOpen$.next(false);
-      this.updateIcon();
 
       // Clean up listener when selecting an option
       if (this.closeSelectListener) {
@@ -229,14 +236,5 @@ export class IconSelectTypeComponent
         this.closeSelectListener = null;
       }
     });
-  }
-
-  updateIcon() {
-    if (!isSSR) {
-      // Обновим иконку с помощью Lucide
-      setTimeout(() => {
-        createIcons({ icons });
-      }, 0);
-    }
   }
 }

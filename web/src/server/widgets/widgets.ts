@@ -13,6 +13,7 @@ import {
   ClockWidgetSchema,
 } from './clock-widget';
 import {
+  CreateHabitsWidgetSchema,
   HABITS_FORMLY_FIELDS,
   HabitsWidgetRender,
   HabitsWidgetSchema,
@@ -44,3 +45,13 @@ export const WidgetsSchema = z.discriminatedUnion('type', [
 ]);
 
 export type WidgetsType = z.infer<typeof WidgetsSchema>;
+
+//
+
+export const CreateWidgetsSchema = z.discriminatedUnion('type', [
+  ClockWidgetSchema,
+  CalendarWidgetSchema,
+  CreateHabitsWidgetSchema,
+]);
+
+export type CreateWidgetsType = z.infer<typeof CreateWidgetsSchema>;
