@@ -1,5 +1,5 @@
 import { RouteMeta } from '@analogjs/router';
-import { AsyncPipe, JsonPipe, TitleCasePipe } from '@angular/common';
+import { AsyncPipe, TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -27,7 +27,6 @@ export const routeMeta: RouteMeta = {
   imports: [
     FormlyBootstrapModule,
     AsyncPipe,
-    JsonPipe,
     ReactiveFormsModule,
     FormlyForm,
     LucideAngularModule,
@@ -36,10 +35,20 @@ export const routeMeta: RouteMeta = {
   template: `
     @if (dashboardAndWidgets$ | async; as dashboardAndWidgets) {
       <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
-        <a href="/dashboards">Dashboards</a>:
-        {{ dashboardAndWidgets.dashboard.name }}
+        <a href="/dashboards"
+          >Edit Dashboard "{{ dashboardAndWidgets.dashboard.name }}"</a
+        >
       </h1>
-      <p class="text-xl text-gray-500 mb-8">Update settings and widgets.</p>
+      <p class="text-xl text-gray-500 mb-8">
+        <a
+          href="/dashboards"
+          class="text-gray-500 hover:text-pastel-blue transition-colors mb-10 mt-2 flex items-center"
+        >
+          <i-lucide name="arrow-left" class="w-6 h-6 mr-0 lg:mr-2"></i-lucide>
+          <span class="hidden lg:inline text-lg font-medium">Dashboards</span>
+        </a>
+        Update settings and widgets.
+      </p>
 
       <!-- Control Panel -->
       <div class="bg-white p-6 rounded-2xl long-shadow mb-8 space-y-4">
@@ -96,18 +105,13 @@ export const routeMeta: RouteMeta = {
           track widget.id;
           let last = $last
         ) {
-          <div
-            class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between"
+          <a
+            href="/dashboards/{{ dashboardAndWidgets.dashboard.id }}/widgets/{{
+              widget.id
+            }}"
+            class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.01] cursor-pointer"
           >
-            <a
-              href="/dashboards/{{
-                dashboardAndWidgets.dashboard.id
-              }}/widgets/{{ widget.id }}"
-              class="absolute top-2 right-2 text-gray-400 hover:text-pastel-blue opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full bg-white/70 backdrop-blur-sm dark:bg-[#1e1e1e]/70"
-            >
-              <i-lucide name="pencil" class="w-5 h-5"></i-lucide>
-            </a>
-            <div class="flex items-center">
+            <div class="flex justify-between items-start mb-4">
               <i-lucide
                 [name]="
                   widget.type === 'clock'
@@ -122,10 +126,19 @@ export const routeMeta: RouteMeta = {
                 {{ widget.type | titlecase }} Widget
               </p>
             </div>
-            <p class="text-sm text-gray-500 mt-2">
-              ID: {{ widget.id.substring(0, 8) }}...
-            </p>
-          </div>
+
+            <div
+              class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100"
+            >
+              <span>ID: {{ widget.id.substring(0, 8) }}...</span>
+              <span
+                class="flex items-center text-pastel-blue hover:text-pastel-blue/80"
+              >
+                Open
+                <i-lucide name="arrow-right" class="w-4 h-4 ml-1"></i-lucide>
+              </span>
+            </div>
+          </a>
 
           @if (last) {
             <!-- "Add Widget" Button for when there are widgets -->
