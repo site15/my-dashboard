@@ -61,16 +61,21 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'name',
     type: 'input',
+    className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Widget name',
       required: true,
       placeholder: 'Widget name',
-      attributes: { 'aria-label': 'Enter widget name' },
+      attributes: { 
+        'aria-label': 'Enter widget name',
+        class: 'flat-input',
+      },
     },
   },
   {
     key: 'hourFormat',
     type: 'select',
+    className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Hour format',
       required: true,
@@ -79,7 +84,10 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
         label: CLOCK_WIDGET_HOUR_FORMAT_TITLE[key],
       })),
       placeholder: 'Select hour format',
-      attributes: { 'aria-label': 'Select hour format' },
+      attributes: { 
+        'aria-label': 'Select hour format',
+        class: 'flat-input',
+      },
     },
   },
   {
@@ -95,16 +103,21 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
         {
           key: 'label',
           type: 'input',
+          className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Clock name',
             required: true,
             placeholder: 'Clock name',
-            attributes: { 'aria-label': 'Enter clock name' },
+            attributes: { 
+              'aria-label': 'Enter clock name',
+              class: 'flat-input',
+            },
           },
         },
         {
           key: 'timezone',
           type: 'select',
+          className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Timezone',
             required: true,
@@ -113,7 +126,10 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
               label: CLOCK_WIDGET_TIMEZONE_TITLE[key],
             })),
             placeholder: 'Select timezone',
-            attributes: { 'aria-label': 'Select timezone' },
+            attributes: { 
+              'aria-label': 'Select timezone',
+              class: 'flat-input',
+            },
           },
         },
       ],

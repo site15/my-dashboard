@@ -46,11 +46,15 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'name',
     type: 'input',
+    className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Widget name',
       required: true,
       placeholder: 'Widget name',
-      attributes: { 'aria-label': 'Enter widget name' },
+      attributes: { 
+        'aria-label': 'Enter widget name',
+        class: 'flat-input',
+      },
     },
   },
   {
@@ -66,26 +70,35 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
         {
           key: 'id',
           type: 'input',
+          className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'ID',
             required: true,
             placeholder: 'Unique identifier',
-            attributes: { 'aria-label': 'Enter habit ID' },
+            attributes: { 
+              'aria-label': 'Enter habit ID',
+              class: 'flat-input',
+            },
           },
         },
         {
           key: 'name',
           type: 'input',
+          className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Name',
             required: true,
             placeholder: 'Habit name',
-            attributes: { 'aria-label': 'Enter habit name' },
+            attributes: { 
+              'aria-label': 'Enter habit name',
+              class: 'flat-input',
+            },
           },
         },
         {
           key: 'icon',
           type: 'icon-select',
+          className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Icon',
             options: [
@@ -111,12 +124,16 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
               { value: 'activity', label: 'Activity' },
             ],
             placeholder: 'Select icon',
-            attributes: { 'aria-label': 'Select icon' },
+            attributes: { 
+              'aria-label': 'Select icon',
+              class: 'flat-input',
+            },
           },
         },
         {
           key: 'color',
           type: 'select',
+          className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Color',
             options: [
@@ -129,27 +146,38 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
               { value: 'pink', label: 'Pink' },
             ],
             placeholder: 'Select color',
-            attributes: { 'aria-label': 'Select color' },
+            attributes: { 
+              'aria-label': 'Select color',
+              class: 'flat-input',
+            },
           },
         },
         {
           key: 'minValue',
           type: 'input',
+          className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Min Value',
             type: 'number',
             placeholder: '0',
-            attributes: { 'aria-label': 'Enter minimum value' },
+            attributes: { 
+              'aria-label': 'Enter minimum value',
+              class: 'flat-input',
+            },
           },
         },
         {
           key: 'maxValue',
           type: 'input',
+          className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Max Value',
             type: 'number',
             placeholder: '5',
-            attributes: { 'aria-label': 'Enter maximum value' },
+            attributes: { 
+              'aria-label': 'Enter maximum value',
+              class: 'flat-input',
+            },
           },
         },
       ],

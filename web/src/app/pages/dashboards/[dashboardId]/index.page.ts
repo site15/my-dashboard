@@ -91,7 +91,11 @@ export const routeMeta: RouteMeta = {
       <div
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-6"
       >
-        @for (widget of dashboardAndWidgets.widgets; track widget.id) {
+        @for (
+          widget of dashboardAndWidgets.widgets;
+          track widget.id;
+          let last = $last
+        ) {
           <div
             class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between"
           >
@@ -123,45 +127,47 @@ export const routeMeta: RouteMeta = {
             </p>
           </div>
 
-          <!-- "Add Widget" Button for when there are widgets -->
-          <div
-            class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
-          >
-            <div class="text-center">
-              <p
-                class="text-gray-500 hover:text-pastel-blue font-bold text-lg flex items-center justify-center"
-              >
-                <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
-                Add Widget
-              </p>
-              <div class="flex flex-wrap gap-2 mt-4 justify-center">
-                <a
-                  href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
-                  }}/widgets/add/clock"
-                  class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+          @if (last) {
+            <!-- "Add Widget" Button for when there are widgets -->
+            <div
+              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
+            >
+              <div class="text-center">
+                <p
+                  class="text-gray-500 hover:text-pastel-blue font-bold text-lg flex items-center justify-center"
                 >
-                  Clock
-                </a>
-                <a
-                  href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
-                  }}/widgets/add/calendar"
-                  class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                >
-                  Calendar
-                </a>
-                <a
-                  href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
-                  }}/widgets/add/habits"
-                  class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                >
-                  Habits
-                </a>
+                  <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
+                  Add Widget
+                </p>
+                <div class="flex flex-wrap gap-2 mt-4 justify-center">
+                  <a
+                    href="/dashboards/{{
+                      dashboardAndWidgets.dashboard.id
+                    }}/widgets/add/clock"
+                    class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                  >
+                    Clock
+                  </a>
+                  <a
+                    href="/dashboards/{{
+                      dashboardAndWidgets.dashboard.id
+                    }}/widgets/add/calendar"
+                    class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                  >
+                    Calendar
+                  </a>
+                  <a
+                    href="/dashboards/{{
+                      dashboardAndWidgets.dashboard.id
+                    }}/widgets/add/habits"
+                    class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                  >
+                    Habits
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
+          }
         } @empty {
           <div
             class="col-span-full text-center py-12 flex flex-col items-center"
@@ -172,6 +178,7 @@ export const routeMeta: RouteMeta = {
                 class="w-12 h-12 text-gray-400"
               ></i-lucide>
             </div>
+
             <h3 class="text-2xl font-bold text-gray-700 mb-2">
               No widgets yet
             </h3>
@@ -181,7 +188,7 @@ export const routeMeta: RouteMeta = {
 
             <!-- "Add Widget" Button -->
             <div
-              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer p-8 flex flex-col items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
+              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 p-8 flex flex-col items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
             >
               <p
                 class="text-gray-500 hover:text-pastel-blue font-bold text-lg flex items-center justify-center mb-4"

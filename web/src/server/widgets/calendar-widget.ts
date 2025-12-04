@@ -58,6 +58,7 @@ export const CALENDAR_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'firstDayOfWeek',
     type: 'select',
+    className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'First day of week',
       required: true,
@@ -66,7 +67,10 @@ export const CALENDAR_FORMLY_FIELDS: FormlyFieldConfig[] = [
         label: CALENDAR_WIDGET_WEEKDAY_TITLE[key],
       })),
       placeholder: 'Select first day of week',
-      attributes: { 'aria-label': 'Select first day of week' },
+      attributes: { 
+        'aria-label': 'Select first day of week',
+        class: 'flat-input',
+      },
     },
   },
 ];

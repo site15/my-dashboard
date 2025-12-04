@@ -22,19 +22,14 @@ export const routeMeta: RouteMeta = {
       Manage all your projects in one place.
     </p>
 
-    @if ((dashboards$ | async)?.length) {
-      <a
-        class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
-                bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide flex items-center justify-center"
-        href="/dashboards/new"
-      >
-        <i-lucide name="plus" class="w-5 h-5 mr-2"></i-lucide>
-        Create New Dashboard
-      </a>
-    }
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-8">
-      @for (dashboard of dashboards$ | async; track dashboard.id) {
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-8"
+    >
+      @for (
+        dashboard of dashboards$ | async;
+        track dashboard.id;
+        let last = $last
+      ) {
         <a
           class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.01] cursor-pointer"
           href="/dashboards/{{ dashboard.id }}"
@@ -64,31 +59,39 @@ export const routeMeta: RouteMeta = {
             </span>
           </div>
         </a>
+        @if (last) {
+          <a
+            class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
+            href="/dashboards/new"
+          >
+            <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
+            Create New Dashboard
+          </a>
+        }
       } @empty {
         <div class="col-span-full text-center py-12 flex flex-col items-center">
           <div class="inline-block p-4 bg-gray-100 rounded-full mb-4">
-            <i
-              data-lucide="layout-dashboard"
+            <i-lucide
+              name="layout-dashboard"
               class="w-12 h-12 text-gray-400"
-            ></i>
+            ></i-lucide>
           </div>
+
           <h3 class="text-2xl font-bold text-gray-700 mb-2">
             No dashboards yet
           </h3>
-          <p class="text-gray-500 max-w-md mx-auto">
+          <p class="text-gray-500 max-w-md mx-auto mb-8">
             Get started by creating your first dashboard to organize and
             visualize your data.
           </p>
-          <p class="max-w-md mx-auto">
-            <a
-              class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
-                bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide"
-              href="/dashboards/new"
-            >
-              <i-lucide name="plus" class="w-5 h-5 mr-2"></i-lucide>
-              Create New Dashboard
-            </a>
-          </p>
+
+          <a
+            class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer p-8 flex flex-col items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
+            href="/dashboards/new"
+          >
+            <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
+            Create New Dashboard
+          </a>
         </div>
       }
     </div>`,
