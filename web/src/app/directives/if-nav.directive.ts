@@ -64,7 +64,6 @@ export class IfNavHiddenDirective implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscription = this.layoutService.isNavShown.subscribe(isNavShown => {
-      console.log({ isNavShown });
       if (!isNavShown && !this.hasView) {
         this.viewContainer.createEmbeddedView(this.templateRef);
         this.hasView = true;
