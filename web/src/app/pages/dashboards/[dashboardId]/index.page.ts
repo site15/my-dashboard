@@ -9,6 +9,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { first, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import { UpdateDashboardType } from '../../../../server/types/DashboardSchema';
+import { WIDGETS_RENDERERS } from '../../../../server/widgets/widgets';
 import { ShowNavGuard } from '../../../guards/nav.guard';
 import {
   DASHBOARD_FORMLY_FIELDS,
@@ -153,30 +154,16 @@ export const routeMeta: RouteMeta = {
                   Add Widget
                 </p>
                 <div class="flex flex-wrap gap-2 mt-4 justify-center">
-                  <a
-                    href="/dashboards/{{
-                      dashboardAndWidgets.dashboard.id
-                    }}/widgets/add/clock"
-                    class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                  >
-                    Clock
-                  </a>
-                  <a
-                    href="/dashboards/{{
-                      dashboardAndWidgets.dashboard.id
-                    }}/widgets/add/calendar"
-                    class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                  >
-                    Calendar
-                  </a>
-                  <a
-                    href="/dashboards/{{
-                      dashboardAndWidgets.dashboard.id
-                    }}/widgets/add/habits"
-                    class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                  >
-                    Habits
-                  </a>
+                  @for (widgetType of widgetTypes; track $index) {
+                    <a
+                      href="/dashboards/{{
+                        dashboardAndWidgets.dashboard.id
+                      }}/widgets/add/{{ widgetType }}"
+                      class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                    >
+                      {{ widgetType | titlecase }}
+                    </a>
+                  }
                 </div>
               </div>
             </div>
@@ -210,30 +197,16 @@ export const routeMeta: RouteMeta = {
                 Add Widget
               </p>
               <div class="flex flex-wrap gap-2 justify-center">
-                <a
-                  href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
-                  }}/widgets/add/clock"
-                  class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                >
-                  Clock
-                </a>
-                <a
-                  href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
-                  }}/widgets/add/calendar"
-                  class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                >
-                  Calendar
-                </a>
-                <a
-                  href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
-                  }}/widgets/add/habits"
-                  class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                >
-                  Habits
-                </a>
+                @for (widgetType of widgetTypes; track $index) {
+                  <a
+                    href="/dashboards/{{
+                      dashboardAndWidgets.dashboard.id
+                    }}/widgets/add/{{ widgetType }}"
+                    class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                  >
+                    {{ widgetType | titlecase }}
+                  </a>
+                }
               </div>
             </div>
           </div>
@@ -277,6 +250,7 @@ export default class DashboardsEditPageComponent {
     isActive: true,
   };
   fields: FormlyFieldConfig[] = DASHBOARD_FORMLY_FIELDS;
+  widgetTypes = Object.keys(WIDGETS_RENDERERS);
 
   onSubmit(model: UpdateDashboardType) {
     this.dashboardsService
