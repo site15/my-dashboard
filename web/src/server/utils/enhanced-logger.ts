@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-useless-escape */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
@@ -24,12 +25,7 @@
  *      return attachLoggerToContext(base);
  *    }
  *
- * 3) In your custom handler (createCustomTrpcNitroHandler), pass onError:
- *    import { createTrpcOnErrorHandler } from 'src/utils/enhanced-logger';
- *    const onError = createTrpcOnErrorHandler();
- *    // pass `onError` into resolveHTTPResponse options (or into createCustomTrpcNitroHandler)
- *
- * 4) In procedures you can:
+ * 3) In procedures you can:
  *    ctx.logger.info("something");
  *    ctx.logger.debug({ foo: "bar" });
  *    ctx.logger.zodError(zErr, { extra: 'info' });
@@ -41,7 +37,6 @@
 
 import { randomUUID } from 'crypto';
 
-import type { TRPCError } from '@trpc/server';
 import pino, { Logger as PinoLogger } from 'pino';
 import { z } from 'zod';
 
@@ -157,6 +152,160 @@ export const baseLogger: PinoLogger = pino({
  * Request-bound logger factory
  * ==================================================================================== */
 
+export function ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod(
+  payload: any,
+  meta?: any,
+  callback?: (payload: any) => void
+) {
+  const maybeCause = payload?.cause ?? payload?.error?.cause ?? payload;
+  if (
+    maybeCause &&
+    typeof maybeCause === 'object' &&
+    'issues' in maybeCause &&
+    Array.isArray(maybeCause.issues)
+  ) {
+    // It's a ZodError-like
+    const zErr = maybeCause as z.ZodError;
+    const issues = zErr.issues.map(i => ({
+      path: i.path.join('.'),
+      message: i.message,
+      code: i.code,
+      // some issues have "received" and "options" fields — include if present
+      received: (i as any).received,
+      options: (i as any).options,
+    }));
+    const zpayload = {
+      event: 'zod_error',
+      issues,
+      message: zErr.message,
+      context: meta ?? null,
+    };
+    if (callback) {
+      callback(zpayload);
+    }
+    return zpayload;
+  }
+}
+
+// ifPayloadIsTRPCErrorLikeWithCauseBeingZodError
+export function ifPayloadIsTRPCErrorLikeWithCauseBeingZodError(
+  payload: any,
+  meta?: any,
+  callback?: (payload: any) => void
+) {
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'cause' in payload &&
+    payload.cause &&
+    typeof payload.cause === 'object' &&
+    'issues' in payload.cause
+  ) {
+    const zErr = payload.cause as z.ZodError;
+    const issues = zErr.issues.map(i => ({
+      path: i.path.join('.'),
+      message: i.message,
+      code: i.code,
+      received: (i as any).received,
+      options: (i as any).options,
+    }));
+    const zpayload = {
+      event: 'zod_error',
+      issues,
+      trpcMessage: payload.message ?? payload?.stack ?? null,
+      context: meta ?? payload?.context ?? null,
+    };
+    if (callback) {
+      callback(zpayload);
+    }
+    return zpayload;
+  }
+}
+
+// standardErrorObjectHandlingErrorInstancesOrTRPCError
+export function standardErrorObjectHandlingErrorInstancesOrTRPCError(
+  payload: any,
+  meta?: any,
+  callback?: (payload: any) => void
+) {
+  if (
+    payload instanceof Error ||
+    (payload && typeof payload === 'object' && 'stack' in payload)
+  ) {
+    const errObj: any = payload instanceof Error ? payload : (payload as any);
+    const stack = errObj.stack ?? captureStack();
+    const frame = parseFirstFrame(stack);
+    const out: any = {
+      event: 'error',
+      name: errObj.name ?? 'Error',
+      message: errObj.message ?? String(errObj),
+      stack,
+      stackFrame: frame,
+      meta: meta ?? null,
+    };
+    // if it's TRPCError, include code/context/input/path if present
+    if (payload && typeof payload === 'object') {
+      if ((payload as any).code) out.trpcCode = (payload as any).code;
+      if ((payload as any).input) out.trpcInput = (payload as any).input;
+      if ((payload as any).path) out.trpcPath = (payload as any).path;
+      if ((payload as any).type) out.trpcType = (payload as any).type;
+      if ((payload as any).cause)
+        out.cause = (payload as any).cause?.message ?? (payload as any).cause;
+    }
+    if (callback) {
+      callback(out);
+    }
+    return out;
+  }
+}
+
+// catchPrismaErrors
+export function catchPrismaErrors(
+  payload: any,
+  meta?: any,
+  callback?: (payload: any) => void
+) {
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'name' in payload &&
+    payload['name'].startsWith('Prisma')
+  ) {
+    const out: any = {
+      event: 'prisma_error',
+      name: payload.name,
+      code: payload.code,
+      message: payload.message,
+      meta: meta ?? null,
+    };
+    try {
+      out.cause =
+        (payload as any).meta.driverAdapterError.cause ||
+        (payload as any).meta.driverAdapterError.message;
+    } catch (err) {
+      //
+    }
+    if (callback) {
+      callback(out);
+    }
+    return out;
+  }
+}
+
+// normalStructuredOrStringPayloads
+export function normalStructuredOrStringPayloads(
+  payload: any,
+  meta?: any,
+  callback?: (payload: any) => void
+) {
+  const structured =
+    typeof payload === 'string' ? { message: payload } : (payload ?? {});
+  if (meta && typeof meta === 'object') structured._meta = meta;
+  if (callback) {
+    callback(structured);
+  }
+}
+
 export function createRequestLogger(opts: {
   traceId: string;
   userId?: string | null;
@@ -179,101 +328,71 @@ export function createRequestLogger(opts: {
     payload?: any,
     meta?: any
   ) => {
-    if (!enabled) return;
-
-    // If this is an object with cause that's a ZodError (TRPC wraps zod)
-    const maybeCause = payload?.cause ?? payload?.error?.cause ?? payload;
-    if (
-      maybeCause &&
-      typeof maybeCause === 'object' &&
-      'issues' in maybeCause &&
-      Array.isArray(maybeCause.issues)
-    ) {
-      // It's a ZodError-like
-      const zErr = maybeCause as z.ZodError;
-      const issues = zErr.issues.map(i => ({
-        path: i.path.join('.'),
-        message: i.message,
-        code: i.code,
-        // some issues have "received" and "options" fields — include if present
-        received: (i as any).received,
-        options: (i as any).options,
-      }));
-      const zpayload = {
-        event: 'zod_error',
-        issues,
-        message: zErr.message,
-        context: meta ?? null,
-      };
-      const masked = maskSensitiveData(zpayload, maskRegexList);
-      child.error(masked);
+    if (!enabled) {
       return;
     }
 
+    // catchPrismaErrors
+    if (
+      catchPrismaErrors(payload, meta, (payload: any) => {
+        const masked = maskSensitiveData(payload, maskRegexList);
+        child.error(masked);
+      })
+    ) {
+      return;
+    }
+
+    // IfThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod
+    // If this is an object with cause that's a ZodError (TRPC wraps zod)
+    if (
+      ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod(
+        payload,
+        meta,
+        (payload: any) => {
+          const masked = maskSensitiveData(payload, maskRegexList);
+          child.error(masked);
+        }
+      )
+    ) {
+      return;
+    }
+
+    // ifPayloadIsTRPCErrorLikeWithCauseBeingZodError
     // If payload is TRPCError-like with .cause being ZodError
     if (
-      payload &&
-      typeof payload === 'object' &&
-      'cause' in payload &&
-      payload.cause &&
-      typeof payload.cause === 'object' &&
-      'issues' in payload.cause
+      ifPayloadIsTRPCErrorLikeWithCauseBeingZodError(
+        payload,
+        meta,
+        (payload: any) => {
+          const masked = maskSensitiveData(payload, maskRegexList);
+          child.error(masked);
+        }
+      )
     ) {
-      const zErr = payload.cause as z.ZodError;
-      const issues = zErr.issues.map(i => ({
-        path: i.path.join('.'),
-        message: i.message,
-        code: i.code,
-        received: (i as any).received,
-        options: (i as any).options,
-      }));
-      const zpayload = {
-        event: 'zod_error',
-        issues,
-        trpcMessage: payload.message ?? payload?.stack ?? null,
-        context: meta ?? payload?.context ?? null,
-      };
-      const masked = maskSensitiveData(zpayload, maskRegexList);
-      child.error(masked);
       return;
     }
 
+    // standardErrorObjectHandlingErrorInstancesOrTRPCError
     // Standard error object handling (Error instances or TRPCError)
     if (
-      payload instanceof Error ||
-      (payload && typeof payload === 'object' && 'stack' in payload)
+      standardErrorObjectHandlingErrorInstancesOrTRPCError(
+        payload,
+        meta,
+        (payload: any) => {
+          const masked = maskSensitiveData(payload, maskRegexList);
+          child.error(masked);
+        }
+      )
     ) {
-      const errObj: any = payload instanceof Error ? payload : (payload as any);
-      const stack = errObj.stack ?? captureStack();
-      const frame = parseFirstFrame(stack);
-      const out: any = {
-        event: 'error',
-        name: errObj.name ?? 'Error',
-        message: errObj.message ?? String(errObj),
-        stack,
-        stackFrame: frame,
-        meta: meta ?? null,
-      };
-      // if it's TRPCError, include code/context/input/path if present
-      if (payload && typeof payload === 'object') {
-        if ((payload as any).code) out.trpcCode = (payload as any).code;
-        if ((payload as any).input) out.trpcInput = (payload as any).input;
-        if ((payload as any).path) out.trpcPath = (payload as any).path;
-        if ((payload as any).type) out.trpcType = (payload as any).type;
-        if ((payload as any).cause)
-          out.cause = (payload as any).cause?.message ?? (payload as any).cause;
-      }
-      const masked = maskSensitiveData(out, maskRegexList);
-      child.error(masked);
       return;
     }
 
+    // normalStructuredOrStringPayloads
     // Normal structured or string payloads
-    const structured =
-      typeof payload === 'string' ? { message: payload } : (payload ?? {});
-    if (meta && typeof meta === 'object') structured._meta = meta;
-    const masked = maskSensitiveData(structured, maskRegexList);
-    (child as any)[level](masked);
+    normalStructuredOrStringPayloads(payload, meta, (payload: any) => {
+      const masked = maskSensitiveData(payload, maskRegexList);
+      (child as any)[level](masked);
+    });
   };
 
   return {
@@ -387,107 +506,6 @@ export function attachLoggerToContext(ctx: any) {
 }
 
 /* ======================================================================================
- * Helper: createTrpcOnErrorHandler
- * - returns a function suitable to pass as `onError` to resolveHTTPResponse
- * - ensures TRPC/Zod errors are logged prettily via ctx.logger if available,
- *   otherwise falls back to console.error
- * ==================================================================================== */
-
-export function createTrpcOnErrorHandler(options?: {
-  fallbackToConsole?: boolean;
-}) {
-  const fallbackToConsole = options?.fallbackToConsole ?? true;
-
-  return (o: {
-    error: TRPCError;
-    type: any;
-    path: string | undefined;
-    input: unknown;
-    ctx?: any;
-    // note: TRPC onError payload also contains other fields; we handle main ones
-  }) => {
-    try {
-      const ctx = (o as any).ctx;
-      const payload = o.error as any;
-
-      // If ctx exists and has logger -> use it
-      if (ctx?.logger) {
-        // If error.cause is ZodError (or payload itself is ZodError)
-        if (
-          payload?.cause &&
-          typeof payload.cause === 'object' &&
-          'issues' in payload.cause
-        ) {
-          ctx.logger.error({
-            event: 'zod_error',
-            path: o.path,
-            type: o.type,
-            input: maskSensitiveData(o.input),
-            issues: (payload.cause as z.ZodError).issues.map(i => ({
-              path: i.path.join('.'),
-              message: i.message,
-              code: i.code,
-              received: (i as any).received,
-              options: (i as any).options,
-            })),
-            message: payload.message ?? payload.cause?.message ?? null,
-          });
-          return;
-        }
-
-        // General TRPCError or Error: include code, path, input, stack
-        ctx.logger.error({
-          event: 'trpc_error',
-          path: o.path,
-          type: o.type,
-          input: maskSensitiveData(o.input),
-          trpcCode: payload?.code ?? null,
-          message: payload?.message ?? null,
-          stack: payload?.stack ?? undefined,
-          cause: payload?.cause
-            ? typeof payload.cause === 'object'
-              ? ((payload.cause as any).message ?? payload.cause)
-              : String(payload.cause)
-            : undefined,
-        });
-        return;
-      }
-
-      // No ctx.logger — fallback
-      if (fallbackToConsole) {
-        if (
-          payload?.cause &&
-          typeof payload.cause === 'object' &&
-          'issues' in payload.cause
-        ) {
-          console.error('[tRPC][ZOD ERROR]', {
-            path: o.path,
-            type: o.type,
-            input: o.input,
-            issues: (payload.cause as z.ZodError).issues,
-            message: payload.message ?? payload.cause?.message ?? null,
-          });
-        } else {
-          console.error('[tRPC][ERROR]', {
-            path: o.path,
-            type: o.type,
-            input: o.input,
-            code: payload?.code ?? null,
-            message: payload?.message ?? null,
-            stack: payload?.stack,
-            cause: payload?.cause,
-          });
-        }
-      }
-    } catch (err) {
-      // last-resort fallback
-      if (fallbackToConsole)
-        console.error('[tRPC][onError handler failed]', String(err));
-    }
-  };
-}
-
-/* ======================================================================================
  * Optional: Prisma integration helper
  * ==================================================================================== */
 
@@ -508,10 +526,16 @@ export function attachPrismaLogger(prismaClient: any) {
       });
     });
     prismaClient.$on('warn', (e: any) => {
-      baseLogger.warn({ event: 'sql_warn', message: e.message });
+      baseLogger.warn({
+        event: 'sql_warn',
+        message: e.message,
+      });
     });
     prismaClient.$on('error', (e: any) => {
-      baseLogger.error({ event: 'sql_error', message: e.message });
+      baseLogger.error({
+        event: 'sql_error',
+        message: e.message,
+      });
     });
   } catch (err) {
     baseLogger.warn({
@@ -525,7 +549,6 @@ export default {
   baseLogger,
   createRequestLogger,
   attachLoggerToContext,
-  createTrpcOnErrorHandler,
   attachPrismaLogger,
   maskSensitiveData,
 };
