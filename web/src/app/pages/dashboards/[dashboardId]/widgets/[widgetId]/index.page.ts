@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { first, map, shareReplay, tap } from 'rxjs';
+import { catchError, first, map, of, shareReplay, tap } from 'rxjs';
 
 import { WidgetsType } from '../../../../../../server/widgets/widgets';
 import { NoSanitizePipe } from '../../../../../directives/no-sanitize.directive';
@@ -139,9 +139,15 @@ export default class DashboardsWidgetsEditPageComponent {
         } as WidgetsType,
       })
       .pipe(
+        catchError(err => {
+          console.log({ ...err });
+          return of(null);
+        }),
         first(),
-        tap(widget =>
-          this.router.navigate([`/dashboards/${widget.dashboardId}`])
+        tap(
+          widget =>
+            widget &&
+            this.router.navigate([`/dashboards/${widget.dashboardId}`])
         )
       )
       .subscribe();

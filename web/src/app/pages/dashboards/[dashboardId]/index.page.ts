@@ -6,7 +6,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { first, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  first,
+  forkJoin,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 import { UpdateDashboardType } from '../../../../server/types/DashboardSchema';
 import { WIDGETS_RENDERERS } from '../../../../server/widgets/widgets';
@@ -256,8 +265,12 @@ export default class DashboardsEditPageComponent {
     this.dashboardsService
       .update(model)
       .pipe(
+        catchError(err => {
+          console.log({...err});
+          return of(null);
+        }),
         first(),
-        tap(() => this.router.navigate(['/dashboards']))
+        tap(dashboard => dashboard && this.router.navigate(['/dashboards']))
       )
       .subscribe();
   }

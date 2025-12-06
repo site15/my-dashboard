@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
+
 import { initTRPC } from '@trpc/server';
 import superjson from 'superjson';
 
 import { Context } from './context';
 import {
-    catchPrismaErrors,
-    ifPayloadIsTRPCErrorLikeWithCauseBeingZodError,
-    ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod,
-    maskSensitiveData,
-    normalStructuredOrStringPayloads,
-    standardErrorObjectHandlingErrorInstancesOrTRPCError,
+  catchPrismaErrors,
+  ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod,
+  maskSensitiveData,
+  normalStructuredOrStringPayloads,
+  standardErrorObjectHandlingErrorInstancesOrTRPCError,
 } from '../utils/enhanced-logger';
 
 const t = initTRPC.context<Context>().create({
@@ -30,7 +29,7 @@ const t = initTRPC.context<Context>().create({
       catchPrismaErrors(
         payload,
         null,
-        payload => ((shape.data as any).error = payload)
+        result => ((shape.data as any).error = result)
       )
     ) {
       return shape;
@@ -39,23 +38,11 @@ const t = initTRPC.context<Context>().create({
     // IfThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod
     // If this is an object with cause that's a ZodError (TRPC wraps zod)
     if (
-      ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod(
+      ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod({
         payload,
-        null,
-        payload => ((shape.data as any).error = payload)
-      )
-    ) {
-      return shape;
-    }
-
-    // ifPayloadIsTRPCErrorLikeWithCauseBeingZodError
-    // If payload is TRPCError-like with .cause being ZodError
-    if (
-      ifPayloadIsTRPCErrorLikeWithCauseBeingZodError(
-        payload,
-        null,
-        payload => ((shape.data as any).error = payload)
-      )
+        meta: null,
+        callback: result => ((shape.data as any).error = result),
+      })
     ) {
       return shape;
     }
@@ -66,7 +53,7 @@ const t = initTRPC.context<Context>().create({
       standardErrorObjectHandlingErrorInstancesOrTRPCError(
         payload,
         null,
-        payload => ((shape.data as any).error = payload)
+        result => ((shape.data as any).error = result)
       )
     ) {
       return shape;
@@ -77,8 +64,9 @@ const t = initTRPC.context<Context>().create({
     normalStructuredOrStringPayloads(
       payload,
       null,
-      payload => ((shape.data as any).error = payload)
+      result => ((shape.data as any).error = result)
     );
+
     /*
 {
     "issues": [
