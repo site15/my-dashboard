@@ -7,6 +7,7 @@ import {
   LocalStorageService,
   StorageChangeType,
 } from './local-storage.service';
+import { TrpcPureHeaders } from '../trpc-pure-client';
 
 @Injectable({
   providedIn: 'root',
@@ -23,8 +24,10 @@ export class SessionService extends LocalStorageService<string> {
       const sessionId = e.newValue;
       if (sessionId) {
         TrpcHeaders.set({ [X_SESSION_ID]: sessionId });
+        TrpcPureHeaders.set({ [X_SESSION_ID]: sessionId });
       } else {
         TrpcHeaders.set({});
+        TrpcPureHeaders.set({});
       }
     },
   ];

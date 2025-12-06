@@ -1,19 +1,20 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import {
+  PreloadAllModules,
   RouteReuseStrategy,
   provideRouter,
   withPreloading,
-  PreloadAllModules,
 } from '@angular/router';
 import {
   IonicRouteStrategy,
   provideIonicAngular,
 } from '@ionic/angular/standalone';
 
-import { routes } from './app/app.routes';
-import { AppComponent } from './app/app.component';
-import { provideTrpcClient } from './app/trpc-client';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
+import { AppComponent } from './app/app.component';
+import { routes } from './app/app.routes';
+import { provideTrpcClient } from './app/trpc-client';
+import { provideTrpcPureClient } from './app/trpc-pure-client';
 
 // Call the element loader before the bootstrapModule/bootstrapApplication call
 defineCustomElements(window);
@@ -24,5 +25,6 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideTrpcClient(),
+    provideTrpcPureClient(),
   ],
 });

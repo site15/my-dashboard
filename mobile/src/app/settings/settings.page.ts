@@ -34,6 +34,7 @@ import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
+import { TrpcPureHeaders } from '../trpc-pure-client';
 
 @Component({
   selector: 'app-settings',
@@ -204,6 +205,7 @@ export class SettingsPage {
     try {
       // Set the device ID header for the request
       TrpcHeaders.set({ [X_DEVICE_ID]: this.deviceId });
+      TrpcPureHeaders.set({ [X_DEVICE_ID]: this.deviceId });
 
       // Fetch dashboard info
       const deviceSettings = await firstValueFrom(

@@ -23,13 +23,8 @@ export class TelegramService {
   getSettings() {
     return this.trpc.telegram.settings.query().pipe(
       concatMap(async settings => {
-        try {
-          await this.telegramSettingsService.set(settings);
-          return settings;
-        } catch (error) {
-          await this.errorHandler.handleError(error, 'Failed to load Telegram settings');
-          throw error;
-        }
+        await this.telegramSettingsService.set(settings);
+        return settings;
       })
     );
   }
@@ -70,7 +65,10 @@ export class TelegramService {
             await this.profileService.set(user as unknown as User);
             return { sessionId, user };
           } catch (error) {
-            await this.errorHandler.handleError(error, 'Failed to sign in with Telegram');
+            await this.errorHandler.handleError(
+              error,
+              'Failed to sign in with Telegram'
+            );
             throw error;
           }
         })

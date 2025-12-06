@@ -29,6 +29,7 @@ import { firstValueFrom } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { DeviceInfoType } from '../../../../web/src/server/types/DeviceSchema';
+import { TrpcPureHeaders } from '../trpc-pure-client';
 
 @Component({
   selector: 'app-dashboard',
@@ -149,6 +150,7 @@ export class DashboardPage {
     this.error = null;
 
     TrpcHeaders.set({ [X_DEVICE_ID]: deviceId });
+    TrpcPureHeaders.set({ [X_DEVICE_ID]: deviceId });
 
     try {
       // Fetch dashboard info using deviceId

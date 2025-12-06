@@ -34,6 +34,7 @@ import {
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 import { ErrorHandlerService } from '../services/error-handler.service';
+import { TrpcPureHeaders } from '../trpc-pure-client';
 
 //
 // --- 1. Take photo via camera ---
@@ -263,6 +264,7 @@ export class QrCodePage {
           }
 
           TrpcHeaders.set({});
+          TrpcPureHeaders.set({});
 
           // Parse the QR code data
           try {

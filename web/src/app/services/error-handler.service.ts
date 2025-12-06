@@ -14,25 +14,13 @@ import { isSSR } from '../../server/utils/is-ssr';
   providedIn: 'root',
 })
 export class ErrorHandlerService {
-  private globalErrorHandlingEnabled = true;
   private request = injectRequest();
   private toastrService = inject(ToastrService);
-
-  /**
-   * Enable or disable global error handling
-   */
-  setGlobalErrorHandling(enabled: boolean) {
-    this.globalErrorHandlingEnabled = enabled;
-  }
 
   /**
    * Handle error and show notification
    */
   async handleError(error: any, customMessage?: string): Promise<void> {
-    if (!this.globalErrorHandlingEnabled) {
-      return;
-    }
-
     let message = customMessage || 'An error occurred';
 
     // Handle TRPC errors

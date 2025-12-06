@@ -40,6 +40,8 @@ import { randomUUID } from 'crypto';
 import pino, { Logger as PinoLogger } from 'pino';
 import { z } from 'zod';
 
+import { PrismaErrorType, ZodErrorType } from '../types/error-type';
+
 //
 // CONFIG
 //
@@ -155,7 +157,7 @@ export const baseLogger: PinoLogger = pino({
 export function ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod(
   payload: any,
   meta?: any,
-  callback?: (payload: any) => void
+  callback?: (payload: ZodErrorType) => void
 ) {
   const maybeCause = payload?.cause ?? payload?.error?.cause ?? payload;
   if (
@@ -174,7 +176,7 @@ export function ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod(
       received: (i as any).received,
       options: (i as any).options,
     }));
-    const zpayload = {
+    const zpayload: ZodErrorType = {
       event: 'zod_error',
       issues,
       message: zErr.message,
@@ -210,7 +212,7 @@ export function ifPayloadIsTRPCErrorLikeWithCauseBeingZodError(
       options: (i as any).options,
     }));
     const zpayload = {
-      event: 'zod_error',
+      event: 'zod_error_trpc',
       issues,
       trpcMessage: payload.message ?? payload?.stack ?? null,
       context: meta ?? payload?.context ?? null,
@@ -239,6 +241,7 @@ export function standardErrorObjectHandlingErrorInstancesOrTRPCError(
       event: 'error',
       name: errObj.name ?? 'Error',
       message: errObj.message ?? String(errObj),
+      data: { ...errObj },
       stack,
       stackFrame: frame,
       meta: meta ?? null,
@@ -263,7 +266,7 @@ export function standardErrorObjectHandlingErrorInstancesOrTRPCError(
 export function catchPrismaErrors(
   payload: any,
   meta?: any,
-  callback?: (payload: any) => void
+  callback?: (payload: PrismaErrorType) => void
 ) {
   if (
     payload &&
@@ -271,7 +274,7 @@ export function catchPrismaErrors(
     'name' in payload &&
     payload['name'].startsWith('Prisma')
   ) {
-    const out: any = {
+    const out: PrismaErrorType = {
       event: 'prisma_error',
       name: payload.name,
       code: payload.code,
