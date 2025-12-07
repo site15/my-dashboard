@@ -11,6 +11,8 @@ jobs:
     permissions:
       contents: write
       packages: write
+    env:
+      MY_DASHBOARD_DATABASE_POSTGRES_URL: postgres://postgres:pgtoolspassword@localhost:5432/postgres?schema=public
 
     steps:
       - name: Checkout repository
