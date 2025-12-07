@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { ToastController } from '@ionic/angular/standalone';
-import { Observable } from 'rxjs';
 
 /**
  * Global error handler service for the mobile app
@@ -61,39 +60,4 @@ export class ErrorHandlerService {
     }
   }
 
-  /**
-   * Wrap an observable with error handling
-   */
-  withErrorHandling<T>(
-    observable: Observable<T>,
-    customMessage?: string
-  ): Observable<T> {
-    return new Observable<T>((subscriber) => {
-      const subscription = observable.subscribe({
-        next: (value) => subscriber.next(value),
-        error: async (error) => {
-          await this.handleError(error, customMessage);
-          subscriber.error(error);
-        },
-        complete: () => subscriber.complete(),
-      });
-
-      return () => subscription.unsubscribe();
-    });
-  }
-
-  /**
-   * Wrap a promise with error handling
-   */
-  async withErrorHandlingAsync<T>(
-    promise: Promise<T>,
-    customMessage?: string
-  ): Promise<T> {
-    try {
-      return await promise;
-    } catch (error) {
-      await this.handleError(error, customMessage);
-      throw error;
-    }
-  }
 }

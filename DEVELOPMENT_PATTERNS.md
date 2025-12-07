@@ -31,6 +31,8 @@ This document outlines the established working patterns and best practices for d
 - Define form fields as constants in services
 - Implement form submission with proper error handling
 - Use UntypedFormGroup for flexible form structures
+- Implement form validation directly in form components
+- Use specialized form handling functions for validation and error processing
 
 ### Routing Pattern
 - Use AnalogJS file-based routing with `routeMeta` for guard configuration

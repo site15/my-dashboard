@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
+ 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
 import { ButtonTypeComponent } from './button-type.component';
 import { ColorSelectTypeComponent } from './color-select-type.component';
+import { FlatInputWrapperComponent } from './flat-input-wrapper.component';
 import { IconSelectTypeComponent } from './icon-select-type.component';
 import { RepeatTypeComponent } from './repeat-type.component';
 
@@ -25,6 +26,12 @@ export function mapFormlyTypes<T extends FormlyFieldConfig = FormlyFieldConfig>(
 
     if (f.type === 'color-select') {
       f.type = ColorSelectTypeComponent;
+    }
+
+    if (f.wrappers) {
+      f.wrappers = f.wrappers.map(wrapper =>
+        wrapper === 'flat-input-wrapper' ? FlatInputWrapperComponent : wrapper
+      );
     }
 
     if (Array.isArray(f.fieldGroup)) {

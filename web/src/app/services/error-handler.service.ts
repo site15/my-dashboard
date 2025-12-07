@@ -2,8 +2,12 @@
 import { injectRequest } from '@analogjs/router/tokens';
 import { inject, Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { from, of, throwError } from 'rxjs';
 
+import {
+  ClientErrorType,
+  ClientValidationErrorType,
+} from '../../server/types/client-error-type';
 import { isSSR } from '../../server/utils/is-ssr';
 
 /**
@@ -17,6 +21,26 @@ export class ErrorHandlerService {
   private request = injectRequest();
   private toastrService = inject(ToastrService);
 
+  catchAndProcessServerError(
+    err: any,
+    setFormlyFields: (options?: {
+      clientError?: ClientValidationErrorType;
+    }) => void
+  ) {
+    const clientError = err.data.error.clientError as ClientErrorType;
+
+    if (clientError.event === 'validation_error') {
+      setFormlyFields({ clientError });
+      return of(null);
+    }
+
+    if (clientError.event === 'error') {
+      return from(this.handleError(clientError));
+    }
+
+    return throwError(() => err);
+  }
+
   /**
    * Handle error and show notification
    */
@@ -27,8 +51,10 @@ export class ErrorHandlerService {
     if (error && typeof error === 'object') {
       if (error.message) {
         message = error.message;
-      } else if (error.error && error.error.message) {
-        message = error.error.message;
+      } else {
+        if (error.error && error.error.message) {
+          message = error.error.message;
+        }
       }
     }
     try {
@@ -44,42 +70,6 @@ export class ErrorHandlerService {
     } catch (err) {
       console.error(err);
       console.error({ message });
-    }
-  }
-
-  /**
-   * Wrap an observable with error handling
-   */
-  withErrorHandling<T>(
-    observable: Observable<T>,
-    customMessage?: string
-  ): Observable<T> {
-    return new Observable<T>(subscriber => {
-      const subscription = observable.subscribe({
-        next: value => subscriber.next(value),
-        error: async error => {
-          await this.handleError(error, customMessage);
-          subscriber.error(error);
-        },
-        complete: () => subscriber.complete(),
-      });
-
-      return () => subscription.unsubscribe();
-    });
-  }
-
-  /**
-   * Wrap a promise with error handling
-   */
-  async withErrorHandlingAsync<T>(
-    promise: Promise<T>,
-    customMessage?: string
-  ): Promise<T> {
-    try {
-      return await promise;
-    } catch (error) {
-      await this.handleError(error, customMessage);
-      throw error;
     }
   }
 }

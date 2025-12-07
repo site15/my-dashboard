@@ -7,6 +7,7 @@ import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
 import {
+  BehaviorSubject,
   catchError,
   first,
   forkJoin,
@@ -17,14 +18,18 @@ import {
   tap,
 } from 'rxjs';
 
+import { ClientValidationErrorType } from '../../../../server/types/client-error-type';
 import { UpdateDashboardType } from '../../../../server/types/DashboardSchema';
 import { WIDGETS_RENDERERS } from '../../../../server/widgets/widgets';
+import { mapFormlyTypes } from '../../../formly/get-formly-type';
 import { ShowNavGuard } from '../../../guards/nav.guard';
 import {
   DASHBOARD_FORMLY_FIELDS,
   DashboardsService,
 } from '../../../services/dashboards.service';
+import { ErrorHandlerService } from '../../../services/error-handler.service';
 import { WidgetsService } from '../../../services/widgets.service';
+import { appendServerErrorsAsValidatorsToFields } from '../../../utils/form-utils';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],
@@ -65,43 +70,47 @@ export const routeMeta: RouteMeta = {
         <div
           class="flex flex-col lg:flex-row lg:items-center justify-between gap-4"
         >
-          <form [formGroup]="form" (ngSubmit)="onSubmit(model)">
-            <formly-form
-              [form]="form"
-              [fields]="fields"
-              [model]="model"
-            ></formly-form>
-            <div class="flex gap-4">
-              <a
-                href="/dashboards/{{ dashboardAndWidgets.dashboard.id }}/delete"
-                class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
+          @if (formFields$ | async; as formlyFields) {
+            <form [formGroup]="form" (ngSubmit)="onSubmit(formModel)">
+              <formly-form
+                [form]="form"
+                [fields]="formlyFields || []"
+                [model]="formModel"
+              ></formly-form>
+              <div class="flex gap-4">
+                <a
+                  href="/dashboards/{{
+                    dashboardAndWidgets.dashboard.id
+                  }}/delete"
+                  class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
                   bg-gradient-to-tr from-[#FF988A] to-[#FFD5A2] text-gray-800 cursor-pointer"
-              >
-                <i-lucide name="trash-2" class="w-5 h-5 mr-2"></i-lucide>
-                Delete Dashboard
-              </a>
+                >
+                  <i-lucide name="trash-2" class="w-5 h-5 mr-2"></i-lucide>
+                  Delete Dashboard
+                </a>
 
-              <a
-                href="/dashboards/{{
-                  dashboardAndWidgets.dashboard.id
-                }}/link-device"
-                class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
+                <a
+                  href="/dashboards/{{
+                    dashboardAndWidgets.dashboard.id
+                  }}/link-device"
+                  class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
                   bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide cursor-pointer"
-              >
-                <i-lucide name="smartphone" class="w-5 h-5 mr-2"></i-lucide>
-                Link Device
-              </a>
+                >
+                  <i-lucide name="smartphone" class="w-5 h-5 mr-2"></i-lucide>
+                  Link Device
+                </a>
 
-              <button
-                type="submit"
-                class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
+                <button
+                  type="submit"
+                  class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
                   bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide flex items-center justify-center cursor-pointer"
-              >
-                <i-lucide name="save" class="w-5 h-5 mr-2"></i-lucide>
-                Save Changes
-              </button>
-            </div>
-          </form>
+                >
+                  <i-lucide name="save" class="w-5 h-5 mr-2"></i-lucide>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          }
         </div>
       </div>
 
@@ -119,7 +128,7 @@ export const routeMeta: RouteMeta = {
             href="/dashboards/{{ dashboardAndWidgets.dashboard.id }}/widgets/{{
               widget.id
             }}"
-            class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.01] cursor-pointer"
+            class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.02] cursor-pointer"
           >
             <div class="flex justify-between items-start mb-4">
               <i-lucide
@@ -225,25 +234,38 @@ export const routeMeta: RouteMeta = {
   `,
 })
 export default class DashboardsEditPageComponent {
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly dashboardsService = inject(DashboardsService);
   private readonly widgetsService = inject(WidgetsService);
   private readonly router = inject(Router);
-
   private readonly route = inject(ActivatedRoute);
+
+  form = new UntypedFormGroup({});
+  formModel: UpdateDashboardType = {
+    id: '',
+    name: '',
+    isBlackTheme: false,
+    isActive: true,
+  };
+  formFields$ = new BehaviorSubject<FormlyFieldConfig[] | null>(null);
+  widgetTypes = Object.keys(WIDGETS_RENDERERS);
 
   readonly dashboardAndWidgets$ = this.route.paramMap.pipe(
     map(params => params.get('dashboardId')),
     switchMap(dashboardId =>
       dashboardId
         ? forkJoin({
-            dashboard: this.dashboardsService
-              .read(dashboardId)
-              .pipe(
-                tap(
-                  dashboard =>
-                    (this.model = { ...dashboard } as UpdateDashboardType)
-                )
-              ),
+            dashboard: this.dashboardsService.read(dashboardId).pipe(
+              tap(dashboard => {
+                this.formModel = {
+                  id: dashboard.id,
+                  isActive: !!dashboard.isActive,
+                  isBlackTheme: !!dashboard.isBlackTheme,
+                  name: dashboard.name,
+                };
+                this.setFormFields();
+              })
+            ),
             widgets: this.widgetsService.list(dashboardId),
           })
         : of(null)
@@ -251,24 +273,29 @@ export default class DashboardsEditPageComponent {
     shareReplay(1)
   );
 
-  form = new UntypedFormGroup({});
-  model: UpdateDashboardType = {
-    id: '',
-    name: '',
-    isBlackTheme: false,
-    isActive: true,
-  };
-  fields: FormlyFieldConfig[] = DASHBOARD_FORMLY_FIELDS;
-  widgetTypes = Object.keys(WIDGETS_RENDERERS);
+  private getFormFields(options?: {
+    clientError?: ClientValidationErrorType;
+  }): FormlyFieldConfig[] {
+    const fieldsWithErrors = appendServerErrorsAsValidatorsToFields({
+      clientError: options?.clientError,
+      formFields: DASHBOARD_FORMLY_FIELDS,
+    });
+    return mapFormlyTypes(fieldsWithErrors);
+  }
+
+  private setFormFields(options?: { clientError?: ClientValidationErrorType }) {
+    this.formFields$.next(this.getFormFields(options));
+  }
 
   onSubmit(model: UpdateDashboardType) {
     this.dashboardsService
       .update(model)
       .pipe(
-        catchError(err => {
-          console.log({...err});
-          return of(null);
-        }),
+        catchError(err =>
+          this.errorHandlerService.catchAndProcessServerError(err, options =>
+            this.setFormFields(options)
+          )
+        ),
         first(),
         tap(dashboard => dashboard && this.router.navigate(['/dashboards']))
       )

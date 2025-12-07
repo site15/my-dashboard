@@ -11,6 +11,7 @@ export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'name',
     type: 'input',
+    wrappers: ['flat-input-wrapper'],
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Name',

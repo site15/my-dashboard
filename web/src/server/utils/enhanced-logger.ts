@@ -170,11 +170,11 @@ export function ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod({
   payload: any;
   meta?: any;
   callback?: ({
-    serverErrors,
-    clientErrors,
+    serverError,
+    clientError,
   }: {
-    serverErrors: ZodErrorType;
-    clientErrors: ClientValidationErrorType;
+    serverError: ZodErrorType;
+    clientError: ClientValidationErrorType;
   }) => void;
 }) {
   const maybeCause = payload?.cause ?? payload?.error?.cause ?? payload;
@@ -195,13 +195,13 @@ export function ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod({
       received: (i as any).received,
       options: (i as any).options,
     }));
-    const serverErrors: ZodErrorType = {
+    const serverError: ZodErrorType = {
       event: 'zod_error',
       issues,
       message: zErr.message,
       context: meta ?? null,
     };
-    const clientErrors: ClientValidationErrorType = {
+    const clientError: ClientValidationErrorType = {
       event: 'validation_error',
       fields: issues.map(i => ({
         path: i.path,
@@ -210,9 +210,9 @@ export function ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod({
       })),
     };
     if (callback) {
-      callback({ serverErrors, clientErrors });
+      callback({ serverError, clientError });
     }
-    return { serverErrors, clientErrors };
+    return { serverError, clientError };
   }
 }
 
@@ -286,11 +286,11 @@ export function catchPrismaErrors(
   payload: any,
   meta?: any,
   callback?: ({
-    serverErrors,
-    clientErrors,
+    serverError,
+    clientError,
   }: {
-    serverErrors: PrismaErrorType;
-    clientErrors: ClientValidationErrorType | ClientStandardErrorType;
+    serverError: PrismaErrorType;
+    clientError: ClientValidationErrorType | ClientStandardErrorType;
   }) => void
 ) {
   if (
@@ -299,7 +299,7 @@ export function catchPrismaErrors(
     'name' in payload &&
     payload['name'].startsWith('Prisma')
   ) {
-    const serverErrors: PrismaErrorType = {
+    const serverError: PrismaErrorType = {
       event: 'prisma_error',
       name: payload.name,
       code: payload.code,
@@ -307,53 +307,54 @@ export function catchPrismaErrors(
       meta: meta ?? null,
     };
     try {
-      serverErrors.cause =
+      serverError.cause =
         (payload as any).meta.driverAdapterError.cause ||
         (payload as any).meta.driverAdapterError.message;
 
-      if (serverErrors.cause?.originalCode) {
-        serverErrors.code = serverErrors.cause.originalCode;
+      if (serverError.cause?.originalCode) {
+        serverError.code = serverError.cause.originalCode;
       }
-      if (serverErrors.cause?.originalMessage) {
-        serverErrors.message = serverErrors.cause.originalMessage;
+      if (serverError.cause?.originalMessage) {
+        serverError.message = serverError.cause.originalMessage;
       }
     } catch (err) {
       //
     }
 
-    const clientErrors: ClientValidationErrorType | ClientStandardErrorType =
-      serverErrors.cause?.constraint
+    const clientError: ClientValidationErrorType | ClientStandardErrorType =
+      serverError.cause?.constraint
         ? {
             event: 'validation_error',
-            fields: serverErrors.cause
-              ? serverErrors.cause.constraint.fields
+            fields: serverError.cause
+              ? serverError.cause.constraint.fields
                   .map(f => f.split('"').join(''))
                   .map(f => ({
-                    code: serverErrors.code,
+                    code: serverError.code,
                     path: f,
                     message: [
-                      serverErrors.message?.toLowerCase().includes('unique')
-                        ? 'Unique'
-                        : serverErrors.message,
+                      serverError.message?.toLowerCase().includes('unique')
+                        ? 'Unique constraint violation'
+                        : serverError.message,
                     ],
                   }))
               : [],
           }
         : {
             event: 'error',
-            code: serverErrors.code,
-            message: serverErrors.message,
+            code: serverError.code,
+            message: serverError.message,
           };
+
     if (callback) {
       callback({
-        serverErrors,
-        clientErrors,
+        serverError,
+        clientError,
       });
     }
 
     return {
-      serverErrors,
-      clientErrors,
+      serverError,
+      clientError,
     };
   }
 }
@@ -400,8 +401,8 @@ export function createRequestLogger(opts: {
 
     // catchPrismaErrors
     if (
-      catchPrismaErrors(payload, meta, ({ serverErrors }) => {
-        const masked = maskSensitiveData(serverErrors, maskRegexList);
+      catchPrismaErrors(payload, meta, ({ serverError }) => {
+        const masked = maskSensitiveData(serverError, maskRegexList);
         child.error(masked);
       })
     ) {
@@ -414,8 +415,8 @@ export function createRequestLogger(opts: {
       ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod({
         payload,
         meta,
-        callback: ({ serverErrors }) => {
-          const masked = maskSensitiveData(serverErrors, maskRegexList);
+        callback: ({ serverError }) => {
+          const masked = maskSensitiveData(serverError, maskRegexList);
           child.error(masked);
         },
       })
@@ -440,8 +441,8 @@ export function createRequestLogger(opts: {
 
     // normalStructuredOrStringPayloads
     // Normal structured or string payloads
-    normalStructuredOrStringPayloads(payload, meta, ({ serverErrors }) => {
-      const masked = maskSensitiveData(serverErrors, maskRegexList);
+    normalStructuredOrStringPayloads(payload, meta, ({ serverError }) => {
+      const masked = maskSensitiveData(serverError, maskRegexList);
       (child as any)[level](masked);
     });
   };
