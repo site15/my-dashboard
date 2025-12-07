@@ -13,11 +13,6 @@ interface ColorOption {
   selector: 'formly-color-select-type',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <label [attr.for]="id" class="form-label" *ngIf="props.label">
-      {{ props.label }}
-      <span *ngIf="props.required">*</span>
-    </label>
-
     <!-- Custom select with color circles -->
     <div
       class="custom-select flat-input"

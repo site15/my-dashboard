@@ -73,6 +73,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'name',
     type: 'input',
+    wrappers: ['flat-input-wrapper'],
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Widget name',
@@ -97,6 +98,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
         {
           key: 'name',
           type: 'input',
+          wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Name',
@@ -111,6 +113,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
         {
           key: 'icon',
           type: 'icon-select',
+          wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Icon',
@@ -146,6 +149,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
         {
           key: 'color',
           type: 'color-select',
+          wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Color',
@@ -168,6 +172,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
         {
           key: 'minValue',
           type: 'input',
+          wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Min Value',
@@ -182,6 +187,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
         {
           key: 'maxValue',
           type: 'input',
+          wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Max Value',

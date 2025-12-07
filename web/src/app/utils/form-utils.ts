@@ -12,6 +12,8 @@ export function appendServerErrorsAsValidatorsToFields({
     FormlyFieldProps & { [additionalProperties: string]: any }
   >[];
 }) {
+  // todo: нужно добавить обработку  вложенных обьектов и массивов
+  console.log(clientError, formFields);
   formFields.forEach((f: FormlyFieldConfig) => {
     const error = clientError?.fields?.find(e => e.path === f.key);
     if (error) {

@@ -61,6 +61,7 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'name',
     type: 'input',
+    wrappers: ['flat-input-wrapper'],
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Widget name',
@@ -71,10 +72,10 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
         class: 'flat-input',
       },
     },
-  },
-  {
+  },  {
     key: 'hourFormat',
     type: 'select',
+    wrappers: ['flat-input-wrapper'],
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Hour format',
@@ -103,6 +104,7 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
         {
           key: 'label',
           type: 'input',
+          wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Clock name',
@@ -113,10 +115,10 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
               class: 'flat-input',
             },
           },
-        },
-        {
+        },        {
           key: 'timezone',
           type: 'select',
+          wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Timezone',

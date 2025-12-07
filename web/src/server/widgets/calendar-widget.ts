@@ -58,6 +58,7 @@ export const CALENDAR_FORMLY_FIELDS: FormlyFieldConfig[] = [
   {
     key: 'firstDayOfWeek',
     type: 'select',
+    wrappers: ['flat-input-wrapper'],
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'First day of week',
@@ -73,9 +74,7 @@ export const CALENDAR_FORMLY_FIELDS: FormlyFieldConfig[] = [
       },
     },
   },
-];
-
-// Helper function to get monthly progress
+];// Helper function to get monthly progress
 function getMonthlyProgress() {
   const today = new Date();
   const currentDay = today.getDate();
