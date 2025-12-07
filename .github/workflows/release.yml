@@ -41,7 +41,7 @@ jobs:
       - name: Detect changed projects
         id: detect
         run: |
-          PROJECTS=$(find . -maxdepth 1 -type d ! -path . ! -path "./.github*" ! -path "./.vscode*" ! -path "./scripts*" ! -path "./demo*" | while read d; do
+          PROJECTS=$(find . -maxdepth 1 -type d ! -path "." ! -path "./.github*" ! -path "./.vscode*" ! -path "./scripts*" ! -path "./demo*" | while read d; do
             if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
           done)
 
@@ -203,7 +203,7 @@ jobs:
 
           TAGS="${{ steps.bump_versions.outputs.tags }}"
           if [ -z "$TAGS" ] && [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
-            TAGS=$(find . -maxdepth 1 -type d ! -path . ! -path "./.github*" ! -path "./.vscode*" ! -path "./scripts*" ! -path "./demo*" -exec bash -c 'cd {} && if [ -f package.json ]; then NAME=$(jq -r .name package.json); VER=$(jq -r .version package.json); echo "$(basename "$PWD")@$VER"; fi' \;)
+            TAGS=$(find . -maxdepth 1 -type d ! -path "." ! -path "./.github*" ! -path "./.vscode*" ! -path "./scripts*" ! -path "./demo*" -exec bash -c 'cd "{}" && if [ -f package.json ]; then NAME=$(jq -r .name package.json); VER=$(jq -r .version package.json); echo "$(basename "$PWD")@$VER"; fi' \;)
           fi
 
           for TAG in $TAGS; do
