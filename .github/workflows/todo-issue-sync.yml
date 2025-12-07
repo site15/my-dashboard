@@ -1,0 +1,36 @@
+name: Sync TODO Comments to GitHub Issues
+
+on:
+  push:
+    branches:
+      - '**'  # Run on all branches
+  workflow_dispatch:
+
+jobs:
+  sync-todos:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to detect changes
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: |
+          cd .github && npm install          
+      - name: Sync TODOs to Issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          node .github/scripts/sync-todos.js
