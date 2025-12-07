@@ -4,9 +4,9 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
-import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
+import { FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { BehaviorSubject, catchError, EMPTY, first, tap } from 'rxjs';
+import { catchError, EMPTY, first, tap } from 'rxjs';
 
 import { CreateDashboardType } from '../../../server/types/DashboardSchema';
 import { mapFormlyTypes } from '../../formly/get-formly-type';
@@ -15,6 +15,7 @@ import {
   DASHBOARD_FORMLY_FIELDS,
   DashboardsService,
 } from '../../services/dashboards.service';
+import { FormHandlerService } from '../../services/form-handler.service';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],
@@ -71,6 +72,7 @@ export const routeMeta: RouteMeta = {
 export default class DashboardsNewPageComponent {
   private readonly router = inject(Router);
   private readonly dashboardsService = inject(DashboardsService);
+  private readonly formHandlerService = inject(FormHandlerService);
 
   form = new UntypedFormGroup({});
   formModel: CreateDashboardType = {
@@ -78,7 +80,15 @@ export default class DashboardsNewPageComponent {
     isBlackTheme: false,
     isActive: true,
   };
-  formFields$ = new BehaviorSubject<FormlyFieldConfig[]>(mapFormlyTypes(DASHBOARD_FORMLY_FIELDS));
+  formFields$ = this.formHandlerService.createFormFieldsSubject();
+
+  constructor() {
+    // Initialize form fields
+    this.formHandlerService.updateFormFields(this.formFields$, {
+      baseFields: DASHBOARD_FORMLY_FIELDS,
+      mapFields: mapFormlyTypes
+    });
+  }
 
   onSubmit(model: CreateDashboardType) {
     this.dashboardsService

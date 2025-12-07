@@ -4,9 +4,9 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
-import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
+import { FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { BehaviorSubject, first, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { first, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import { ClientValidationErrorType } from '../../../../../../../server/types/client-error-type';
 import {
@@ -17,8 +17,8 @@ import { mapFormlyTypes } from '../../../../../../formly/get-formly-type';
 import { ShowNavGuard } from '../../../../../../guards/nav.guard';
 import { DashboardsService } from '../../../../../../services/dashboards.service';
 import { ErrorHandlerService } from '../../../../../../services/error-handler.service';
+import { FormHandlerService } from '../../../../../../services/form-handler.service';
 import { WidgetsService } from '../../../../../../services/widgets.service';
-import { appendServerErrorsAsValidatorsToFields } from '../../../../../../utils/form-utils';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],
@@ -97,10 +97,11 @@ export default class DashboardsWidgetsAddByTypePageComponent {
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly formHandlerService = inject(FormHandlerService);
 
   form = new UntypedFormGroup({});
   formModel: any = {};
-  formFields$ = new BehaviorSubject<FormlyFieldConfig[] | null>(null);
+  formFields$ = this.formHandlerService.createFormFieldsSubject();
   widgetType: string = '';
 
   readonly data$ = this.route.paramMap.pipe(
@@ -126,19 +127,12 @@ export default class DashboardsWidgetsAddByTypePageComponent {
     shareReplay(1)
   );
 
-  private getFormFields(options?: {
-    clientError?: ClientValidationErrorType;
-  }): FormlyFieldConfig[] {
-    const baseFields = WIDGETS_FORMLY_FIELDS[this.widgetType] || [];
-    const fieldsWithErrors = appendServerErrorsAsValidatorsToFields({
-      clientError: options?.clientError,
-      formFields: baseFields,
-    });
-    return mapFormlyTypes(fieldsWithErrors);
-  }
-
   private setFormFields(options?: { clientError?: ClientValidationErrorType }) {
-    this.formFields$.next(this.getFormFields(options));
+    this.formHandlerService.updateFormFields(this.formFields$, {
+      baseFields: WIDGETS_FORMLY_FIELDS[this.widgetType] || [],
+      clientError: options?.clientError,
+      mapFields: mapFormlyTypes
+    });
   }
 
   onSubmit(data: { type: string; dashboardId: string }) {

@@ -4,17 +4,17 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
-import { FormlyFieldConfig, FormlyForm } from '@ngx-formly/core';
+import { FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { BehaviorSubject, first, map, shareReplay, tap } from 'rxjs';
+import { first, map, shareReplay, tap } from 'rxjs';
 
 import { ClientValidationErrorType } from '../../../../../../server/types/client-error-type';
 import { WidgetsType } from '../../../../../../server/widgets/widgets';
 import { NoSanitizePipe } from '../../../../../directives/no-sanitize.directive';
 import { ShowNavGuard } from '../../../../../guards/nav.guard';
 import { ErrorHandlerService } from '../../../../../services/error-handler.service';
+import { FormHandlerService } from '../../../../../services/form-handler.service';
 import { WidgetsService } from '../../../../../services/widgets.service';
-import { appendServerErrorsAsValidatorsToFields } from '../../../../../utils/form-utils';
 import {
   mapToRenderDataByDashboardIdAndWidgetId,
   mapToRenderHtml,
@@ -113,10 +113,11 @@ export default class DashboardsWidgetsEditPageComponent {
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly formHandlerService = inject(FormHandlerService);
 
   form = new UntypedFormGroup({});
   formModel: any = {};
-  formFields$ = new BehaviorSubject<FormlyFieldConfig[] | null>(null);
+  formFields$ = this.formHandlerService.createFormFieldsSubject();
 
   readonly data$ = this.route.paramMap.pipe(
     map(params => ({
@@ -135,30 +136,14 @@ export default class DashboardsWidgetsEditPageComponent {
 
   html$ = this.data$.pipe(mapToRenderHtml(true));
 
-  private getFormFields(options?: {
-    clientError?: ClientValidationErrorType;
-  }): FormlyFieldConfig[] {
-    // We need to get the current data to access the fields
-    const baseFields: FormlyFieldConfig[] = [];
-    // Since we can't access data directly here, we'll return empty array
-    // The actual fields will be set in setFormFields
-    const fieldsWithErrors = appendServerErrorsAsValidatorsToFields({
-      clientError: options?.clientError,
-      formFields: baseFields,
-    });
-    return fieldsWithErrors;
-  }
-
   private setFormFields(options?: { clientError?: ClientValidationErrorType }) {
     // We need to get the current data to access the fields
     this.data$.pipe(first()).subscribe(data => {
       if (data) {
-        const baseFields = data.fields || [];
-        const fieldsWithErrors = appendServerErrorsAsValidatorsToFields({
-          clientError: options?.clientError,
-          formFields: baseFields,
+        this.formHandlerService.updateFormFields(this.formFields$, {
+          baseFields: data.fields || [],
+          clientError: options?.clientError
         });
-        this.formFields$.next(fieldsWithErrors);
       }
     });
   }

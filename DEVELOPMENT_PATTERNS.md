@@ -31,8 +31,9 @@ This document outlines the established working patterns and best practices for d
 - Define form fields as constants in services
 - Implement form submission with proper error handling
 - Use UntypedFormGroup for flexible form structures
-- Implement form validation directly in form components
-- Use specialized form handling functions for validation and error processing
+- Implement form validation through FormHandlerService for consistency
+- Use service-based composition for reusable form functionality
+- Reference FORM_HANDLER_SERVICE_GUIDE.md for implementation details
 
 ### Routing Pattern
 - Use AnalogJS file-based routing with `routeMeta` for guard configuration
@@ -181,5 +182,6 @@ This document outlines the established working patterns and best practices for d
 - Use JSDoc comments for complex functions
 - Maintain updated README files for each module
 - Include example usage in documentation
+- Reference architectural guides like FORM_HANDLER_SERVICE_GUIDE.md
 
 This document should be updated as new patterns emerge during development. All team members should follow these patterns to ensure consistency across the codebase.
