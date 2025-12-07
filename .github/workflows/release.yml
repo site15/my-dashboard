@@ -12,7 +12,7 @@ jobs:
       contents: write
       packages: write
     env:
-      MY_DASHBOARD_DATABASE_POSTGRES_URL: postgres://postgres:pgtoolspassword@localhost:5432/postgres?schema=public
+      MY_DASHBOARD_DATABASE_POSTGRES_URL: "postgres://postgres:pgtoolspassword@localhost:5432/postgres?schema=public"
 
     steps:
       - name: Checkout repository
@@ -41,22 +41,46 @@ jobs:
       - name: Detect changed projects
         id: detect
         run: |
+          echo "Starting project detection..."
+
           PROJECTS=$(find . -maxdepth 1 -type d ! -path "." ! -path "./.github*" ! -path "./.vscode*" ! -path "./scripts*" ! -path "./demo*" | while read d; do
             if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
           done)
 
+          echo "Found projects: '$PROJECTS'"
+
+          # Handle case where no projects are found
+          if [ -z "$PROJECTS" ]; then
+            echo "No projects found with package.json files"
+            PROJECTS=""
+          fi
+
           if [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
             CHANGED_PROJECTS="$PROJECTS"
+            echo "Force run enabled, using all projects"
           else
+            echo "Checking for changed files..."
             CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq | grep -v -E '^(.github|.vscode|scripts|demo)$')
-            CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
+            echo "Changed directories: '$CHANGED'"
+            
+            if [ -n "$CHANGED" ] && [ -n "$PROJECTS" ]; then
+              echo "Filtering projects based on changes..."
+              CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
+            else
+              echo "No changes or no projects found, setting empty"
+              CHANGED_PROJECTS=""
+            fi
           fi
 
           echo "Changed projects: $CHANGED_PROJECTS"
 
-          CHANGED_PROJECTS_CLEAN=$(echo "$CHANGED_PROJECTS" | tr '\n' ' ' | sed 's/ $//')
-          ENCODED=$(echo -n "$CHANGED_PROJECTS_CLEAN" | base64)
+          CHANGED_PROJECTS_CLEAN=$(echo "$CHANGED_PROJECTS" | tr '\n' ' ' | sed 's/ $//' | sed 's/^[[:space:]]*//')
+          echo "Changed projects clean: '$CHANGED_PROJECTS_CLEAN'"
+
+          # Use printf instead of echo -n for better compatibility
+          ENCODED=$(printf "%s" "$CHANGED_PROJECTS_CLEAN" | base64 | tr -d '\n')
           echo "changed_projects_base64=$ENCODED" >> $GITHUB_OUTPUT
+          echo "Encoded value: $ENCODED"
 
       # 🧩 Определяем тип bump'а
       - name: Determine bump type
