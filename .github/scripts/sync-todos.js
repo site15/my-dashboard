@@ -27,7 +27,9 @@ function getTodos() {
         file.endsWith('.tsx') || 
         file.endsWith('.jsx') ||
         file.endsWith('.md')
-      );
+      )
+      // Exclude .github directory files
+      .filter(file => !file.startsWith('.github/'));
     
     const todos = [];
     
@@ -182,7 +184,7 @@ async function syncTodos() {
   try {
     // Get current TODOs
     const currentTodos = getTodos();
-    console.log(`Found ${currentTodos.length} TODOs in the codebase`);
+    console.log(`Found ${currentTodos.length} TODOs in the codebase (excluding .github directory)`);
     
     // Get existing auto-created issues
     const existingIssues = await getAutoCreatedIssues();
@@ -195,8 +197,10 @@ async function syncTodos() {
       todoMap.set(key, todo);
     }
     
-    // Create a map of issues for easy lookup
+    // Create a map of issues for easy lookup and identify issues to close
     const issueMap = new Map();
+    const issuesToClose = [];
+    
     for (const issue of existingIssues) {
       // Extract file, line, type, and description from issue title and body
       const titleMatch = issue.title.match(/\[AUTO-(TODO|FIXME)\]\s*(.*)/);
@@ -211,8 +215,19 @@ async function syncTodos() {
           const line = bodyMatch[2];
           const key = `${file}:${line}:${type}:${description}`;
           issueMap.set(key, issue);
+          
+          // Check if this issue is for a file in .github directory and mark for closing
+          if (file.startsWith('.github/')) {
+            issuesToClose.push(issue);
+          }
         }
       }
+    }
+    
+    // Close issues for files in .github directory
+    for (const issue of issuesToClose) {
+      console.log(`Closing issue #${issue.number} as it's related to .github directory`);
+      await closeIssue(issue.number);
     }
     
     // Create issues for new TODOs
@@ -223,9 +238,9 @@ async function syncTodos() {
       }
     }
     
-    // Close issues for removed TODOs
+    // Close issues for removed TODOs (excluding .github related issues which were already handled)
     for (const [key, issue] of issueMap.entries()) {
-      if (!todoMap.has(key)) {
+      if (!todoMap.has(key) && !issueMap.get(key)?.file?.startsWith('.github/')) {
         console.log(`Closing issue #${issue.number} as TODO was removed`);
         await closeIssue(issue.number);
       }

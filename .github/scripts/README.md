@@ -9,6 +9,11 @@ This script automatically synchronizes TODO comments in the codebase with GitHub
 3. When a TODO comment is removed from the code, the corresponding GitHub issue is automatically closed
 4. FIXME comments are also processed with the prefix `[AUTO-FIXME]`
 
+## Exclusions
+
+- Files in the `.github` directory are excluded from TODO scanning to prevent workflow-related comments from creating issues
+- Any existing auto-created issues related to `.github` files will be automatically closed
+
 ## TODO Comment Format
 
 The script recognizes TODO comments in the following formats:
@@ -31,6 +36,7 @@ The script recognizes TODO comments in the following formats:
 - **Non-Intrusive**: Only affects issues created by this automation
 - **Case Insensitive**: Recognizes both uppercase and lowercase TODO/FIXME comments
 - **Multiline Support**: Handles both single-line and multiline comment formats
+- **Directory Exclusion**: Excludes `.github` directory from scanning
 
 ## Labels
 
