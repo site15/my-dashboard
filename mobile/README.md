@@ -83,3 +83,9 @@ Then copy the contents of keystore.txt to the `KEYSTORE` secret in your GitHub r
 - Generate your app icon and splash screens using `cordova-res --skip-config --copy`
 - Explore the Ionic docs for components, tutorials, and more: https://ion.link/docs
 - Building an enterprise app? Ionic has Enterprise Support and Features: https://ion.link/enterprise-edition
+
+## Development Patterns
+
+For detailed information about development patterns and best practices used in this project, see [Development Patterns](../DEVELOPMENT_PATTERNS.md).
+
+This document outlines the established working patterns for mobile development with Ionic and Capacitor.

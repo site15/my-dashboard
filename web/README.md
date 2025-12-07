@@ -236,3 +236,15 @@ This project uses Prettier for code formatting and ESLint for linting TypeScript
 - [.prettierrc](.prettierrc) - Prettier configuration
 - [.eslintrc.json](.eslintrc.json) - ESLint configuration
 - [.prettierignore](.prettierignore) - Files and directories ignored by Prettier
+
+## Development Patterns
+
+For detailed information about development patterns and best practices used in this project, see [Development Patterns](../DEVELOPMENT_PATTERNS.md).
+
+This document outlines the established working patterns for:
+- Frontend Development (AnalogJS/Angular)
+- Backend Development (tRPC/Prisma)
+- Mobile Development (Ionic/Capacitor)
+- Data Flow and State Management
+- Error Handling and User Experience
+- Testing and Quality Assurance

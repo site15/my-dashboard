@@ -85,6 +85,7 @@ docker-compose down -v
 - [Project Tasks Tracking](./PROJECT_TASKS.md)
 - [AI Project Context](./AI_PROJECT_CONTEXT.md) ([Russian version](./AI_PROJECT_CONTEXT_RU.md))
 - [Technical Documentation](./web/TECHNICAL_DOCUMENTATION.md)
+- [Development Patterns](./DEVELOPMENT_PATTERNS.md)
 - [Mobile App Documentation](./mobile/README.md) ([Russian version](./mobile/README_RU.md))
 - [Web App Documentation](./web/README.md) ([Russian version](./web/README_RU.md))
 
