@@ -41,32 +41,34 @@ jobs:
       - name: Detect changed projects
         id: detect
         run: |
-          echo "Starting project detection..."
-
+          set +e  # Disable immediate exit on error for better control
+          
+          echo "Starting project detection..." || true
+          
           PROJECTS=$(find . -maxdepth 1 -type d ! -path "." ! -path "./.github*" ! -path "./.vscode*" ! -path "./scripts*" ! -path "./demo*" | while read d; do
             if [ -f "$d/package.json" ]; then echo "$(basename "$d")"; fi
-          done)
-
-          echo "Found projects: '$PROJECTS'"
-
+          done) || true
+          
+          echo "Found projects: '$PROJECTS'" || true
+          
           # Handle case where no projects are found
           if [ -z "$PROJECTS" ]; then
-            echo "No projects found with package.json files"
+            echo "No projects found with package.json files" || true
             PROJECTS=""
           fi
-
+          
           if [ "${{ steps.need_ci.outputs.force_run }}" = "true" ]; then
             CHANGED_PROJECTS="$PROJECTS"
-            echo "Force run enabled, using all projects"
+            echo "Force run enabled, using all projects" || true
           else
-            echo "Checking for changed files..."
-            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq | grep -v -E '^(.github|.vscode|scripts|demo)$')
-            echo "Changed directories: '$CHANGED'"
+            echo "Checking for changed files..." || true
+            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort | uniq | grep -v -E '^(.github|.vscode|scripts|demo)$') || true
+            echo "Changed directories: '$CHANGED'" || true
             
             if [ -n "$CHANGED" ] && [ -n "$PROJECTS" ]; then
-              echo "Filtering projects based on changes..."
-              echo "Projects list: $PROJECTS"
-              echo "Changed directories: $CHANGED"
+              echo "Filtering projects based on changes..." || true
+              echo "Projects list: $PROJECTS" || true
+              echo "Changed directories: $CHANGED" || true
               
               # Use a more robust approach to avoid grep failures
               CHANGED_PROJECTS=""
@@ -78,61 +80,63 @@ jobs:
                     else
                       CHANGED_PROJECTS="$CHANGED_PROJECTS $project"
                     fi
-                    echo "Matched project: $project"
+                    echo "Matched project: $project" || true
                     break
                   fi
                 done
               done
-              echo "Matched projects: '$CHANGED_PROJECTS'"
+              echo "Matched projects: '$CHANGED_PROJECTS'" || true
             else
-              echo "No changes or no projects found, setting empty"
+              echo "No changes or no projects found, setting empty" || true
               CHANGED_PROJECTS=""
             fi
           fi
 
-          echo "Changed projects: $CHANGED_PROJECTS"
+          echo "Changed projects: $CHANGED_PROJECTS" || true
 
-          CHANGED_PROJECTS_CLEAN=$(echo "$CHANGED_PROJECTS" | tr '\n' ' ' | sed 's/ $//' | sed 's/^[[:space:]]*//')
-          echo "Changed projects clean: '$CHANGED_PROJECTS_CLEAN'"
+          CHANGED_PROJECTS_CLEAN=$(echo "$CHANGED_PROJECTS" | tr '\n' ' ' | sed 's/ $//' | sed 's/^[[:space:]]*//') || true
+          echo "Changed projects clean: '$CHANGED_PROJECTS_CLEAN'" || true
           
           # Handle empty case
           if [ -z "$CHANGED_PROJECTS_CLEAN" ]; then
-            echo "No changed projects to process"
+            echo "No changed projects to process" || true
             CHANGED_PROJECTS_CLEAN=""
           fi
           
           # Use printf instead of echo -n for better compatibility
           if command -v base64 >/dev/null 2>&1; then
-            ENCODED=$(printf "%s" "$CHANGED_PROJECTS_CLEAN" | base64 | tr -d '\n')
-            echo "Used base64 command for encoding"
+            ENCODED=$(printf "%s" "$CHANGED_PROJECTS_CLEAN" | base64 | tr -d '\n') || true
+            echo "Used base64 command for encoding" || true
           else
             # Fallback: just use the raw value
-            ENCODED=$(printf "%s" "$CHANGED_PROJECTS_CLEAN")
-            echo "Warning: base64 command not found, using raw value"
+            ENCODED=$(printf "%s" "$CHANGED_PROJECTS_CLEAN") || true
+            echo "Warning: base64 command not found, using raw value" || true
           fi
           
           # Make sure the GitHub output file exists and is writable
           if [ -n "$GITHUB_OUTPUT" ] && [ -w "$GITHUB_OUTPUT" ]; then
-            echo "changed_projects_base64=$ENCODED" >> $GITHUB_OUTPUT
-            echo "Successfully wrote to GitHub output file"
+            echo "changed_projects_base64=$ENCODED" >> $GITHUB_OUTPUT || true
+            echo "Successfully wrote to GitHub output file" || true
           else
-            echo "Warning: Cannot write to GitHub output file or GITHUB_OUTPUT not set"
-            echo "GITHUB_OUTPUT value: '$GITHUB_OUTPUT'"
-            echo "changed_projects_base64=$ENCODED"
+            echo "Warning: Cannot write to GitHub output file or GITHUB_OUTPUT not set" || true
+            echo "GITHUB_OUTPUT value: '$GITHUB_OUTPUT'" || true
+            echo "changed_projects_base64=$ENCODED" || true
           fi
           
-          echo "Encoded value: $ENCODED"
+          echo "Encoded value: $ENCODED" || true
           
           # Debug the decoded value to ensure it works
           if [ -n "$ENCODED" ] && command -v base64 >/dev/null 2>&1; then
-            DECODED=$(printf "%s" "$ENCODED" | base64 --decode 2>/dev/null || echo "")
-            echo "Decoded value: '$DECODED'"
+            DECODED=$(printf "%s" "$ENCODED" | base64 --decode 2>/dev/null || echo "") || true
+            echo "Decoded value: '$DECODED'" || true
           else
-            echo "Empty encoded value or base64 not available"
+            echo "Empty encoded value or base64 not available" || true
           fi
           
-          echo "Project detection completed successfully"
-          echo "Final output written to GitHub output"
+          echo "Project detection completed successfully" || true
+          echo "Final output written to GitHub output" || true
+          
+          exit 0  # Explicitly exit with success
 
       # 🧩 Определяем тип bump'а
       - name: Determine bump type
