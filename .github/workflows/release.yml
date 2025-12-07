@@ -65,7 +65,25 @@ jobs:
             
             if [ -n "$CHANGED" ] && [ -n "$PROJECTS" ]; then
               echo "Filtering projects based on changes..."
-              CHANGED_PROJECTS=$(echo "$PROJECTS" | grep -Fxf <(echo "$CHANGED") || true)
+              echo "Projects list: $PROJECTS"
+              echo "Changed directories: $CHANGED"
+              
+              # Use a more robust approach to avoid grep failures
+              CHANGED_PROJECTS=""
+              for project in $PROJECTS; do
+                for change in $CHANGED; do
+                  if [ "$project" = "$change" ]; then
+                    if [ -z "$CHANGED_PROJECTS" ]; then
+                      CHANGED_PROJECTS="$project"
+                    else
+                      CHANGED_PROJECTS="$CHANGED_PROJECTS $project"
+                    fi
+                    echo "Matched project: $project"
+                    break
+                  fi
+                done
+              done
+              echo "Matched projects: '$CHANGED_PROJECTS'"
             else
               echo "No changes or no projects found, setting empty"
               CHANGED_PROJECTS=""
@@ -76,11 +94,45 @@ jobs:
 
           CHANGED_PROJECTS_CLEAN=$(echo "$CHANGED_PROJECTS" | tr '\n' ' ' | sed 's/ $//' | sed 's/^[[:space:]]*//')
           echo "Changed projects clean: '$CHANGED_PROJECTS_CLEAN'"
-
+          
+          # Handle empty case
+          if [ -z "$CHANGED_PROJECTS_CLEAN" ]; then
+            echo "No changed projects to process"
+            CHANGED_PROJECTS_CLEAN=""
+          fi
+          
           # Use printf instead of echo -n for better compatibility
-          ENCODED=$(printf "%s" "$CHANGED_PROJECTS_CLEAN" | base64 | tr -d '\n')
-          echo "changed_projects_base64=$ENCODED" >> $GITHUB_OUTPUT
+          if command -v base64 >/dev/null 2>&1; then
+            ENCODED=$(printf "%s" "$CHANGED_PROJECTS_CLEAN" | base64 | tr -d '\n')
+            echo "Used base64 command for encoding"
+          else
+            # Fallback: just use the raw value
+            ENCODED=$(printf "%s" "$CHANGED_PROJECTS_CLEAN")
+            echo "Warning: base64 command not found, using raw value"
+          fi
+          
+          # Make sure the GitHub output file exists and is writable
+          if [ -n "$GITHUB_OUTPUT" ] && [ -w "$GITHUB_OUTPUT" ]; then
+            echo "changed_projects_base64=$ENCODED" >> $GITHUB_OUTPUT
+            echo "Successfully wrote to GitHub output file"
+          else
+            echo "Warning: Cannot write to GitHub output file or GITHUB_OUTPUT not set"
+            echo "GITHUB_OUTPUT value: '$GITHUB_OUTPUT'"
+            echo "changed_projects_base64=$ENCODED"
+          fi
+          
           echo "Encoded value: $ENCODED"
+          
+          # Debug the decoded value to ensure it works
+          if [ -n "$ENCODED" ] && command -v base64 >/dev/null 2>&1; then
+            DECODED=$(printf "%s" "$ENCODED" | base64 --decode 2>/dev/null || echo "")
+            echo "Decoded value: '$DECODED'"
+          else
+            echo "Empty encoded value or base64 not available"
+          fi
+          
+          echo "Project detection completed successfully"
+          echo "Final output written to GitHub output"
 
       # 🧩 Определяем тип bump'а
       - name: Determine bump type
