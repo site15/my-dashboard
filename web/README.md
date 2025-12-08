@@ -260,6 +260,18 @@ This project can be deployed to Vercel. Vercel has a native integration with Neo
 
 Vercel is configured to automatically listen for changes and redeploy the site whenever changes are pushed to the repository.
 
+### Applying Migrations in Vercel
+
+To ensure database migrations are applied when deploying to Vercel, you can embed the migration command in the build process:
+
+1. Go to your Vercel project settings: In your Vercel dashboard, select your project, then go to "Settings" > "Build & Development Settings"
+2. Modify the build command: In the "Build Command" field, add the `npx prisma migrate deploy` command before your main build command:
+   ```
+   npx prisma migrate deploy && npm run build
+   ```
+
+This ensures that the database is migrated before the new version of your application is deployed.
+
 ## Development
 
 Run `npm start` for a dev server. Navigate to `http://localhost:5173/`. The application automatically reloads if you change any of the source files.

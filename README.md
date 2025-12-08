@@ -175,6 +175,18 @@ To deploy this project to Vercel:
 2. During the setup process, Vercel will automatically detect the environment variables
 3. Add your `MY_DASHBOARD_DATABASE_POSTGRES_URL` as an environment variable in the Vercel project settings
 
+### Applying Migrations in Vercel
+
+To ensure database migrations are applied when deploying to Vercel, you can embed the migration command in the build process:
+
+1. Go to your Vercel project settings: In your Vercel dashboard, select your project, then go to "Settings" > "Build & Development Settings"
+2. Modify the build command: In the "Build Command" field, add the `npx prisma migrate deploy` command before your main build command:
+   ```
+   npx prisma migrate deploy && npm run build
+   ```
+
+This ensures that the database is migrated before the new version of your application is deployed.
+
 ## Running the Web App Locally
 
 - Go to your project directory: `cd ./mobile`
