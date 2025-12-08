@@ -18,7 +18,12 @@ export const routeMeta: RouteMeta = {
   selector: 'dashboards-delete-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormlyBootstrapModule, AsyncPipe, ReactiveFormsModule, LucideAngularModule],
+  imports: [
+    FormlyBootstrapModule,
+    AsyncPipe,
+    ReactiveFormsModule,
+    LucideAngularModule,
+  ],
   template: ` @if (dashboard$ | async; as dashboard) {
     <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
       Delete Dashboard "{{ dashboard.name }}"
@@ -39,7 +44,11 @@ export const routeMeta: RouteMeta = {
 
     <!-- Dashboard Deletion Panel -->
     <div class="bg-white p-6 rounded-2xl long-shadow mb-8 space-y-4">
-      <form [formGroup]="form" (ngSubmit)="onSubmit(dashboard.id)" class="w-full">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="onSubmit(dashboard.id)"
+        class="w-full"
+      >
         <div class="mb-6">
           <p class="text-lg text-gray-700 mb-2">
             Are you sure you want to delete the
@@ -47,7 +56,8 @@ export const routeMeta: RouteMeta = {
             dashboard?
           </p>
           <p class="text-gray-500">
-            This action cannot be undone. All data associated with this dashboard and its widgets will be permanently removed.
+            This action cannot be undone. All data associated with this
+            dashboard and its widgets will be permanently removed.
           </p>
         </div>
 
@@ -61,7 +71,7 @@ export const routeMeta: RouteMeta = {
             Cancel
           </a>
 
-          <button 
+          <button
             type="submit"
             class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
               bg-gradient-to-tr from-[#FF988A] to-[#FFD5A2] text-gray-800 cursor-pointer"

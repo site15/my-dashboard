@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import {
@@ -32,8 +32,8 @@ import {
   tap,
 } from 'rxjs';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
-import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 import { ErrorHandlerService } from '../services/error-handler.service';
+import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 import { TrpcPureHeaders } from '../trpc-pure-client';
 
 //
@@ -284,14 +284,18 @@ export class QrCodePage {
               catchError((err) => {
                 console.error('Error linking device:', err);
                 // Handle the error using our global error handler
-                this.errorHandler.handleError(err, 'Failed to link device').catch(console.error);
+                this.errorHandler
+                  .handleError(err, 'Failed to link device')
+                  .catch(console.error);
                 throw new Error('link failed');
               })
             );
           } catch (parseError) {
             console.error('Error parsing QR code data:', parseError);
             // Handle the error using our global error handler
-            this.errorHandler.handleError(parseError, 'Invalid QR code format').catch(console.error);
+            this.errorHandler
+              .handleError(parseError, 'Invalid QR code format')
+              .catch(console.error);
             throw new Error('invalid qr code');
           }
         }),
@@ -314,7 +318,9 @@ export class QrCodePage {
         catchError((error) => {
           console.error('Error scanning barcode:', error);
           // Handle the error using our global error handler
-          this.errorHandler.handleError(error, 'Error scanning QR code').catch(console.error);
+          this.errorHandler
+            .handleError(error, 'Error scanning QR code')
+            .catch(console.error);
           return of(null);
         }),
         // Always set loading state to false when the operation completes

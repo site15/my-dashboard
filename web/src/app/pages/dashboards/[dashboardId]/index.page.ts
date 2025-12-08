@@ -277,7 +277,7 @@ export default class DashboardsEditPageComponent {
     this.formHandlerService.updateFormFields(this.formFields$, {
       baseFields: DASHBOARD_FORMLY_FIELDS,
       clientError: options?.clientError,
-      mapFields: mapFormlyTypes
+      mapFields: mapFormlyTypes,
     });
   }
 
@@ -285,6 +285,7 @@ export default class DashboardsEditPageComponent {
     this.dashboardsService
       .update(model)
       .pipe(
+        tap(console.log),
         catchError(err =>
           this.errorHandlerService.catchAndProcessServerError(err, options =>
             this.setFormFields(options)

@@ -2,7 +2,7 @@ import { RouteMeta } from '@analogjs/router';
 import { Component, inject, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { concatMap, first, tap } from 'rxjs';
+import { concatMap, first, mergeMap, tap } from 'rxjs';
 
 import { AppInitializerService } from './app.initializer';
 import { ColorSchemeSwitcherComponent } from './components/theme/color-scheme-switcher.component';
@@ -17,6 +17,7 @@ import {
 import { ShowNavGuard } from './guards/nav.guard';
 import { AuthService } from './services/auth.service';
 import { ErrorHandlerService } from './services/error-handler.service';
+import { ProfileService } from './services/profile.service';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],
@@ -59,7 +60,10 @@ export const routeMeta: RouteMeta = {
         class="w-16 lg:w-64 bg-white long-shadow p-4 flex flex-col items-center lg:items-start border-r border-gray-100 transition-all duration-300"
       >
         <a href="/" class="text-2xl font-bold text-pastel-blue mb-10 mt-2">
-          <i-lucide name="layout-dashboard" class="w-8 h-8 lg:mr-2 inline-block align-middle"></i-lucide>
+          <i-lucide
+            name="layout-dashboard"
+            class="w-8 h-8 lg:mr-2 inline-block align-middle"
+          ></i-lucide>
           <span class="hidden lg:inline align-middle">My Dashboards</span>
         </a>
 
@@ -112,12 +116,13 @@ export const routeMeta: RouteMeta = {
         <router-outlet></router-outlet>
       </div>
     </div>
-    <main class="container" *ifNavHidden>
+    <ng-container *ifNavHidden>
       <router-outlet></router-outlet>
-    </main>
+    </ng-container>
   `,
 })
 export class AppComponent implements OnInit {
+  private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly appInitializerService = inject(AppInitializerService);
@@ -128,8 +133,18 @@ export class AppComponent implements OnInit {
       .pipe(
         concatMap(async event => {
           if (event instanceof NavigationEnd) {
-            console.log('Навигация завершена:', event);
             return await this.appInitializerService.init();
+          }
+        }),
+        mergeMap(() => this.profileService.isLoggedIn()),
+        concatMap(async isLoggedIn => {
+          console.log('Is logged in:', isLoggedIn);
+          console.log('Router URL:', this.router.routerState.snapshot.url);
+          if (
+            !isLoggedIn &&
+            this.router.routerState.snapshot.url !== '/login'
+          ) {
+            await this.router.navigate(['/login']);
           }
         })
       )

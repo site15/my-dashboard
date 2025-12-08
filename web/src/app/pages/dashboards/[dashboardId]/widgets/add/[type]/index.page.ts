@@ -131,7 +131,7 @@ export default class DashboardsWidgetsAddByTypePageComponent {
     this.formHandlerService.updateFormFields(this.formFields$, {
       baseFields: WIDGETS_FORMLY_FIELDS[this.widgetType] || [],
       clientError: options?.clientError,
-      mapFields: mapFormlyTypes
+      mapFields: mapFormlyTypes,
     });
   }
 
@@ -140,7 +140,10 @@ export default class DashboardsWidgetsAddByTypePageComponent {
       .create({
         dashboardId: data.dashboardId,
         type: data.type,
-        options: { ...this.formModel, type: data.type } as unknown as WidgetsType,
+        options: {
+          ...this.formModel,
+          type: data.type,
+        } as unknown as WidgetsType,
       })
       .pipe(
         first(),
@@ -149,11 +152,11 @@ export default class DashboardsWidgetsAddByTypePageComponent {
         )
       )
       .subscribe({
-        error: (err) => {
+        error: err => {
           this.errorHandlerService.catchAndProcessServerError(err, options =>
             this.setFormFields(options)
           );
-        }
+        },
       });
   }
 }

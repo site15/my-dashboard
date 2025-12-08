@@ -48,7 +48,11 @@ export const routeMeta: RouteMeta = {
     <!-- Control Panel -->
     <div class="bg-white p-6 rounded-2xl long-shadow mb-8 space-y-4">
       @if (formFields$ | async; as formlyFields) {
-        <form [formGroup]="form" (ngSubmit)="onSubmit(formModel)" class="w-full">
+        <form
+          [formGroup]="form"
+          (ngSubmit)="onSubmit(formModel)"
+          class="w-full"
+        >
           <formly-form
             [form]="form"
             [fields]="formlyFields || []"
@@ -86,7 +90,7 @@ export default class DashboardsNewPageComponent {
     // Initialize form fields
     this.formHandlerService.updateFormFields(this.formFields$, {
       baseFields: DASHBOARD_FORMLY_FIELDS,
-      mapFields: mapFormlyTypes
+      mapFields: mapFormlyTypes,
     });
   }
 

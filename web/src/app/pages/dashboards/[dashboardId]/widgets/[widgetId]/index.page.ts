@@ -142,7 +142,7 @@ export default class DashboardsWidgetsEditPageComponent {
       if (data) {
         this.formHandlerService.updateFormFields(this.formFields$, {
           baseFields: data.fields || [],
-          clientError: options?.clientError
+          clientError: options?.clientError,
         });
       }
     });
@@ -160,17 +160,17 @@ export default class DashboardsWidgetsEditPageComponent {
       .pipe(
         first(),
         tap(
-          widget =>
+          async widget =>
             widget &&
             this.router.navigate([`/dashboards/${widget.dashboardId}`])
         )
       )
       .subscribe({
-        error: (err) => {
+        error: err => {
           this.errorHandlerService.catchAndProcessServerError(err, options =>
             this.setFormFields(options)
           );
-        }
+        },
       });
   }
 }

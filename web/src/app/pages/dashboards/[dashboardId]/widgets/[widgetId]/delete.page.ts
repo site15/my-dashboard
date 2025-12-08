@@ -19,7 +19,13 @@ export const routeMeta: RouteMeta = {
   selector: 'dashboards-widgets-delete-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormlyBootstrapModule, AsyncPipe, TitleCasePipe, ReactiveFormsModule, LucideAngularModule],
+  imports: [
+    FormlyBootstrapModule,
+    AsyncPipe,
+    TitleCasePipe,
+    ReactiveFormsModule,
+    LucideAngularModule,
+  ],
   template: ` @if (dashboardAndWidget$ | async; as dashboardAndWidget) {
     <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
       Delete {{ dashboardAndWidget.widget.type | titlecase }} Widget
@@ -27,13 +33,13 @@ export const routeMeta: RouteMeta = {
 
     <p class="text-xl text-gray-500 mb-8">
       <a
-        href="/dashboards/{{ dashboardAndWidget.dashboard.id }}/widgets/{{ dashboardAndWidget.widget.id }}"
+        href="/dashboards/{{ dashboardAndWidget.dashboard.id }}/widgets/{{
+          dashboardAndWidget.widget.id
+        }}"
         class="text-gray-500 hover:text-pastel-blue transition-colors mb-10 mt-2 flex items-center"
       >
         <i-lucide name="arrow-left" class="w-6 h-6 mr-0 lg:mr-2"></i-lucide>
-        <span class="hidden lg:inline text-lg font-medium"
-          >Back to Widget</span
-        >
+        <span class="hidden lg:inline text-lg font-medium">Back to Widget</span>
       </a>
       Permanently remove this widget.
     </p>
@@ -53,19 +59,26 @@ export const routeMeta: RouteMeta = {
         <div class="mb-6">
           <p class="text-lg text-gray-700 mb-2">
             Are you sure you want to delete the
-            <span class="font-bold">{{ dashboardAndWidget.widget.type | titlecase }}</span>
+            <span class="font-bold">{{
+              dashboardAndWidget.widget.type | titlecase
+            }}</span>
             widget from the
-            <span class="font-bold">{{ dashboardAndWidget.dashboard.name }}</span>
+            <span class="font-bold">{{
+              dashboardAndWidget.dashboard.name
+            }}</span>
             dashboard?
           </p>
           <p class="text-gray-500">
-            This action cannot be undone. All data associated with this widget will be permanently removed.
+            This action cannot be undone. All data associated with this widget
+            will be permanently removed.
           </p>
         </div>
 
         <div class="flex gap-4">
           <a
-            href="/dashboards/{{ dashboardAndWidget.dashboard.id }}/widgets/{{ dashboardAndWidget.widget.id }}"
+            href="/dashboards/{{ dashboardAndWidget.dashboard.id }}/widgets/{{
+              dashboardAndWidget.widget.id
+            }}"
             class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-gray-500 transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
               bg-gradient-to-tr from-[#9CA3AF] to-[#6B7280] tracking-wide cursor-pointer"
           >
@@ -73,7 +86,7 @@ export const routeMeta: RouteMeta = {
             Cancel
           </a>
 
-          <button 
+          <button
             type="submit"
             class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
               bg-gradient-to-tr from-[#FF988A] to-[#FFD5A2] text-gray-800 cursor-pointer"

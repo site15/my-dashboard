@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { BehaviorSubject } from 'rxjs';
+
 import { ClientValidationErrorType } from '../../server/types/client-error-type';
 import { appendServerErrorsAsValidatorsToFields } from '../utils/form-utils';
 
