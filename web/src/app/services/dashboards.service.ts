@@ -52,7 +52,11 @@ export class DashboardsService {
   private trpc = injectTrpcClient();
 
   create(dashboard: CreateDashboardType) {
-    return this.trpc.dashboards.create.mutate(dashboard);
+    return this.trpc.dashboards.create.mutate(
+      Object.fromEntries(
+        Object.entries(dashboard).filter(([, value]) => value !== '')
+      ) as CreateDashboardType
+    );
   }
 
   read(id: string) {
@@ -60,7 +64,11 @@ export class DashboardsService {
   }
 
   update(dashboard: UpdateDashboardType) {
-    return this.trpc.dashboards.update.mutate(dashboard);
+    return this.trpc.dashboards.update.mutate(
+      Object.fromEntries(
+        Object.entries(dashboard).filter(([, value]) => value !== '')
+      ) as UpdateDashboardType
+    );
   }
 
   delete(id: string) {

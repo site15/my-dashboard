@@ -14,7 +14,11 @@ export class WidgetsService {
   private trpc = injectTrpcPureClient();
 
   create(widget: CreateWidgetType) {
-    return this.trpc.widgets.create.mutate(widget);
+    return this.trpc.widgets.create.mutate(
+      Object.fromEntries(
+        Object.entries(widget).filter(([, value]) => value !== '')
+      ) as CreateWidgetType
+    );
   }
 
   read(id: string) {
@@ -22,7 +26,11 @@ export class WidgetsService {
   }
 
   update(widget: UpdateWidgetType) {
-    return this.trpc.widgets.update.mutate(widget);
+    return this.trpc.widgets.update.mutate(
+      Object.fromEntries(
+        Object.entries(widget).filter(([, value]) => value !== '')
+      ) as UpdateWidgetType
+    );
   }
 
   delete(id: string) {

@@ -115,6 +115,58 @@ The web application is deployed to Vercel, which is configured to automatically 
 
 Database migrations are generated based on changes to the Prisma schema and applied from the local developer's computer. Migrations must be applied locally by the developer and are not automatically applied by Vercel during deployment.
 
+### Creating New Migrations with Custom SQL
+
+To create a new empty migration (without changing the Prisma schema):
+
+```bash
+cd web
+npx prisma migrate dev --name migration_name --create-only
+```
+
+This creates an empty migration file in the `web/prisma/migrations` directory that you can manually edit with custom SQL commands.
+
+Example of a custom migration file:
+```sql
+-- Add a new column to the User table
+ALTER TABLE "User" ADD COLUMN "lastLoginAt" TIMESTAMP(3);
+
+-- Create an index on the new column
+CREATE INDEX "User_lastLoginAt_idx" ON "User"("lastLoginAt");
+```
+
+### Applying Migrations
+
+To apply pending migrations to your development database:
+
+```bash
+cd web
+npx prisma migrate dev
+```
+
+For production environments, use:
+
+```bash
+cd web
+npx prisma migrate deploy
+```
+
+### Working with Modified Migrations
+
+If you've modified a migration but haven't committed it yet:
+
+1. **If you haven't applied the migration yet:**
+   - Simply edit the migration file as needed
+   - Run `npx prisma migrate dev` to apply your changes
+
+2. **If you've already applied the migration:**
+   - Reset your database: `npx prisma migrate reset`
+   - Edit the migration file as needed
+   - Apply the migration: `npx prisma migrate dev`
+
+3. **If you're working with a team and someone else has applied the original migration:**
+   - Create a new migration with your changes: `npx prisma migrate dev --name fix_previous_migration`
+   - This approach maintains consistency across team members
 ## Deploying to Vercel
 
 To deploy this project to Vercel:

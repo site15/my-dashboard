@@ -97,8 +97,60 @@ Database migrations are generated based on changes to the Prisma schema and appl
 2. Run `./node_modules/.bin/prisma migrate dev` to generate and apply migrations locally
 3. Commit the generated migration files to version control
 
-Note: Migrations must be applied locally by the developer and are not automatically applied by Vercel during deployment.
+### Creating New Migrations with Custom SQL
 
+To create a new empty migration (without changing the Prisma schema):
+
+```bash
+npx prisma migrate dev --name add_new_feature --create-only
+```
+
+This creates an empty migration file in the `prisma/migrations` directory that you can manually edit with custom SQL commands.
+
+Example of a custom migration file (`prisma/migrations/20251208120000_add_new_feature/migration.sql`):
+```sql
+-- Add a new column to the User table
+ALTER TABLE "User" ADD COLUMN "lastLoginAt" TIMESTAMP(3);
+
+-- Create an index on the new column
+CREATE INDEX "User_lastLoginAt_idx" ON "User"("lastLoginAt");
+
+-- Add a default value for existing records
+UPDATE "User" SET "lastLoginAt" = NOW() WHERE "lastLoginAt" IS NULL;
+```
+
+### Applying Migrations
+
+To apply pending migrations to your development database:
+
+```bash
+npx prisma migrate dev
+```
+
+For production environments, use:
+
+```bash
+npx prisma migrate deploy
+```
+
+### Working with Modified Migrations
+
+If you've modified a migration but haven't committed it yet:
+
+1. **If you haven't applied the migration yet:**
+   - Simply edit the migration file as needed
+   - Run `npx prisma migrate dev` to apply your changes
+
+2. **If you've already applied the migration:**
+   - Reset your database: `npx prisma migrate reset`
+   - Edit the migration file as needed
+   - Apply the migration: `npx prisma migrate dev`
+
+3. **If you're working with a team and someone else has applied the original migration:**
+   - Create a new migration with your changes: `npx prisma migrate dev --name fix_previous_migration`
+   - This approach maintains consistency across team members
+
+Note: Migrations must be applied locally by the developer and are not automatically applied by Vercel during deployment.
 ## Prisma Setup
 
 This project uses Prisma as the ORM. After setting up your database:
