@@ -132,10 +132,12 @@ export default class DashboardsWidgetsAddByTypePageComponent {
       baseFields: WIDGETS_FORMLY_FIELDS[this.widgetType] || [],
       clientError: options?.clientError,
       mapFields: mapFormlyTypes,
+      rootPath: `options`,
     });
   }
 
   onSubmit(data: { type: string; dashboardId: string }) {
+    this.setFormFields({});
     this.widgetsService
       .create({
         dashboardId: data.dashboardId,
@@ -153,9 +155,10 @@ export default class DashboardsWidgetsAddByTypePageComponent {
       )
       .subscribe({
         error: err => {
-          this.errorHandlerService.catchAndProcessServerError(err, options =>
-            this.setFormFields(options)
-          );
+          this.errorHandlerService.catchAndProcessServerError({
+            err,
+            setFormlyFields: options => this.setFormFields(options),
+          });
         },
       });
   }

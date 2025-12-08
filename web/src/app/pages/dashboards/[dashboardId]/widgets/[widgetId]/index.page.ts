@@ -143,12 +143,14 @@ export default class DashboardsWidgetsEditPageComponent {
         this.formHandlerService.updateFormFields(this.formFields$, {
           baseFields: data.fields || [],
           clientError: options?.clientError,
+          rootPath: `options`,
         });
       }
     });
   }
 
   onSubmit(data: { type: string; id: string }) {
+    this.setFormFields({});
     this.widgetsService
       .update({
         ...data,
@@ -167,9 +169,10 @@ export default class DashboardsWidgetsEditPageComponent {
       )
       .subscribe({
         error: err => {
-          this.errorHandlerService.catchAndProcessServerError(err, options =>
-            this.setFormFields(options)
-          );
+          this.errorHandlerService.catchAndProcessServerError({
+            err,
+            setFormlyFields: options => this.setFormFields(options),
+          });
         },
       });
   }

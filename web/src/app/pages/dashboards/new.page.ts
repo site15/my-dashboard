@@ -6,8 +6,9 @@ import { Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { catchError, EMPTY, first, tap } from 'rxjs';
+import { catchError, first, tap } from 'rxjs';
 
+import { ClientValidationErrorType } from '../../../server/types/client-error-type';
 import { CreateDashboardType } from '../../../server/types/DashboardSchema';
 import { mapFormlyTypes } from '../../formly/get-formly-type';
 import { ShowNavGuard } from '../../guards/nav.guard';
@@ -15,6 +16,7 @@ import {
   DASHBOARD_FORMLY_FIELDS,
   DashboardsService,
 } from '../../services/dashboards.service';
+import { ErrorHandlerService } from '../../services/error-handler.service';
 import { FormHandlerService } from '../../services/form-handler.service';
 
 export const routeMeta: RouteMeta = {
@@ -74,6 +76,7 @@ export const routeMeta: RouteMeta = {
   `,
 })
 export default class DashboardsNewPageComponent {
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly router = inject(Router);
   private readonly dashboardsService = inject(DashboardsService);
   private readonly formHandlerService = inject(FormHandlerService);
@@ -88,25 +91,33 @@ export default class DashboardsNewPageComponent {
 
   constructor() {
     // Initialize form fields
+    this.setFormFields({});
+  }
+
+  private setFormFields(options?: { clientError?: ClientValidationErrorType }) {
     this.formHandlerService.updateFormFields(this.formFields$, {
       baseFields: DASHBOARD_FORMLY_FIELDS,
+      clientError: options?.clientError,
       mapFields: mapFormlyTypes,
     });
   }
 
   onSubmit(model: CreateDashboardType) {
+    this.setFormFields({});
     this.dashboardsService
       .create(model)
       .pipe(
+        catchError(err =>
+          this.errorHandlerService.catchAndProcessServerError({
+            err,
+            setFormlyFields: options => this.setFormFields(options),
+          })
+        ),
         first(),
-        tap((dashboard: { id: string }) => {
+        tap(dashboard => {
           if (dashboard && dashboard.id) {
             this.router.navigate([`/dashboards/${dashboard.id}`]);
           }
-        }),
-        catchError(error => {
-          console.error('Dashboard creation failed:', error);
-          return EMPTY;
         })
       )
       .subscribe();

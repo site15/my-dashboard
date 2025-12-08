@@ -17,8 +17,8 @@ import {
   setStyle,
   setTextContent,
 } from '../utils/dom-utils';
-import { getTimezoneFromOffset } from '../utils/timezones';
 import { isSSR } from '../utils/is-ssr';
+import { getTimezoneFromOffset } from '../utils/timezones';
 
 // Global variables for clock management
 const timeZoneClocks: Record<

@@ -282,14 +282,16 @@ export default class DashboardsEditPageComponent {
   }
 
   onSubmit(model: UpdateDashboardType) {
+    this.setFormFields({});
+    // todo: при обновлении не выставляются серверные ошибки валидации, нужно починить
     this.dashboardsService
       .update(model)
       .pipe(
-        tap(console.log),
         catchError(err =>
-          this.errorHandlerService.catchAndProcessServerError(err, options =>
-            this.setFormFields(options)
-          )
+          this.errorHandlerService.catchAndProcessServerError({
+            err,
+            setFormlyFields: options => this.setFormFields(options),
+          })
         ),
         first(),
         tap(dashboard => dashboard && this.router.navigate(['/dashboards']))

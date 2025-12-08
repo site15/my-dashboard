@@ -14,7 +14,7 @@ import {
 
 export const HabitsWidgetItemSchema = z.object({
   id: z.string().optional().nullish(),
-  name: z.string(),
+  name: z.string().min(1, { message: 'Name cannot be empty' }),
   icon: z.string(),
   color: z.string(),
   minValue: z.number(),
@@ -36,7 +36,7 @@ export type HabitsWidgetItemType = z.infer<typeof HabitsWidgetItemSchema>;
 //
 
 export const CreateHabitsWidgetItemSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1, { message: 'Name cannot be empty' }),
   icon: z.string(),
   color: z.string(),
   minValue: z.number(),
@@ -52,7 +52,7 @@ export type CreateHabitsWidgetItemType = z.infer<
 
 export const HabitsWidgetSchema = z.object({
   type: z.literal('habits'),
-  name: z.string(),
+  name: z.string().min(1, { message: 'Name cannot be empty' }),
   items: z.array(HabitsWidgetItemSchema).default([]),
 });
 
@@ -62,7 +62,7 @@ export type HabitsWidgetType = z.infer<typeof HabitsWidgetSchema>;
 
 export const CreateHabitsWidgetSchema = z.object({
   type: z.literal('habits'),
-  name: z.string(),
+  name: z.string().min(1, { message: 'Name cannot be empty' }),
   items: z.array(CreateHabitsWidgetItemSchema).default([]),
 });
 
@@ -77,7 +77,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Widget name',
-      required: true,
+      // required: true,
       placeholder: 'Widget name',
       attributes: {
         'aria-label': 'Enter widget name',
@@ -102,7 +102,7 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Name',
-            required: true,
+            // required: true,
             placeholder: 'Habit name',
             attributes: {
               'aria-label': 'Enter habit name',

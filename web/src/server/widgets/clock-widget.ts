@@ -25,7 +25,7 @@ export const ClockWidgetTimezoneKeys = Object.keys(CLOCK_WIDGET_TIMEZONE_TITLE);
 
 export const ClockWidgetTimezoneSchema = z.object({
   timezone: z.enum(ClockWidgetTimezoneKeys as any),
-  label: z.string(),
+  name: z.string().min(1, { message: 'Name cannot be empty' }),
 });
 
 export enum HourFormat {
@@ -46,7 +46,7 @@ export const ClockWidgetHourFormatKeys = Object.keys(
 
 export const ClockWidgetSchema = z.object({
   type: z.literal('clock'),
-  name: z.string(),
+  name: z.string().min(1, { message: 'Name cannot be empty' }),
   hourFormat: z
     .enum(ClockWidgetHourFormatKeys as any)
     .default(HourFormat['24h']),
@@ -65,27 +65,28 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Widget name',
-      required: true,
+      // required: true,
       placeholder: 'Widget name',
-      attributes: { 
+      attributes: {
         'aria-label': 'Enter widget name',
         class: 'flat-input',
       },
     },
-  },  {
+  },
+  {
     key: 'hourFormat',
     type: 'select',
     wrappers: ['flat-input-wrapper'],
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'Hour format',
-      required: true,
+      // required: true,
       options: ClockWidgetHourFormatKeys.map(key => ({
         value: key,
         label: CLOCK_WIDGET_HOUR_FORMAT_TITLE[key],
       })),
       placeholder: 'Select hour format',
-      attributes: { 
+      attributes: {
         'aria-label': 'Select hour format',
         class: 'flat-input',
       },
@@ -102,33 +103,34 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
       fieldGroupClassName: 'grid',
       fieldGroup: [
         {
-          key: 'label',
+          key: 'name',
           type: 'input',
           wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Clock name',
-            required: true,
+            // required: true,
             placeholder: 'Clock name',
-            attributes: { 
+            attributes: {
               'aria-label': 'Enter clock name',
               class: 'flat-input',
             },
           },
-        },        {
+        },
+        {
           key: 'timezone',
           type: 'select',
           wrappers: ['flat-input-wrapper'],
           className: 'block text-lg font-medium text-gray-700 mb-2',
           props: {
             label: 'Timezone',
-            required: true,
+            // required: true,
             options: ClockWidgetTimezoneKeys.map(key => ({
               value: key,
               label: CLOCK_WIDGET_TIMEZONE_TITLE[key],
             })),
             placeholder: 'Select timezone',
-            attributes: { 
+            attributes: {
               'aria-label': 'Select timezone',
               class: 'flat-input',
             },
@@ -176,7 +178,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
       widget.id,
       widget.options.timezones.map((tz: ClockWidgetTimezoneType) => {
         return {
-          name: tz.label,
+          name: tz.name,
           timezone: tz.timezone,
         };
       }),
@@ -207,7 +209,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
         : '--:--';
 
       // Get current times for the timezones
-      const mainTimeName = widget.options.timezones[0].label
+      const mainTimeName = widget.options.timezones[0].name
         ? getClockName(widget.id, 'main')
         : '--:--';
       const smallTime1Name = widget.options.timezones[1]
@@ -267,7 +269,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
             <!-- Digital time (reduced font, no seconds) -->
             <p id="main-clock-time-${mainTimeName}" class="text-4xl font-extrabold transition-colors duration-300 tracking-tight text-gray-800 dark:text-gray-100">${mainTime}</p>
             <!-- Clock name (under digital time) -->
-            <p id="main-clock-name-${mainTimeName}" class="text-md font-medium mt-1 text-center text-gray-600 dark:text-gray-300">${widget.options.timezones[0]?.label || ''}</p>
+            <p id="main-clock-name-${mainTimeName}" class="text-md font-medium mt-1 text-center text-gray-600 dark:text-gray-300">${widget.options.timezones[0]?.name || ''}</p>
         </div>
     </div>
         
@@ -275,11 +277,11 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
     <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100 dark:border-gray-700">
         <div class="text-center w-1/2">
             <p id="small-clock-time-${smallTime1Name}" class="text-xl font-bold text-gray-800 dark:text-gray-200">${smallTime1}</p>
-            <p id="small-clock-name-${smallTime1Name}" class="text-xs text-gray-500">${widget.options.timezones[1]?.label || ''}</p>
+            <p id="small-clock-name-${smallTime1Name}" class="text-xs text-gray-500">${widget.options.timezones[1]?.name || ''}</p>
         </div>
         <div class="text-center w-1/2">
             <p id="small-clock-time-${smallTime2Name}" class="text-xl font-bold text-gray-800 dark:text-gray-200">${smallTime2}</p>
-            <p id="small-clock-name-${smallTime2Name}" class="text-xs text-gray-500">${widget.options.timezones[2]?.label || ''}</p>
+            <p id="small-clock-name-${smallTime2Name}" class="text-xs text-gray-500">${widget.options.timezones[2]?.name || ''}</p>
         </div>
     </div>
 </div>

@@ -21,12 +21,15 @@ export class ErrorHandlerService {
   private request = injectRequest();
   private toastrService = inject(ToastrService);
 
-  catchAndProcessServerError(
-    err: any,
+  catchAndProcessServerError({
+    err,
+    setFormlyFields,
+  }: {
+    err: any;
     setFormlyFields: (options?: {
       clientError?: ClientValidationErrorType;
-    }) => void
-  ) {
+    }) => void;
+  }) {
     const clientError = err.data.error.clientError as ClientErrorType;
 
     if (clientError.event === 'validation_error') {

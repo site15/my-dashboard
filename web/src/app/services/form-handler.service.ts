@@ -10,10 +10,9 @@ import { appendServerErrorsAsValidatorsToFields } from '../utils/form-utils';
  * Provides reusable methods for form field management, validation, and error handling
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FormHandlerService {
-  
   /**
    * Create a BehaviorSubject for form fields
    * @returns BehaviorSubject for form fields
@@ -21,7 +20,7 @@ export class FormHandlerService {
   createFormFieldsSubject(): BehaviorSubject<FormlyFieldConfig[] | null> {
     return new BehaviorSubject<FormlyFieldConfig[] | null>(null);
   }
-  
+
   /**
    * Process form fields with server-side validation errors
    * @param options Processing options
@@ -31,19 +30,21 @@ export class FormHandlerService {
     baseFields: FormlyFieldConfig[];
     clientError?: ClientValidationErrorType;
     mapFields?: (fields: FormlyFieldConfig[]) => FormlyFieldConfig[];
+    rootPath?: string;
   }): FormlyFieldConfig[] {
-    const { baseFields, clientError, mapFields } = options;
-    
+    const { baseFields, clientError, mapFields, rootPath } = options;
+
     // Add server-side validation errors
     const fieldsWithErrors = appendServerErrorsAsValidatorsToFields({
       clientError,
       formFields: baseFields,
+      rootPath,
     });
-    
+
     // Apply field mapping if provided
     return mapFields ? mapFields(fieldsWithErrors) : fieldsWithErrors;
   }
-  
+
   /**
    * Update form fields subject with processed fields
    * @param formFields$ Form fields BehaviorSubject
@@ -55,6 +56,7 @@ export class FormHandlerService {
       baseFields: FormlyFieldConfig[];
       clientError?: ClientValidationErrorType;
       mapFields?: (fields: FormlyFieldConfig[]) => FormlyFieldConfig[];
+      rootPath?: string;
     }
   ): void {
     const processedFields = this.processFormFields(options);

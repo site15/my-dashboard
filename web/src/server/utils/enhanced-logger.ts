@@ -178,7 +178,6 @@ export function ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod({
   }) => void;
 }) {
   const maybeCause = payload?.cause ?? payload?.error?.cause ?? payload;
-  console.log({ maybeCause });
   if (
     maybeCause &&
     typeof maybeCause === 'object' &&

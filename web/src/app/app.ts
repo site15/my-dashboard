@@ -138,8 +138,6 @@ export class AppComponent implements OnInit {
         }),
         mergeMap(() => this.profileService.isLoggedIn()),
         concatMap(async isLoggedIn => {
-          console.log('Is logged in:', isLoggedIn);
-          console.log('Router URL:', this.router.routerState.snapshot.url);
           if (
             !isLoggedIn &&
             this.router.routerState.snapshot.url !== '/login'

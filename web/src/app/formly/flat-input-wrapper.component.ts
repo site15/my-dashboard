@@ -1,4 +1,4 @@
-import { NgIf, NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core';
 
@@ -37,7 +37,7 @@ export class FlatInputWrapperComponent extends FieldWrapper<FormlyFieldConfig> {
   override get showError() {
     return !!(
       this.formControl?.errors &&
-      this.formControl?.touched &&
+      // this.formControl?.touched &&
       Object.keys(this.formControl.errors).length > 0
     );
   }
@@ -45,7 +45,6 @@ export class FlatInputWrapperComponent extends FieldWrapper<FormlyFieldConfig> {
   getErrorMessages(): string[] {
     const errors = [];
     if (this.formControl.errors) {
-      console.log(this.formControl.errors);
       for (const key in this.formControl.errors) {
         if (
           Object.prototype.hasOwnProperty.call(this.formControl.errors, key)

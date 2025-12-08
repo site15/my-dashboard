@@ -16,7 +16,7 @@ export const DASHBOARD_FORMLY_FIELDS: FormlyFieldConfig[] = [
     props: {
       label: 'Name',
       placeholder: 'Enter name',
-      required: true,
+      // required: true,
       attributes: {
         'aria-label': 'Name',
         class: 'flat-input',

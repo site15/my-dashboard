@@ -62,7 +62,7 @@ export const CALENDAR_FORMLY_FIELDS: FormlyFieldConfig[] = [
     className: 'block text-lg font-medium text-gray-700 mb-2',
     props: {
       label: 'First day of week',
-      required: true,
+      // required: true,
       options: CalendarWidgetWeekdayKeys.map(key => ({
         value: key,
         label: CALENDAR_WIDGET_WEEKDAY_TITLE[key],
