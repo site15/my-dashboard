@@ -20,14 +20,22 @@ export class ThemeService extends LocalStorageService<ColorScheme> {
     e: StorageChangeType<string>
   ) => Promise<unknown>)[] = [
     async e => {
-      const htmlTag = this.document.querySelector('html');
-
+      const htmlTag = this.document.documentElement;
       const theme = e.newValue;
+
       if (!theme) {
         await this.set('light');
       } else {
+        // Set the data-theme attribute for any components that might use it
         if (htmlTag) {
           htmlTag.setAttribute('data-theme', theme);
+        }
+
+        // Apply the appropriate class for Tailwind dark mode
+        if (theme === 'dark') {
+          this.document.documentElement.classList.add('dark');
+        } else {
+          this.document.documentElement.classList.remove('dark');
         }
       }
     },
@@ -51,7 +59,7 @@ export class ThemeService extends LocalStorageService<ColorScheme> {
     if (current) {
       await this.set(current);
     } else {
-      await this.switchTheme();
+      await this.set('light'); // Default to light theme
     }
   }
 }

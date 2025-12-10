@@ -13,17 +13,17 @@ export const routeMeta: RouteMeta = {
 @Component({
   selector: 'dashboards-list-page',
   standalone: true,
-  imports: [AsyncPipe, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AsyncPipe, LucideAngularModule],
   template: ` <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
       Dashboards
     </h1>
     <p class="text-xl text-gray-500 mb-8">
-      Manage all your projects in one place.
+      Manage your dashboards and widgets.
     </p>
 
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-8"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8"
     >
       @for (
         dashboard of dashboards$ | async;
@@ -31,14 +31,14 @@ export const routeMeta: RouteMeta = {
         let last = $last
       ) {
         <a
-          class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.01] cursor-pointer"
           href="/dashboards/{{ dashboard.id }}"
+          class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.02] cursor-pointer"
         >
           <div class="flex justify-between items-start mb-4">
-            <!--i
-              data-lucide="database"
+            <i-lucide
+              name="layout-dashboard"
               class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg"
-            ></i-->
+            ></i-lucide>
             <span
               class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full"
               >{{ dashboard.isActive ? 'Active' : 'Draft' }}</span
@@ -61,7 +61,7 @@ export const routeMeta: RouteMeta = {
         </a>
         @if (last) {
           <a
-            class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
+            class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center"
             href="/dashboards/new"
           >
             <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
@@ -86,7 +86,7 @@ export const routeMeta: RouteMeta = {
           </p>
 
           <a
-            class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer p-8 flex flex-col items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
+            class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer p-8 flex flex-col items-center justify-center"
             href="/dashboards/new"
           >
             <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>

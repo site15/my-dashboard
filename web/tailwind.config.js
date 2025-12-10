@@ -3,7 +3,7 @@ export default {
   content: [
     "./src/**/*.{html,ts}",
   ],
-  darkMode: 'class', // Активация темного режима через класс 'dark' на <html>
+  darkMode: ['class', '[data-theme="dark"]'], // Use data-theme attribute for dark mode
   theme: {
     extend: {
       colors: {

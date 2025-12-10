@@ -75,54 +75,68 @@ body {
 }
 
 /* --- Стили для Тёмной Темы --- */
-.dark body {
+[data-theme="dark"] body {
   background-color: #121212; /* Темный фон */
   color: #fafafa; /* text-gray-800 equivalent for dark mode */
 }
 
-.dark .bg-white {
+[data-theme="dark"] .bg-white {
   background-color: #1e1e1e !important;
   color: #e0e0e0 !important;
 }
 
-.dark .text-gray-800 {
+[data-theme="dark"] .text-gray-800 {
   color: #fafafa;
 }
 
-.dark .text-gray-500,
-.dark .text-gray-600,
-.dark .text-gray-700 {
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-700 {
   color: #b0b0b0;
 }
 
 /* Инверсия тени для темной темы */
-.dark .long-shadow {
+[data-theme="dark"] .long-shadow {
   box-shadow:
     3px 3px 0 0 #181818,
     /* Dark shadow */ -3px -3px 0 0 #2e2e2e,
     /* Light inner shadow for depth */ 10px 10px 30px rgba(0, 0, 0, 0.4); /* Soft, long shadow for lift */
 }
 
-.dark .flat-input {
+[data-theme="dark"] .flat-input {
   @apply border-gray-700 bg-[#1e1e1e] text-white;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.dark .flat-checkbox {
+[data-theme="dark"] .flat-checkbox {
   @apply border-gray-700 bg-[#1e1e1e];
 }
 
-.dark .flat-checkbox:checked {
+[data-theme="dark"] .flat-checkbox:checked {
   @apply bg-[#8A89F0] border-[#8A89F0];
 }
 
-.dark .border-gray-100 {
+[data-theme="dark"] .border-gray-100 {
   border-color: #2e2e2e;
 }
 
-.dark .bg-gray-100 {
+[data-theme="dark"] .bg-gray-100 {
   background-color: #2e2e2e !important;
   color: #fafafa !important;
+}
+
+[data-theme="dark"] .bg-gray-200 {
+  background-color: #2e2e2e !important;
+  color: #b0b0b0 !important;
+}
+
+[data-theme="dark"] .bg-gray-200:hover {
+  background-color: #8A89F0 !important;
+  color: white !important;
+}
+
+[data-theme="dark"] .bg-gray-50 {
+  background-color: #121212 !important;
 }
 
 .view-transition {
@@ -140,7 +154,7 @@ body {
   @apply absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-200 rounded-full transition-all duration-300;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
 }
-.dark .flat-switch-slider {
+[data-theme="dark"] .flat-switch-slider {
   @apply bg-gray-700;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
 }
@@ -150,7 +164,7 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.dark .flat-switch-slider:before {
+[data-theme="dark"] .flat-switch-slider:before {
   @apply bg-gray-300;
 }
 
@@ -172,7 +186,7 @@ body {
   height: 20px;
   animation: spin 1s linear infinite;
 }
-.dark .loading-spinner {
+[data-theme="dark"] .loading-spinner {
   border-color: #2e2e2e;
 }
 @keyframes spin {

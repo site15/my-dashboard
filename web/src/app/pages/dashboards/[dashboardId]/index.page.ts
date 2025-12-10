@@ -161,7 +161,7 @@ export const routeMeta: RouteMeta = {
           @if (last) {
             <!-- "Add Widget" Button for when there are widgets -->
             <div
-              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
+              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center"
             >
               <div class="text-center">
                 <p
@@ -176,7 +176,7 @@ export const routeMeta: RouteMeta = {
                       href="/dashboards/{{
                         dashboardAndWidgets.dashboard.id
                       }}/widgets/add/{{ widgetType }}"
-                      class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                      class="text-xs bg-gray-200 hover:bg-gray-300 hover:text-gray-700 px-3 py-1 rounded-full transition-colors whitespace-nowrap"
                     >
                       {{ widgetType | titlecase }}
                     </a>
@@ -205,7 +205,7 @@ export const routeMeta: RouteMeta = {
 
             <!-- "Add Widget" Button -->
             <div
-              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 p-8 flex flex-col items-center justify-center dark:border-gray-700 dark:hover:bg-pastel-blue/10"
+              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 p-8 flex flex-col items-center justify-center"
             >
               <p
                 class="text-gray-500 hover:text-pastel-blue font-bold text-lg flex items-center justify-center mb-4"
@@ -219,7 +219,7 @@ export const routeMeta: RouteMeta = {
                     href="/dashboards/{{
                       dashboardAndWidgets.dashboard.id
                     }}/widgets/add/{{ widgetType }}"
-                    class="text-xs bg-gray-200 hover:bg-pastel-blue hover:text-white px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                    class="text-xs bg-gray-200 hover:bg-gray-300 hover:text-gray-700 px-3 py-1 rounded-full transition-colors whitespace-nowrap"
                   >
                     {{ widgetType | titlecase }}
                   </a>
@@ -283,7 +283,6 @@ export default class DashboardsEditPageComponent {
 
   onSubmit(model: UpdateDashboardType) {
     this.setFormFields({});
-    // todo: при обновлении не выставляются серверные ошибки валидации, нужно починить
     this.dashboardsService
       .update(model)
       .pipe(

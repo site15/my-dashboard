@@ -29,13 +29,15 @@ export const routeMeta: RouteMeta = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormlyBootstrapModule,
-    AsyncPipe,
     ReactiveFormsModule,
     FormlyForm,
+    AsyncPipe,
     LucideAngularModule,
   ],
   template: `
-    <h1 class="text-4xl font-extrabold text-gray-800 mb-2">New dashboard</h1>
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
+      New Dashboard
+    </h1>
     <p class="text-xl text-gray-500 mb-8">
       <a
         href="/dashboards"

@@ -24,6 +24,7 @@ import { ThemeService } from '../../services/theme.service';
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
+              class="text-gray-700"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path
@@ -44,6 +45,7 @@ import { ThemeService } from '../../services/theme.service';
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
+              class="hover:bg-pastel-blue hover:text-white"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path

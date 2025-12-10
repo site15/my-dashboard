@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { delay, of, tap } from 'rxjs';
+import { of, tap } from 'rxjs';
 import { z } from 'zod';
 
 import { getClockName, linkFunctionsToWindow } from './clock-widget.utils';
@@ -50,7 +50,7 @@ export const ClockWidgetSchema = z.object({
   hourFormat: z
     .enum(ClockWidgetHourFormatKeys as any)
     .default(HourFormat['24h']),
-  timezones: z.array(ClockWidgetTimezoneSchema),
+  timezones: z.array(ClockWidgetTimezoneSchema).nullish().optional(),
 });
 
 export type ClockWidgetTimezoneType = z.infer<typeof ClockWidgetTimezoneSchema>;
@@ -209,7 +209,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
         : '--:--';
 
       // Get current times for the timezones
-      const mainTimeName = widget.options.timezones[0].name
+      const mainTimeName = widget.options.timezones[0]?.name
         ? getClockName(widget.id, 'main')
         : '--:--';
       const smallTime1Name = widget.options.timezones[1]
