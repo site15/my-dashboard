@@ -6,11 +6,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { first, map, shareReplay, tap } from 'rxjs';
+import { catchError, first, map, shareReplay, tap } from 'rxjs';
 
 import { ClientValidationErrorType } from '../../../../../../server/types/client-error-type';
-import { WidgetsType } from '../../../../../../server/widgets/widgets';
+import {
+  WIDGETS_FORMLY_FIELDS,
+  WidgetsType,
+} from '../../../../../../server/widgets/widgets';
 import { NoSanitizePipe } from '../../../../../directives/no-sanitize.directive';
+import { mapFormlyTypes } from '../../../../../formly/get-formly-type';
 import { ShowNavGuard } from '../../../../../guards/nav.guard';
 import { ErrorHandlerService } from '../../../../../services/error-handler.service';
 import { FormHandlerService } from '../../../../../services/form-handler.service';
@@ -137,15 +141,11 @@ export default class DashboardsWidgetsEditPageComponent {
   html$ = this.data$.pipe(mapToRenderHtml(true));
 
   private setFormFields(options?: { clientError?: ClientValidationErrorType }) {
-    // We need to get the current data to access the fields
-    this.data$.pipe(first()).subscribe(data => {
-      if (data) {
-        this.formHandlerService.updateFormFields(this.formFields$, {
-          baseFields: data.fields || [],
-          clientError: options?.clientError,
-          rootPath: `options`,
-        });
-      }
+    this.formHandlerService.updateFormFields(this.formFields$, {
+      baseFields: WIDGETS_FORMLY_FIELDS[this.formModel.type] || [],
+      clientError: options?.clientError,
+      mapFields: mapFormlyTypes,
+      rootPath: `options`,
     });
   }
 
@@ -160,6 +160,12 @@ export default class DashboardsWidgetsEditPageComponent {
         } as WidgetsType,
       })
       .pipe(
+        catchError(err =>
+          this.errorHandlerService.catchAndProcessServerError({
+            err,
+            setFormlyFields: options => this.setFormFields(options),
+          })
+        ),
         first(),
         tap(
           async widget =>
@@ -167,13 +173,6 @@ export default class DashboardsWidgetsEditPageComponent {
             this.router.navigate([`/dashboards/${widget.dashboardId}`])
         )
       )
-      .subscribe({
-        error: err => {
-          this.errorHandlerService.catchAndProcessServerError({
-            err,
-            setFormlyFields: options => this.setFormFields(options),
-          });
-        },
-      });
+      .subscribe();
   }
 }

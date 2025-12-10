@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyForm } from '@ngx-formly/core';
 import { LucideAngularModule } from 'lucide-angular';
-import { first, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { catchError, first, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import { ClientValidationErrorType } from '../../../../../../../server/types/client-error-type';
 import {
@@ -148,18 +148,19 @@ export default class DashboardsWidgetsAddByTypePageComponent {
         } as unknown as WidgetsType,
       })
       .pipe(
-        first(),
-        tap(widget =>
-          this.router.navigate([`/dashboards/${widget.dashboardId}`])
-        )
-      )
-      .subscribe({
-        error: err => {
+        catchError(err =>
           this.errorHandlerService.catchAndProcessServerError({
             err,
             setFormlyFields: options => this.setFormFields(options),
-          });
-        },
-      });
+          })
+        ),
+        first(),
+        tap(
+          widget =>
+            widget &&
+            this.router.navigate([`/dashboards/${widget.dashboardId}`])
+        )
+      )
+      .subscribe();
   }
 }

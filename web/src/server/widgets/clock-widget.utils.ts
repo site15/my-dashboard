@@ -56,8 +56,6 @@ function initializeClockWidget(
     });
   }
 
-  console.log(timeZoneClocks[widgetId]);
-
   setupClockInterval(widgetId, true, staticMode, scope);
 }
 
@@ -281,7 +279,6 @@ function rotateClocks(
     const firstClock = timeZoneClocks[widgetId].shift();
     if (firstClock) {
       timeZoneClocks[widgetId].push(firstClock);
-      console.log(timeZoneClocks);
       updateClocksUI(widgetId, scope);
       renderAllClocksModal(modalId, widgetId);
     }
