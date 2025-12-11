@@ -357,10 +357,11 @@ function renderAllClocksModal(
       modalButton,
       c: `${modalId} button.flat-btn-shadow`,
     });
+
     if (modalButton) {
       setTextContent(
         modalButton,
-        `Change Main Clocks (Now: ${timeZoneClocks[widgetId][0].name})`
+        `Change Main Clocks (Now: ${getDigitalTime(timeZoneClocks[widgetId][0].timezone)})`
       );
     }
   });

@@ -5,6 +5,7 @@
  */
 
 import { createIcons, icons } from 'lucide';
+
 import { isSSR } from './is-ssr';
 
 // Type definitions
@@ -29,10 +30,15 @@ export function getElementById(
     if (!id.includes(' ')) {
       return scope.getElementById(id);
     }
-    return scope.querySelector(
-      `#${id}`.replace(/\s+/g, ' ').trim().split(' ').join(' > ')
+
+    const selector = `#${id}`.replace(/\s+/g, ' ').trim();
+
+    return (
+      scope.querySelector(selector) ||
+      scope.querySelector(selector.split(' ').join(' > '))
     );
   }
+
   return scope.querySelector(`#${id}`);
 }
 
