@@ -582,6 +582,64 @@ export function hideHabitsModal(
   }
 }
 
+/**
+ * Switches between tabs in the habits modal
+ * @param modalId - ID of the modal element
+ * @param tabName - Name of the tab to switch to ('counters' or 'history')
+ * @param scope - Document or element scope for DOM operations
+ */
+function switchHabitsTab(
+  modalId: string,
+  tabName: 'counters' | 'history',
+  scope: Document | HTMLElement = document
+): void {
+  // Hide all tab contents
+  const countersTab = getElementById(scope, `${modalId}-counters-tab`);
+  const historyTab = getElementById(scope, `${modalId}-history-tab`);
+
+  if (countersTab) {
+    if (tabName === 'counters') {
+      removeClass(countersTab, 'hidden');
+    } else {
+      addClass(countersTab, 'hidden');
+    }
+  }
+
+  if (historyTab) {
+    if (tabName === 'history') {
+      removeClass(historyTab, 'hidden');
+    } else {
+      addClass(historyTab, 'hidden');
+    }
+  }
+
+  // Update tab button styles
+  const tabButtons = scope.querySelectorAll('.tab-button');
+  tabButtons.forEach(button => {
+    removeClass(
+      button as HTMLElement,
+      'text-pastel-blue',
+      'border-pastel-blue'
+    );
+    addClass(button as HTMLElement, 'text-gray-700', 'border-transparent');
+  });
+
+  // Highlight active tab button
+  const activeButton = scope.querySelector(`button[onclick*="'${tabName}'"]`);
+  if (activeButton) {
+    removeClass(
+      activeButton as HTMLElement,
+      'text-gray-700',
+      'border-transparent'
+    );
+    addClass(
+      activeButton as HTMLElement,
+      'text-pastel-blue',
+      'border-pastel-blue'
+    );
+  }
+}
+
 export const linkFunctionsToWindow = (): void => {
   // Export all utility functions
   if (WINDOW) {
@@ -595,5 +653,6 @@ export const linkFunctionsToWindow = (): void => {
     WINDOW.initTrackingItems = initTrackingItems;
     WINDOW.showHabitsModal = showHabitsModal;
     WINDOW.hideHabitsModal = hideHabitsModal;
+    WINDOW.switchHabitsTab = switchHabitsTab; // Add the new function
   }
 };

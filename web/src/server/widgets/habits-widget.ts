@@ -321,15 +321,32 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
             </button>
           </div>
           
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" id="${modalId}-tracking-items-container">
-            <!-- Dynamic items will be inserted here by JavaScript -->
+          <!-- Tabs -->
+          <div class="flex border-b border-gray-200 mb-6">
+            <button class="tab-button py-2 px-4 font-medium text-gray-700 border-b-2 border-transparent hover:text-pastel-blue hover:border-pastel-blue focus:outline-none" 
+                    onclick="switchHabitsTab('${modalId}', 'counters')">
+              Counters
+            </button>
+            <button class="tab-button py-2 px-4 font-medium text-gray-700 border-b-2 border-transparent hover:text-pastel-blue hover:border-pastel-blue focus:outline-none" 
+                    onclick="switchHabitsTab('${modalId}', 'history')">
+              History
+            </button>
           </div>
           
-          <div class="border-t border-gray-100 pt-4">
-            <h3 class="text-lg font-bold text-gray-800 mb-3">History</h3>
-            <div id="${modalId}-consumption-list" class="max-h-60 overflow-y-auto pr-2">
-              <!-- Items will be added dynamically -->
-              <p class="text-gray-500 text-center py-4" id="${modalId}-no-consumption-message">No records</p>
+          <!-- Tab Content -->
+          <div id="${modalId}-counters-tab" class="tab-content">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" id="${modalId}-tracking-items-container">
+              <!-- Dynamic items will be inserted here by JavaScript -->
+            </div>
+          </div>
+          
+          <div id="${modalId}-history-tab" class="tab-content hidden">
+            <div class="border-t border-gray-100 pt-4">
+              <h3 class="text-lg font-bold text-gray-800 mb-3">History</h3>
+              <div id="${modalId}-consumption-list" class="max-h-60 overflow-y-auto pr-2">
+                <!-- Items will be added dynamically -->
+                <p class="text-gray-500 text-center py-4" id="${modalId}-no-consumption-message">No records</p>
+              </div>
             </div>
           </div>
         </div>

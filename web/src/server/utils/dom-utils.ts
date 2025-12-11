@@ -101,10 +101,10 @@ export function addClass(
  */
 export function removeClass(
   element: HTMLElement | null,
-  className: string
+  ...classNames: string[]
 ): void {
   if (element && element.classList) {
-    element.classList.remove(className);
+    element.classList.remove(...classNames);
   }
 }
 
