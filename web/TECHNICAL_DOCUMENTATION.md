@@ -200,6 +200,10 @@ model WidgetLog {
 ### Widget Routes
 - Widget management operations (partially implemented)
 
+## Widgets Implementation
+
+The project includes an initial implementation of a Habits Tracking Widget. Detailed documentation for widgets is available in the [Widgets Documentation (Russian)](WIDGETS_DOCUMENTATION_RU.md) file.
+
 ## Mobile Application Structure
 
 The mobile application uses a tab-based navigation system with three main tabs:

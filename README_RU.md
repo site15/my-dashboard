@@ -87,6 +87,7 @@ docker-compose down -v
 - [Техническая документация](./web/TECHNICAL_DOCUMENTATION.md)
 - [Документация мобильного приложения](./mobile/README_RU.md)
 - [Документация веб-приложения](./web/README_RU.md)
+- [Документация по виджетам](./web/WIDGETS_DOCUMENTATION_RU.md)
 
 ## Форматирование кода и линтинг
 

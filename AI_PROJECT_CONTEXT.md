@@ -74,12 +74,13 @@ See detailed schema in [schema.prisma](./web/prisma/schema.prisma):
 3. User reattachment functionality
 4. Full Dashboard CRUD operations
 5. Widget CRUD operations
-6. Mobile QR code scanning
-7. Widget display components on mobile
-8. Real-time widget updates
-9. Widget state management
-10. Offline caching for mobile
-11. Usage metrics collection
+6. Partial implementation of Habits Tracking Widget
+7. Mobile QR code scanning
+8. Widget display components on mobile
+9. Real-time widget updates
+10. Widget state management
+11. Offline caching for mobile
+12. Usage metrics collection
 
 ## Development Plan
 

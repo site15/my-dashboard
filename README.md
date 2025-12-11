@@ -88,6 +88,7 @@ docker-compose down -v
 - [Development Patterns](./DEVELOPMENT_PATTERNS.md)
 - [Mobile App Documentation](./mobile/README.md) ([Russian version](./mobile/README_RU.md))
 - [Web App Documentation](./web/README.md) ([Russian version](./web/README_RU.md))
+- [Widgets Documentation](./web/WIDGETS_DOCUMENTATION.md) ([Russian version](./web/WIDGETS_DOCUMENTATION_RU.md))
 
 ## Code Formatting and Linting
 

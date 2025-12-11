@@ -10,6 +10,10 @@ The application is deployed and available at: https://site15-my-dashboard.vercel
 
 Run `npm install` to install the application dependencies.
 
+## Widgets Documentation
+
+Detailed information about implemented widgets is available in the [Widgets Documentation](WIDGETS_DOCUMENTATION.md) ([Russian version](WIDGETS_DOCUMENTATION_RU.md)).
+
 ## Community
 
 Join our Telegram developer community for discussions, updates, and support:
