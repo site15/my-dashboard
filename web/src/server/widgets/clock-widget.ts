@@ -228,14 +228,14 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
     9. CLOCKS MODAL (DIGITAL CLOCKS)
     ========================================
 -->
-<div id="${modalId}" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
-    <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300 dark:bg-[#1E1E1E]">
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6 dark:border-gray-700">
+<div id="${modalId}" class="fixed inset-0 bg-opacity-10 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
+    <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300">
+        <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
                 <i data-lucide="globe" class="w-6 h-6 mr-2 text-pastel-green"></i>
                 All Timezones (<span id="${modalId}-modal-total-clocks">${widget.options.timezones.length}</span>)
             </h2>
-            <button onclick="hideClockModal('${modalId}','${widget.id}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+            <button onclick="hideClockModal('${modalId}','${widget.id}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
         </div>
@@ -267,20 +267,20 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
         <!-- Digital time and Name - CHANGE MAIN CLOCKS -->
         <div class="flex flex-col items-center cursor-pointer" onclick="rotateClocks('${modalId}', '${widget.id}', event);">
             <!-- Digital time (reduced font, no seconds) -->
-            <p id="main-clock-time-${mainTimeName}" class="text-4xl font-extrabold transition-colors duration-300 tracking-tight text-gray-800 dark:text-gray-100">${mainTime}</p>
+            <p id="main-clock-time-${mainTimeName}" class="text-4xl font-extrabold transition-colors duration-300 tracking-tight text-gray-800">${mainTime}</p>
             <!-- Clock name (under digital time) -->
-            <p id="main-clock-name-${mainTimeName}" class="text-md font-medium mt-1 text-center text-gray-600 dark:text-gray-300">${widget.options.timezones[0]?.name || ''}</p>
+            <p id="main-clock-name-${mainTimeName}" class="text-md font-medium mt-1 text-center text-gray-600">${widget.options.timezones[0]?.name || ''}</p>
         </div>
     </div>
         
     <!-- Small clocks (Horizontal stack) -->
-    <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100 dark:border-gray-700">
+    <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
         <div class="text-center w-1/2">
-            <p id="small-clock-time-${smallTime1Name}" class="text-xl font-bold text-gray-800 dark:text-gray-200">${smallTime1}</p>
+            <p id="small-clock-time-${smallTime1Name}" class="text-xl font-bold text-gray-800">${smallTime1}</p>
             <p id="small-clock-name-${smallTime1Name}" class="text-xs text-gray-500">${widget.options.timezones[1]?.name || ''}</p>
         </div>
         <div class="text-center w-1/2">
-            <p id="small-clock-time-${smallTime2Name}" class="text-xl font-bold text-gray-800 dark:text-gray-200">${smallTime2}</p>
+            <p id="small-clock-time-${smallTime2Name}" class="text-xl font-bold text-gray-800">${smallTime2}</p>
             <p id="small-clock-name-${smallTime2Name}" class="text-xs text-gray-500">${widget.options.timezones[2]?.name || ''}</p>
         </div>
     </div>

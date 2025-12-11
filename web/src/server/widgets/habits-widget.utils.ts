@@ -344,14 +344,14 @@ function renderModalItems(
   // Add each item to the modal
   habitItems.forEach(item => {
     const itemElement = createElement(document, 'div');
-    itemElement.className = `bg-${item.color}-50 dark:bg-${item.color}-900/30 p-4 rounded-2xl flex flex-col items-center`;
+    itemElement.className = `bg-${item.color}-50 p-4 rounded-2xl flex flex-col items-center`;
 
     const icon = createElement(document, 'i');
     setAttribute(icon, 'data-lucide', item.icon);
     icon.className = `w-8 h-8 text-${item.color}-500 mb-3`;
 
     const name = createElement(document, 'h3');
-    name.className = 'text-lg font-bold text-gray-800 dark:text-white mb-4';
+    name.className = 'text-lg font-bold text-gray-800 mb-4';
     setTextContent(name, item.name);
 
     const buttonsContainer = createElement(document, 'div');
@@ -365,7 +365,7 @@ function renderModalItems(
 
     const plusButton = createElement(document, 'button');
     plusButton.onclick = () => addItem(item.id, scope);
-    plusButton.className = `w-12 h-12 rounded-full bg-${item.color}-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-${item.color}-600 transition-colors`;
+    plusButton.className = `w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-green-600 transition-colors`;
     setTextContent(plusButton, '+');
 
     appendChild(buttonsContainer, minusButton);
@@ -456,7 +456,7 @@ function renderConsumptionList(
   allConsumption.forEach(item => {
     const listItem = createElement(document, 'div');
     listItem.className =
-      'flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700 mb-2';
+      'flex items-center justify-between p-3 rounded-lg bg-gray-50 mb-2';
 
     const iconContainer = createElement(document, 'div');
     iconContainer.className = 'flex items-center';
@@ -467,7 +467,7 @@ function renderConsumptionList(
     icon.className = `w-5 h-5 mr-3 text-${item.color}-500`;
 
     const text = createElement(document, 'span');
-    text.className = 'text-gray-700 dark:text-gray-300';
+    text.className = 'text-gray-700';
     setTextContent(text, `${item.typeName} at ${item.time}`);
 
     appendChild(iconContainer, icon);

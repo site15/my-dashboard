@@ -295,7 +295,7 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
 
       return `
       <div class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-green" onclick="showHabitsModal('${modalId}')">
-        <button class="absolute top-2 right-2 text-gray-400 hover:text-pastel-blue opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full bg-white/70 backdrop-blur-sm dark:bg-[#1e1e1e]/70">
+        <button class="absolute top-2 right-2 text-gray-400 hover:text-pastel-blue opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full bg-white/70 backdrop-blur-sm">
           <i data-lucide="pencil" class="w-5 h-5"></i>
         </button>
         <div class="flex items-center">
@@ -309,14 +309,14 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
       </div>
       
       <!-- Habits Modal -->
-      <div id="${modalId}" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
-        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300 dark:bg-[#1E1E1E]">
-          <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6 dark:border-gray-700">
+      <div id="${modalId}" class="fixed inset-0 bg-opacity-10 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
+        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300">
+          <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
               <i data-lucide="activity" class="w-6 h-6 mr-2 text-pastel-green"></i>
               Habits Tracking
             </h2>
-            <button onclick="hideHabitsModal('${modalId}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+            <button onclick="hideHabitsModal('${modalId}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100">
               <i data-lucide="x" class="w-6 h-6"></i>
             </button>
           </div>
@@ -325,8 +325,8 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
             <!-- Dynamic items will be inserted here by JavaScript -->
           </div>
           
-          <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-3">History</h3>
+          <div class="border-t border-gray-100 pt-4">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">History</h3>
             <div id="${modalId}-consumption-list" class="max-h-60 overflow-y-auto pr-2">
               <!-- Items will be added dynamically -->
               <p class="text-gray-500 text-center py-4" id="${modalId}-no-consumption-message">No records</p>

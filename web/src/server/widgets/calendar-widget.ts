@@ -130,7 +130,7 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
             <p class="text-sm text-gray-500 font-medium">Current Date</p>
             <p class="text-2xl font-extrabold text-gray-800">${dateElement}</p>
           </div>
-          <button class="text-pastel-blue hover:text-pastel-blue/80 p-2 rounded-full transition-colors bg-pastel-blue/10 dark:bg-pastel-blue/30" 
+          <button class="text-pastel-blue hover:text-pastel-blue/80 p-2 rounded-full transition-colors" style="background-color: rgba(138, 137, 240, 0.1);" 
                   onclick="showCalendarModal('${modalId}')">
             <i ngSkipHydration="calendar" class="w-6 h-6"></i>
           </button>
@@ -138,18 +138,18 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
 
         <div class="mt-4">
           <p class="text-sm text-gray-600 mb-1 font-medium">${progressText}</p>
-          <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
-            <div class="h-2.5 rounded-full bg-pastel-blue transition-all duration-500" style="width: ${progress}%"></div>
+          <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+            <div class="h-2.5 rounded-full bg-[#8A89F0] transition-all duration-500" style="width: ${progress}%"></div>
           </div>
         </div>
       </div>
       
       <!-- Calendar Modal -->
-      <div id="${modalId}" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
-        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-md transform transition-all duration-300 dark:bg-[#1E1E1E]">
-          <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4 dark:border-gray-700">
+      <div id="${modalId}" class="fixed inset-0 bg-opacity-10 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
+        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-md transform transition-all duration-300">
+          <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
             <h2 id="${modalId}-calendar-month-title" class="text-2xl font-bold text-gray-800"></h2>
-            <button onclick="hideCalendarModal('${modalId}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+            <button onclick="hideCalendarModal('${modalId}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100">
               <i data-lucide="x" class="w-6 h-6"></i>
             </button>
           </div>
@@ -168,9 +168,9 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
             <!-- Days will be inserted here -->
           </div>
           
-          <p class="text-center text-sm text-gray-500 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-            <span class="inline-block w-3 h-3 rounded-full bg-pastel-blue mr-1"></span> - Current day
-            <span class="inline-block w-3 h-3 rounded-full bg-pastel-blue/20 ml-4"></span> - Past days
+          <p class="text-center text-sm text-gray-500 mt-4 pt-4 border-t border-gray-100">
+            <span class="inline-block w-3 h-3 rounded-full bg-[#8A89F0] mr-1"></span> - Current day
+            <span class="inline-block w-3 h-3 rounded-full ml-4" style="background-color: rgba(138, 137, 240, 0.2);"></span> - Past days
           </p>
         </div>
       </div>

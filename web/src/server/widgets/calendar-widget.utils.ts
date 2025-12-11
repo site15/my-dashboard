@@ -118,20 +118,19 @@ function renderCalendarDays(
 
     if (day < currentDay) {
       dayCell.classList.add(
-        'bg-pastel-blue/20',
-        'text-gray-800',
-        'dark:bg-pastel-blue/50'
+        'text-gray-800'
       );
+      dayCell.style.backgroundColor = 'rgba(138, 137, 240, 0.2)';
     } else if (day === currentDay) {
       dayCell.classList.add(
-        'bg-pastel-blue',
+        'bg-[#8A89F0]',
         'text-white',
         'font-bold',
         'long-shadow'
       );
       dayCell.style.boxShadow = '5px 5px 0 0 rgba(138, 137, 240, 0.4)';
     } else {
-      dayCell.classList.add('text-gray-600', 'dark:text-gray-400');
+      dayCell.classList.add('text-gray-600');
     }
 
     appendChild(calendarContainer, dayCell);
