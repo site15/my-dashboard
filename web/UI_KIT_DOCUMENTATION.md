@@ -88,6 +88,21 @@ All form controls follow a consistent flat design with rounded corners and subtl
 - Smooth sliding animation
 - Primary color for active state
 
+#### Custom Select Components
+Custom select components have been created for enhanced UX:
+
+1. **Color Select Component**:
+   - Displays color options with circular color indicators
+   - Supports both light and dark themes
+   - Fully accessible with keyboard navigation
+   - Custom dropdown styling that adapts to theme
+
+2. **Icon Select Component**:
+   - Displays icon options with actual Lucide icons
+   - Supports both light and dark themes
+   - Fully accessible with keyboard navigation
+   - Custom dropdown styling that adapts to theme
+
 ### Other Components
 
 #### Loading Spinner (.loading-spinner)
