@@ -3,7 +3,11 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { of, tap } from 'rxjs';
 import { z } from 'zod';
 
-import { linkFunctionsToWindow } from './habits-widget.utils';
+import {
+  getHabitItems,
+  linkFunctionsToWindow,
+  setHabitItems,
+} from './habits-widget.utils';
 import {
   WidgetRender,
   WidgetRenderInitFunctionOptions,
@@ -13,7 +17,7 @@ import {
 // Define the habit item structure
 
 export const HabitsWidgetItemSchema = z.object({
-  id: z.string().optional().nullish(),
+  id: z.string(),
   name: z.string().min(1, { message: 'Name cannot be empty' }),
   icon: z.string(),
   color: z.string(),
@@ -23,7 +27,7 @@ export const HabitsWidgetItemSchema = z.object({
   history: z
     .array(
       z.object({
-        id: z.number(),
+        id: z.string(),
         time: z.string(),
       })
     )
@@ -244,57 +248,15 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
   ) {
     const render = (): string => {
       // Default items if none provided
-      const items =
-        widget.options.items && widget.options.items.length > 0
-          ? widget.options.items
-          : [
-              {
-                id: 'water',
-                name: 'Water',
-                icon: 'droplet',
-                color: 'blue',
-                minValue: 0,
-                maxValue: 8,
-                currentValue: 0,
-                history: [],
-              },
-              {
-                id: 'food',
-                name: 'Food',
-                icon: 'utensils',
-                color: 'orange',
-                minValue: 0,
-                maxValue: 5,
-                currentValue: 0,
-                history: [],
-              },
-              {
-                id: 'medication',
-                name: 'Medication',
-                icon: 'pill',
-                color: 'purple',
-                minValue: 0,
-                maxValue: 5,
-                currentValue: 0,
-                history: [],
-              },
-              {
-                id: 'exercise',
-                name: 'Exercise',
-                icon: 'dumbbell',
-                color: 'green',
-                minValue: 0,
-                maxValue: 3,
-                currentValue: 0,
-                history: [],
-              },
-            ];
+      const items = widget.options.items || [];
 
       // Generate unique IDs for this widget instance
       const modalId = `habits-modal-${widget.id}`;
 
+      setHabitItems(widget.id, items);
+
       return `
-      <div class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-green" onclick="showHabitsModal('${modalId}')">
+      <div class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-green" onclick="showHabitsModal('${widget.id}','${modalId}')">
         <button class="absolute top-2 right-2 text-gray-400 hover:text-pastel-blue opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full bg-white/70 backdrop-blur-sm">
           <i data-lucide="pencil" class="w-5 h-5"></i>
         </button>
@@ -304,7 +266,7 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
         </div>
         <div id="habits-widget-content">
           <!-- Dynamic content will be inserted here -->
-          ${renderWidgetContent(items)}
+          ${renderWidgetContent(widget.id)}
         </div>
       </div>
       
@@ -355,8 +317,10 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
     };
 
     // Helper function to render widget content
-    function renderWidgetContent(items: HabitsWidgetItemType[]): string {
-      if (items.length === 0) {
+    function renderWidgetContent(widgetId: string): string {
+      const items = getHabitItems(widgetId);
+      console.log({ items });
+      if (items?.length === 0) {
         return '<p class="text-gray-500 text-sm">No habits configured</p>';
       }
 
@@ -380,7 +344,7 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
                 </div>
                 <p class="text-xs text-gray-500 text-center">${item.name}</p>
                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                  <div id="habit-${item.id}-progress" class="h-1.5 rounded-full ${progressBarColor} transition-all duration-500" style="width: ${percentage}%"></div>
+                  <div class="habit-${item.id}-progress h-1.5 rounded-full ${progressBarColor} transition-all duration-500" style="width: ${percentage}%"></div>
                 </div>
               </div>
             `;

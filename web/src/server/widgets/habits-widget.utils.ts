@@ -22,7 +22,7 @@ import { isSSR } from '../utils/is-ssr';
 
 // Type definitions
 interface HabitHistoryEntry {
-  id: number;
+  id: string;
   time: string;
 }
 
@@ -38,63 +38,34 @@ interface HabitItem {
 }
 
 // Global variable for habit items
-let habitItems: HabitItem[] = [
-  {
-    id: 'water',
-    name: 'Water',
-    icon: 'droplet',
-    color: 'blue',
-    minValue: 0,
-    maxValue: 8,
-    currentValue: 0,
-    history: [],
-  },
-  {
-    id: 'food',
-    name: 'Food',
-    icon: 'utensils',
-    color: 'orange',
-    minValue: 0,
-    maxValue: 5,
-    currentValue: 0,
-    history: [],
-  },
-  {
-    id: 'medication',
-    name: 'Medication',
-    icon: 'pill',
-    color: 'purple',
-    minValue: 0,
-    maxValue: 5,
-    currentValue: 0,
-    history: [],
-  },
-  {
-    id: 'exercise',
-    name: 'Exercise',
-    icon: 'dumbbell',
-    color: 'green',
-    minValue: 0,
-    maxValue: 3,
-    currentValue: 0,
-    history: [],
-  },
-];
+const habitItems: Record<string, HabitItem[]> = {};
 
+export function setHabitItems(widgetId: string, items: HabitItem[]): void {
+  habitItems[widgetId] = (items?.length ? items : []).map(item => ({
+    ...item,
+    id: item.id || Math.random().toString(36).substring(2, 9),
+  }));
+  console.log(habitItems);
+}
+
+export function getHabitItems(widgetId: string) {
+  console.log(habitItems);
+  return habitItems[widgetId] || [];
+}
 /**
  * Initializes the habits widget with provided items
  * @param items - Array of habit items
  * @param scope - Document or element scope for DOM operations
  */
 function initializeHabitsWidget(
+  widgetId: string,
   items: HabitItem[],
   scope: Document | HTMLElement = document
 ): void {
-  if (items && items.length > 0) {
-    habitItems = items;
-  }
-  updateWidgetDisplay(scope);
-  updateTrackingCounts(scope);
+  setHabitItems(widgetId, items);
+
+  updateWidgetDisplay(widgetId, scope);
+  updateTrackingCounts(widgetId, scope);
 }
 
 /**
@@ -103,29 +74,37 @@ function initializeHabitsWidget(
  * @param scope - Document or element scope for DOM operations
  */
 function addItem(
+  widgetId: string,
   itemId: string,
   scope: Document | HTMLElement = document
 ): void {
-  const item = habitItems.find(i => i.id === itemId);
-  if (!item) return;
+  const itemIndex = habitItems[widgetId].findIndex(i => i.id === itemId);
+  if (itemIndex === -1) return;
 
   // Increment current value if not at max
-  if (item.currentValue < item.maxValue) {
-    item.currentValue++;
+  if (
+    habitItems[widgetId][itemIndex].currentValue <
+    habitItems[widgetId][itemIndex].maxValue
+  ) {
+    habitItems[widgetId][itemIndex].currentValue++;
+
+    if (!habitItems[widgetId][itemIndex].history) {
+      habitItems[widgetId][itemIndex].history = [];
+    }
 
     // Add to history
     const now = new Date();
-    item.history.push({
-      id: Date.now(),
+    habitItems[widgetId][itemIndex].history.push({
+      id: Math.random().toString(36).substring(2, 9),
       time: now.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
       }),
     });
 
-    updateTrackingCounts(scope);
+    updateTrackingCounts(widgetId, scope);
     renderConsumptionListForWidget();
-    updateProgressBar(itemId, scope);
+    updateProgressBar(widgetId, itemId, scope);
   }
 }
 
@@ -135,23 +114,24 @@ function addItem(
  * @param scope - Document or element scope for DOM operations
  */
 function removeItem(
+  widgetId: string,
   itemId: string,
   scope: Document | HTMLElement = document
 ): void {
-  const item = habitItems.find(i => i.id === itemId);
-  if (!item || item.currentValue <= item.minValue) return;
+  const itemIndex = habitItems[widgetId].findIndex(i => i.id === itemId);
+  if (itemIndex === -1) return;
 
   // Decrement current value
-  item.currentValue--;
+  habitItems[widgetId][itemIndex].currentValue--;
 
   // Remove from history
-  if (item.history.length > 0) {
-    item.history.pop();
+  if (habitItems[widgetId][itemIndex].history.length > 0) {
+    habitItems[widgetId][itemIndex].history.pop();
   }
 
-  updateTrackingCounts(scope);
+  updateTrackingCounts(widgetId, scope);
   renderConsumptionListForWidget();
-  updateProgressBar(itemId, scope);
+  updateProgressBar(widgetId, itemId, scope);
 }
 
 /**
@@ -160,42 +140,62 @@ function removeItem(
  * @param scope - Document or element scope for DOM operations
  */
 function updateProgressBar(
+  widgetId: string,
   itemId: string,
   scope: Document | HTMLElement = document
 ): void {
-  const item = habitItems.find(i => i.id === itemId);
-  if (!item) return;
+  console.log({ habitItems });
+  const itemIndex = habitItems[widgetId].findIndex(i => i.id === itemId);
+  if (itemIndex === -1) return;
 
-  const progressBar = getElementById(scope, `habit-${itemId}-progress`);
-  if (!progressBar) return;
+  const progressBarIdClass = `habit-${itemId}-progress`;
+  const progressBars = scope.querySelectorAll(
+    `.${progressBarIdClass}`
+  ) as NodeListOf<HTMLElement>;
 
-  // Calculate percentage
-  const percentage =
-    ((item.currentValue - item.minValue) / (item.maxValue - item.minValue)) *
-    100;
+  console.log({ progressBars });
+  progressBars.forEach(progressBar => {
+    console.log({
+      widgetId,
+      itemId,
+      scope,
+      progressBar,
+    });
+    if (!progressBar) return;
 
-  // Set width
-  setStyle(progressBar, 'width', `${percentage}%`);
+    // Calculate percentage
+    const percentage =
+      ((habitItems[widgetId][itemIndex].currentValue -
+        habitItems[widgetId][itemIndex].minValue) /
+        (habitItems[widgetId][itemIndex].maxValue -
+          habitItems[widgetId][itemIndex].minValue)) *
+      100;
 
-  // Set color based on value
-  if (percentage <= 33) {
-    // Red (minimum)
-    progressBar.className =
-      'h-2 rounded-full bg-red-500 transition-all duration-500';
-  } else if (percentage <= 66) {
-    // Blue (medium)
-    progressBar.className =
-      'h-2 rounded-full bg-blue-500 transition-all duration-500';
-  } else {
-    // Green (maximum)
-    progressBar.className =
-      'h-2 rounded-full bg-green-500 transition-all duration-500';
-  }
+    // Set width
+    setStyle(progressBar, 'width', `${percentage}%`);
+
+    // Set color based on value
+    if (percentage <= 33) {
+      // Red (minimum)
+      progressBar.className = `${progressBarIdClass} h-2 rounded-full bg-red-500 transition-all duration-500`;
+    } else if (percentage <= 66) {
+      // Blue (medium)
+      progressBar.className = `${progressBarIdClass} h-2 rounded-full bg-blue-500 transition-all duration-500`;
+    } else {
+      // Green (maximum)
+      progressBar.className = `${progressBarIdClass} h-2 rounded-full bg-green-500 transition-all duration-500`;
+    }
+
+    console.log({ progressBar });
+  });
 
   // Update the text display for current/max
   const textElement = getElementById(scope, `habit-${itemId}-count-text`);
   if (textElement) {
-    setTextContent(textElement, `${item.currentValue} / ${item.maxValue}`);
+    setTextContent(
+      textElement,
+      `${habitItems[widgetId][itemIndex].currentValue} / ${habitItems[widgetId][itemIndex].maxValue}`
+    );
   }
 }
 
@@ -203,15 +203,18 @@ function updateProgressBar(
  * Updates counts display
  * @param scope - Document or element scope for DOM operations
  */
-function updateTrackingCounts(scope: Document | HTMLElement = document): void {
-  habitItems.forEach(item => {
+function updateTrackingCounts(
+  widgetId: string,
+  scope: Document | HTMLElement = document
+): void {
+  habitItems[widgetId]?.forEach(item => {
     const countElement = getElementById(scope, `habit-${item.id}-count`);
     if (countElement) {
       setTextContent(countElement, item.currentValue.toString());
     }
 
     // Update progress bar
-    updateProgressBar(item.id, scope);
+    updateProgressBar(widgetId, item.id, scope);
   });
 }
 
@@ -219,7 +222,10 @@ function updateTrackingCounts(scope: Document | HTMLElement = document): void {
  * Updates widget display to show all items
  * @param scope - Document or element scope for DOM operations
  */
-function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
+function updateWidgetDisplay(
+  widgetId: string,
+  scope: Document | HTMLElement = document
+): void {
   const widgetContent = getElementById(scope, 'habits-widget-content');
   if (!widgetContent) return;
 
@@ -235,7 +241,7 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
   remainingItemsContainer.className = 'flex flex-wrap gap-3 mt-2 text-sm';
 
   // Process items
-  habitItems.forEach((item, index) => {
+  habitItems[widgetId]?.forEach((item, index) => {
     if (index < 3) {
       // Top 3 items with icons and progress
       const itemElement = createElement(document, 'div');
@@ -301,7 +307,7 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
   });
 
   appendChild(widgetContent, topItemsContainer);
-  if (habitItems.length > 3) {
+  if (habitItems[widgetId].length > 3) {
     appendChild(widgetContent, remainingItemsContainer);
   }
   if (!isSSR) {
@@ -315,6 +321,7 @@ function updateWidgetDisplay(scope: Document | HTMLElement = document): void {
  * @param scope - Document or element scope for DOM operations
  */
 function renderModalItems(
+  widgetId: string,
   modalId: string,
   scope: Document | HTMLElement = document
 ): void {
@@ -331,9 +338,9 @@ function renderModalItems(
   container.className = 'grid gap-4 mb-8';
 
   // Determine grid columns based on number of items
-  if (habitItems.length <= 2) {
+  if (habitItems[widgetId].length <= 2) {
     addClass(container, 'grid-cols-2');
-  } else if (habitItems.length <= 4) {
+  } else if (habitItems[widgetId].length <= 4) {
     addClass(container, 'grid-cols-2');
     addClass(container, 'sm:grid-cols-4');
   } else {
@@ -342,7 +349,7 @@ function renderModalItems(
   }
 
   // Add each item to the modal
-  habitItems.forEach(item => {
+  habitItems[widgetId]?.forEach(item => {
     const itemElement = createElement(document, 'div');
     itemElement.className = `bg-${item.color}-50 p-4 rounded-2xl flex flex-col items-center`;
 
@@ -358,13 +365,13 @@ function renderModalItems(
     buttonsContainer.className = 'flex gap-3';
 
     const minusButton = createElement(document, 'button');
-    minusButton.onclick = () => removeItem(item.id, scope);
+    minusButton.onclick = () => removeItem(widgetId, item.id, scope);
     minusButton.className =
       'w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-red-600 transition-colors';
     setTextContent(minusButton, '-');
 
     const plusButton = createElement(document, 'button');
-    plusButton.onclick = () => addItem(item.id, scope);
+    plusButton.onclick = () => addItem(widgetId, item.id, scope);
     plusButton.className = `w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-green-600 transition-colors`;
     setTextContent(plusButton, '+');
 
@@ -375,9 +382,7 @@ function renderModalItems(
     progressContainer.className = 'w-full bg-gray-200 rounded-full h-2 mt-3';
 
     const progressBar = createElement(document, 'div');
-    setAttribute(progressBar, 'id', `habit-${item.id}-progress`);
-    progressBar.className =
-      'h-2 rounded-full bg-red-500 transition-all duration-500';
+    progressBar.className = `habit-${item.id}-progress h-2 rounded-full bg-red-500 transition-all duration-500`;
     setStyle(progressBar, 'width', '0%');
 
     appendChild(progressContainer, progressBar);
@@ -406,6 +411,7 @@ function renderModalItems(
  * @param scope - Document or element scope for DOM operations
  */
 function renderConsumptionList(
+  widgetId: string,
   modalId: string,
   scope: Document | HTMLElement = document
 ): void {
@@ -421,8 +427,8 @@ function renderConsumptionList(
     typeName: string;
     color: string;
   })[] = [];
-  habitItems.forEach(item => {
-    item.history.forEach(entry => {
+  habitItems[widgetId]?.forEach(item => {
+    item.history?.forEach(entry => {
       allConsumption.push({
         ...entry,
         type: item.id,
@@ -432,7 +438,7 @@ function renderConsumptionList(
     });
   });
 
-  allConsumption.sort((a, b) => b.id - a.id);
+  allConsumption.sort((a, b) => b.id.localeCompare(a.id));
 
   // Show/hide no consumption message
   const noConsumptionMessage = getElementById(
@@ -462,7 +468,8 @@ function renderConsumptionList(
     iconContainer.className = 'flex items-center';
 
     const icon = createElement(document, 'i');
-    const itemIcon = habitItems.find(i => i.id === item.type)?.icon || 'circle';
+    const itemIcon =
+      habitItems[widgetId].find(i => i.id === item.type)?.icon || 'circle';
     setAttribute(icon, 'data-lucide', itemIcon);
     icon.className = `w-5 h-5 mr-3 text-${item.color}-500`;
 
@@ -494,10 +501,13 @@ function renderConsumptionListForWidget(): void {
  * Initializes tracking items
  * @param scope - Document or element scope for DOM operations
  */
-function initTrackingItems(scope: Document | HTMLElement = document): void {
+function initTrackingItems(
+  widgetId: string,
+  scope: Document | HTMLElement = document
+): void {
   // Update widget display to show all items
-  updateWidgetDisplay(scope);
-  updateTrackingCounts(scope);
+  updateWidgetDisplay(widgetId, scope);
+  updateTrackingCounts(widgetId, scope);
 }
 
 /**
@@ -506,6 +516,7 @@ function initTrackingItems(scope: Document | HTMLElement = document): void {
  * @param scope - Document or element scope for DOM operations
  */
 export function showHabitsModal(
+  widgetId: string,
   modalId: string,
   scope: Document | HTMLElement = document
 ): void {
@@ -526,9 +537,9 @@ export function showHabitsModal(
     (modal as any).closeModalOnBackgroundClick = closeModalOnBackgroundClick;
     modal.addEventListener('click', closeModalOnBackgroundClick);
 
-    renderModalItems(modalId, scope);
-    renderConsumptionList(modalId, scope);
-    updateTrackingCounts(scope);
+    renderModalItems(widgetId, modalId, scope);
+    renderConsumptionList(widgetId, modalId, scope);
+    updateTrackingCounts(widgetId, scope);
 
     // Show/hide no consumption message
     const noConsumptionMessage = getElementById(
@@ -541,7 +552,9 @@ export function showHabitsModal(
     );
     if (noConsumptionMessage && consumptionList) {
       // Check if any item has history
-      const hasConsumption = habitItems.some(item => item.history.length > 0);
+      const hasConsumption = habitItems[widgetId].some(
+        item => item.history.length > 0
+      );
       setStyle(
         noConsumptionMessage,
         'display',

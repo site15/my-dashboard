@@ -331,7 +331,3 @@ a {
 [data-theme='dark'] .option-item.selected {
   background-color: #1e3a8a;
 }
-
-.hidden {
-  display: none;
-}
