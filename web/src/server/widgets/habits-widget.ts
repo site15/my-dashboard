@@ -286,7 +286,7 @@ export class HabitsWidgetRender
           <i data-lucide="pencil" class="w-5 h-5"></i>
         </button>
         <div class="flex items-center">
-          <i ngSkipHydration="activity" class="w-8 h-8 text-pastel-green mr-3"></i>
+          <i data-lucide="activity" class="w-8 h-8 text-pastel-green mr-3"></i>
           <p class="text-lg font-medium text-gray-600">Habits</p>
         </div>
         <div id="habits-widget-content">
@@ -344,7 +344,7 @@ export class HabitsWidgetRender
     // Helper function to render widget content
     function renderWidgetContent(widgetId: string): string {
       const items = getHabitItems(widgetId);
-      
+
       if (items?.length === 0) {
         return '<p class="text-gray-500 text-sm">No habits configured</p>';
       }
@@ -358,7 +358,9 @@ export class HabitsWidgetRender
         <div class="grid grid-cols-3 gap-2 mt-2">
           ${topItems
             .map(item => {
-              const percentage = calculateProgressPercentage(item as HabitsWidgetItemType & HabitsWidgetStateType);
+              const percentage = calculateProgressPercentage(
+                item as HabitsWidgetItemType & HabitsWidgetStateType
+              );
               const progressBarColor = getProgressBarColor(percentage);
 
               return `

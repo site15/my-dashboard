@@ -75,10 +75,12 @@ function updateDateWidget(scope: Document | HTMLElement = document): void {
 /**
  * Renders calendar days in the modal
  * @param modalId - ID of the modal element
+ * @param startDayNumberOfWeek - Index of the first day of the week (0 = Sunday, 1 = Monday, etc.)
  * @param scope - Document or element scope for DOM operations
  */
 function renderCalendarDays(
   modalId: string,
+  startDayNumberOfWeek: number,
   scope: Document | HTMLElement = document
 ): void {
   const calendarContainer = getElementById(scope, `${modalId}-calendar-grid`);
@@ -98,11 +100,18 @@ function renderCalendarDays(
   setTextContent(monthTitle, monthName);
 
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-  const startDayOfWeek = (firstDayOfMonth.getDay() + 6) % 7;
+  // Adjust the starting day calculation based on the first day of week setting
+  const firstDayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  // Calculate how many days to shift based on the startDayNumberOfWeek
+  let startDayOffset = firstDayOfWeek - startDayNumberOfWeek;
+  if (startDayOffset < 0) {
+    startDayOffset += 7;
+  }
+  
   const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
 
   // Add empty cells for days before the first day of the month
-  for (let i = 0; i < startDayOfWeek; i++) {
+  for (let i = 0; i < startDayOffset; i++) {
     const emptyCell = createElement(document, 'div');
     emptyCell.className = 'text-center p-2';
     appendChild(calendarContainer, emptyCell);
@@ -117,9 +126,7 @@ function renderCalendarDays(
     setTextContent(dayCell, day.toString());
 
     if (day < currentDay) {
-      dayCell.classList.add(
-        'text-gray-800'
-      );
+      dayCell.classList.add('text-gray-800');
       dayCell.style.backgroundColor = 'rgba(138, 137, 240, 0.2)';
     } else if (day === currentDay) {
       dayCell.classList.add(
@@ -140,10 +147,12 @@ function renderCalendarDays(
 /**
  * Shows the calendar modal for a specific widget
  * @param modalId - ID of the modal element
+ * @param startDayNumberOfWeek - Index of the first day of the week (0 = Sunday, 1 = Monday, etc.)
  * @param scope - Document or element scope for DOM operations
  */
 export function showCalendarModal(
   modalId: string,
+  startDayNumberOfWeek: number,
   scope: Document | HTMLElement = document
 ): void {
   const modal = getElementById(scope, modalId);
@@ -158,15 +167,15 @@ export function showCalendarModal(
         hideCalendarModal(modalId, scope);
       }
     };
-    
+
     // Store the event listener so we can remove it later
     (modal as any).closeModalOnBackgroundClick = closeModalOnBackgroundClick;
     modal.addEventListener('click', closeModalOnBackgroundClick);
 
-    renderCalendarDays(modalId, scope);
-if (!isSSR) {
-    createIcons({ icons });
-}
+    renderCalendarDays(modalId, startDayNumberOfWeek, scope);
+    if (!isSSR) {
+      createIcons({ icons });
+    }
   }
 }
 
@@ -183,10 +192,13 @@ export function hideCalendarModal(
   if (modal) {
     // Remove the event listener
     if ((modal as any).closeModalOnBackgroundClick) {
-      modal.removeEventListener('click', (modal as any).closeModalOnBackgroundClick);
+      modal.removeEventListener(
+        'click',
+        (modal as any).closeModalOnBackgroundClick
+      );
       delete (modal as any).closeModalOnBackgroundClick;
     }
-    
+
     modal.classList.remove('opacity-100');
     modal.classList.add('opacity-0');
     setTimeout(() => modal.classList.add('hidden'), 300);

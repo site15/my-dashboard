@@ -40,6 +40,17 @@ export const CALENDAR_WIDGET_WEEKDAY_INDEXES: Record<string, number> = {
   [CalendarWidgetWeekday.saturday]: 6,
 };
 
+// Weekday abbreviations for display in calendar header
+export const CALENDAR_WIDGET_WEEKDAY_ABBREVIATIONS: Record<string, string> = {
+  [CalendarWidgetWeekday.sunday]: 'Su',
+  [CalendarWidgetWeekday.monday]: 'Mo',
+  [CalendarWidgetWeekday.tuesday]: 'Tu',
+  [CalendarWidgetWeekday.wednesday]: 'We',
+  [CalendarWidgetWeekday.thursday]: 'Th',
+  [CalendarWidgetWeekday.friday]: 'Fr',
+  [CalendarWidgetWeekday.saturday]: 'Sa',
+};
+
 export const CalendarWidgetWeekdayKeys = Object.keys(
   CALENDAR_WIDGET_WEEKDAY_TITLE
 );
@@ -72,13 +83,13 @@ export const CALENDAR_FORMLY_FIELDS: FormlyFieldConfig[] = [
         label: CALENDAR_WIDGET_WEEKDAY_TITLE[key],
       })),
       placeholder: 'Select first day of week',
-      attributes: { 
+      attributes: {
         'aria-label': 'Select first day of week',
         class: 'flat-input',
       },
     },
   },
-];// Helper function to get monthly progress
+]; // Helper function to get monthly progress
 function getMonthlyProgress() {
   const today = new Date();
   const currentDay = today.getDate();
@@ -89,6 +100,34 @@ function getMonthlyProgress() {
   ).getDate();
   const progress = (currentDay / lastDay) * 100;
   return { currentDay, lastDay, progress: progress.toFixed(1) };
+}
+
+// Function to generate weekday headers based on firstDayOfWeek
+function generateWeekdayHeaders(firstDayOfWeek: string): string {
+  const weekdays = Object.keys(CALENDAR_WIDGET_WEEKDAY_TITLE);
+  const abbreviations = CALENDAR_WIDGET_WEEKDAY_ABBREVIATIONS;
+
+  // Find the starting index based on firstDayOfWeek
+  const startIndex = CALENDAR_WIDGET_WEEKDAY_INDEXES[firstDayOfWeek];
+
+  // Create an array of weekday abbreviations starting from firstDayOfWeek
+  const orderedWeekdays = [];
+  for (let i = 0; i < 7; i++) {
+    const index = (startIndex + i) % 7;
+    orderedWeekdays.push(weekdays[index]);
+  }
+
+  // Generate the HTML for weekday headers
+  let html = '';
+  orderedWeekdays.forEach((day, index) => {
+    const isWeekend =
+      day === CalendarWidgetWeekday.saturday ||
+      day === CalendarWidgetWeekday.sunday;
+    const textColorClass = isWeekend ? 'text-red-500' : '';
+    html += `<div class="${textColorClass}">${abbreviations[day]}</div>`;
+  });
+
+  return html;
 }
 
 export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
@@ -127,6 +166,13 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
       // Generate unique IDs for this widget instance
       const modalId = `calendar-modal-${widget.id}`;
 
+      // Get the first day of week setting or default to sunday
+      const firstDayOfWeek =
+        widget.options?.firstDayOfWeek || CalendarWidgetWeekday.sunday;
+
+      // Generate weekday headers based on firstDayOfWeek
+      const weekdayHeaders = generateWeekdayHeaders(firstDayOfWeek);
+
       return `
       <div class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-blue">
         <div class="flex justify-between items-start">
@@ -135,8 +181,8 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
             <p class="text-2xl font-extrabold text-gray-800">${dateElement}</p>
           </div>
           <button class="text-pastel-blue hover:text-pastel-blue/80 p-2 rounded-full transition-colors" style="background-color: rgba(138, 137, 240, 0.1);" 
-                  onclick="showCalendarModal('${modalId}')">
-            <i ngSkipHydration="calendar" class="w-6 h-6"></i>
+                  onclick="showCalendarModal('${modalId}', ${CALENDAR_WIDGET_WEEKDAY_INDEXES[firstDayOfWeek]})">
+            <i data-lucide="calendar" class="w-6 h-6"></i>
           </button>
         </div>
 
@@ -159,13 +205,7 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
           </div>
           
           <div class="grid grid-cols-7 gap-1 text-sm font-bold uppercase text-gray-500 mb-2 text-center">
-            <div>Mo</div>
-            <div>Tu</div>
-            <div>We</div>
-            <div>Th</div>
-            <div>Fr</div>
-            <div class="text-red-500">Sa</div>
-            <div class="text-red-500">Su</div>
+            ${weekdayHeaders}
           </div>
 
           <div id="${modalId}-calendar-grid" class="grid grid-cols-7 gap-1">
