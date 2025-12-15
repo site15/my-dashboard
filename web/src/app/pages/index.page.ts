@@ -1,5 +1,6 @@
 import { RouteMeta } from '@analogjs/router';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 
 import { ShowNavGuard } from '../guards/nav.guard';
 
@@ -10,28 +11,73 @@ export const routeMeta: RouteMeta = {
 @Component({
   selector: 'home-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<section class="pico">
-    <h3>
-      <nav aria-label="breadcrumb">
-        <ul>
-          <li>Project Goal</li>
-        </ul>
-      </nav>
-    </h3>
-    <p>
-      Creating a dashboard management system for displaying information on old
-      Android phones.
-    </p>
-
-    <p>
-      Users create dashboards through a web application, add widgets, and bind
-      phones via QR code.
-    </p>
-
-    <p>
-      The phone receives data through an API and displays widgets in real-time.
-    </p>
-    <hr />
-  </section>`,
+  imports: [LucideAngularModule],
+  template: `
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Dashboard System</h1>
+    <p class="text-xl text-gray-500 mb-8">Manage your information on old Android devices</p>
+    
+    <div class="bg-white p-6 rounded-2xl long-shadow mb-8">
+      <div class="flex items-start mb-4">
+        <i-lucide 
+          name="smartphone" 
+          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg mr-4">
+        </i-lucide>
+        <div>
+          <h3 class="text-2xl font-bold text-gray-800 mb-2">Project Goal</h3>
+          <p class="text-gray-600">
+            Creating a dashboard management system for displaying information on old Android phones.
+          </p>
+        </div>
+      </div>
+      
+      <div class="flex items-start mb-4">
+        <i-lucide 
+          name="mouse-pointer-click" 
+          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg mr-4">
+        </i-lucide>
+        <div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">How It Works</h3>
+          <p class="text-gray-600">
+            Users create dashboards through a web application, add widgets, and bind phones via QR code.
+          </p>
+        </div>
+      </div>
+      
+      <div class="flex items-start">
+        <i-lucide 
+          name="zap" 
+          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg mr-4">
+        </i-lucide>
+        <div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Real-time Updates</h3>
+          <p class="text-gray-600">
+            The phone receives data through an API and displays widgets in real-time.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-2xl long-shadow">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Getting Started</h3>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a 
+          href="/dashboards" 
+          class="flex items-center justify-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide">
+          <i-lucide name="layout-dashboard" class="w-5 h-5 mr-2"></i-lucide>
+          Create Your First Dashboard
+        </a>
+        <a 
+          class="flex items-center justify-center text-lg font-bold py-3 px-6 rounded-xl text-pastel-blue border-2 border-pastel-blue transition-all duration-300 hover:bg-pastel-blue/10"
+          (click)="showError()">
+          <i-lucide name="book-open" class="w-5 h-5 mr-2"></i-lucide>
+          View Documentation
+        </a>
+      </div>
+    </div>
+  `,
 })
-export default class HomePageComponent {}
+export default class HomePageComponent {
+  showError() {
+    alert('Documentation is coming soon!');
+  }
+}
