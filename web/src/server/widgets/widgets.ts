@@ -6,17 +6,19 @@ import {
   CALENDAR_FORMLY_FIELDS,
   CalendarWidgetRender,
   CalendarWidgetSchema,
+  CalendarWidgetStateSchema,
 } from './calendar-widget';
 import {
   CLOCK_FORMLY_FIELDS,
   ClockWidgetRender,
   ClockWidgetSchema,
+  ClockWidgetStateSchema,
 } from './clock-widget';
 import {
-  CreateHabitsWidgetSchema,
   HABITS_FORMLY_FIELDS,
-  HabitsWidgetRender,
   HabitsWidgetSchema,
+  HabitsWidgetRender,
+  HabitsWidgetStateSchema,
 } from './habits-widget';
 import { WidgetRender } from '../types/WidgetSchema';
 
@@ -51,7 +53,15 @@ export type WidgetsType = z.infer<typeof WidgetsSchema>;
 export const CreateWidgetsSchema = z.discriminatedUnion('type', [
   ClockWidgetSchema,
   CalendarWidgetSchema,
-  CreateHabitsWidgetSchema,
+  HabitsWidgetSchema,
 ]);
 
 export type CreateWidgetsType = z.infer<typeof CreateWidgetsSchema>;
+
+export const CreateWidgetsStateSchema = z.discriminatedUnion('type', [
+  ClockWidgetStateSchema,
+  CalendarWidgetStateSchema,
+  HabitsWidgetStateSchema,
+]);
+
+export type CreateWidgetsStateType = z.infer<typeof CreateWidgetsStateSchema>;

@@ -7,11 +7,14 @@ import {
   getHabitItems,
   linkFunctionsToWindow,
   setHabitItems,
+  setSaveState,
 } from './habits-widget.utils';
+import { CreateWidgetsStateType } from './widgets';
 import {
   WidgetRender,
   WidgetRenderInitFunctionOptions,
   WidgetRenderType,
+  WidgetType,
 } from '../types/WidgetSchema';
 
 // Define the habit item structure
@@ -23,34 +26,9 @@ export const HabitsWidgetItemSchema = z.object({
   color: z.string(),
   minValue: z.number(),
   maxValue: z.number(),
-  currentValue: z.number().default(0),
-  history: z
-    .array(
-      z.object({
-        id: z.string(),
-        time: z.string(),
-      })
-    )
-    .nullish()
-    .optional(),
 });
 
 export type HabitsWidgetItemType = z.infer<typeof HabitsWidgetItemSchema>;
-
-//
-
-export const CreateHabitsWidgetItemSchema = z.object({
-  name: z.string().min(1, { message: 'Name cannot be empty' }),
-  icon: z.string(),
-  color: z.string(),
-  minValue: z.number(),
-  maxValue: z.number(),
-  currentValue: z.number().default(0),
-});
-
-export type CreateHabitsWidgetItemType = z.infer<
-  typeof CreateHabitsWidgetItemSchema
->;
 
 //
 
@@ -64,13 +42,24 @@ export type HabitsWidgetType = z.infer<typeof HabitsWidgetSchema>;
 
 //
 
-export const CreateHabitsWidgetSchema = z.object({
-  type: z.literal('habits'),
-  name: z.string().min(1, { message: 'Name cannot be empty' }),
-  items: z.array(CreateHabitsWidgetItemSchema).default([]),
+export const HabitsWidgetStateHistorySchema = z.object({
+  id: z.string(),
+  itemId: z.string(),
+  time: z.string(),
 });
 
-export type CreateHabitsWidgetType = z.infer<typeof CreateHabitsWidgetSchema>;
+export type HabitsWidgetStateHistoryType = z.infer<
+  typeof HabitsWidgetStateHistorySchema
+>;
+
+//
+
+export const HabitsWidgetStateSchema = z.object({
+  type: z.literal('habits'),
+  history: z.array(HabitsWidgetStateHistorySchema).default([]),
+});
+
+export type HabitsWidgetStateType = z.infer<typeof HabitsWidgetStateSchema>;
 
 // Formly field configuration for the habits widget
 export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
@@ -209,10 +198,12 @@ export const HABITS_FORMLY_FIELDS: FormlyFieldConfig[] = [
 ];
 
 // Function to calculate progress percentage
-function calculateProgressPercentage(item: HabitsWidgetItemType): number {
+function calculateProgressPercentage(
+  item: HabitsWidgetItemType & HabitsWidgetStateType
+): number {
   if (item.maxValue === item.minValue) return 0;
   return (
-    ((item.currentValue - item.minValue) / (item.maxValue - item.minValue)) *
+    ((item.history.length - item.minValue) / (item.maxValue - item.minValue)) *
     100
   );
 }
@@ -228,8 +219,35 @@ function getProgressBarColor(percentage: number): string {
   }
 }
 
-export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
+export class HabitsWidgetRender
+  implements WidgetRender<HabitsWidgetType, HabitsWidgetStateType>
+{
   private inited = false;
+
+  beforeSave(
+    widget: WidgetRenderType<HabitsWidgetType, HabitsWidgetStateType>
+  ) {
+    if (widget.options) {
+      widget.options.items = widget.options.items.map(
+        (item: HabitsWidgetItemType) => {
+          item.id = item.id || Math.random().toString(36).substring(2, 15);
+          return item;
+        }
+      );
+    }
+
+    if (widget.state) {
+      widget.state.history = widget.state.history.map(
+        (item: HabitsWidgetStateHistoryType) => {
+          item.id = item.id || Math.random().toString(36).substring(2, 15);
+          return item;
+        }
+      );
+    }
+
+    return widget;
+  }
+
   init(
     widget: WidgetRenderType<HabitsWidgetType>,
     options?: WidgetRenderInitFunctionOptions
@@ -247,13 +265,20 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
     options?: WidgetRenderInitFunctionOptions
   ) {
     const render = (): string => {
-      // Default items if none provided
-      const items = widget.options.items || [];
-
       // Generate unique IDs for this widget instance
       const modalId = `habits-modal-${widget.id}`;
 
-      setHabitItems(widget.id, items);
+      setHabitItems(
+        widget.id,
+        widget.options?.items || [],
+        widget.state?.history || []
+      );
+
+      if (options?.saveState) {
+        setSaveState((state: CreateWidgetsStateType, widget: WidgetType) =>
+          options.saveState!(state, widget)
+        );
+      }
 
       return `
       <div class="bg-white p-6 rounded-2xl long-shadow group transition-all duration-300 relative overflow-hidden h-40 flex flex-col justify-between border-l-4 border-pastel-green" onclick="showHabitsModal('${widget.id}','${modalId}')">
@@ -319,7 +344,7 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
     // Helper function to render widget content
     function renderWidgetContent(widgetId: string): string {
       const items = getHabitItems(widgetId);
-      console.log({ items });
+      
       if (items?.length === 0) {
         return '<p class="text-gray-500 text-sm">No habits configured</p>';
       }
@@ -333,14 +358,14 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
         <div class="grid grid-cols-3 gap-2 mt-2">
           ${topItems
             .map(item => {
-              const percentage = calculateProgressPercentage(item);
+              const percentage = calculateProgressPercentage(item as HabitsWidgetItemType & HabitsWidgetStateType);
               const progressBarColor = getProgressBarColor(percentage);
 
               return `
               <div class="flex flex-col items-center">
                 <div class="flex items-center justify-center w-8 h-8 mb-1">
                   <i data-lucide="${item.icon}" class="w-5 h-5 text-${item.color}-500"></i>
-                  <span class="text-lg font-bold text-gray-800 ml-1" id="habit-${item.id}-count">${item.currentValue}</span>
+                  <span class="text-lg font-bold text-gray-800 ml-1" id="habit-${item.id}-count">${item.history.length}</span>
                 </div>
                 <p class="text-xs text-gray-500 text-center">${item.name}</p>
                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
@@ -366,7 +391,7 @@ export class HabitsWidgetRender implements WidgetRender<HabitsWidgetType> {
               item => `
             <div class="flex items-center">
               <span class="text-gray-600">${item.name}: </span>
-              <span class="font-bold text-gray-800" id="habit-${item.id}-count">${item.currentValue}</span>
+              <span class="font-bold text-gray-800" id="habit-${item.id}-count">${item.history.length}</span>
             </div>
           `
             )

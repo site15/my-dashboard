@@ -52,6 +52,10 @@ export const CalendarWidgetSchema = z.object({
     .default(CalendarWidgetWeekday.sunday),
 });
 
+export const CalendarWidgetStateSchema = z.object({
+  type: z.literal('calendar'),
+});
+
 export type CalendarWidgetType = z.infer<typeof CalendarWidgetSchema>;
 
 export const CALENDAR_FORMLY_FIELDS: FormlyFieldConfig[] = [

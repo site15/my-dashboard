@@ -3,19 +3,24 @@ import { createIcons, icons } from 'lucide';
 import { forkJoin, map, mergeMap, of, switchMap, tap } from 'rxjs';
 
 import { WidgetRender, WidgetType } from '../../server/types/WidgetSchema';
+import { isSSR } from '../../server/utils/is-ssr';
+import { setHabitItems } from '../../server/widgets/habits-widget.utils';
 import {
+  CreateWidgetsStateType,
   WIDGETS_FORMLY_FIELDS,
   WIDGETS_RENDERERS,
 } from '../../server/widgets/widgets';
 import { mapFormlyTypes } from '../formly/get-formly-type';
 import { DashboardsService } from '../services/dashboards.service';
 import { WidgetsService } from '../services/widgets.service';
-import { isSSR } from '../../server/utils/is-ssr';
 
-export function mapToRenderHtml(staticMode = true) {
+export function mapToRenderHtml(
+  staticMode = true,
+  saveState?: (state: CreateWidgetsStateType, widget: WidgetType) => void
+) {
   return mergeMap(
     (data: { render: WidgetRender<unknown>; widget: WidgetType } | null) =>
-      data?.render?.render(data.widget, { static: staticMode }).pipe(
+      data?.render?.render(data.widget, { static: staticMode, saveState }).pipe(
         tap(() =>
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -44,6 +49,11 @@ export function mapToRenderDataByDashboardIdAndWidgetId() {
                 WIDGETS_FORMLY_FIELDS[widget.type] || []
               );
               const render = WIDGETS_RENDERERS[widget.type];
+              setHabitItems(
+                widget.id,
+                widget.options?.items || [],
+                widget.state?.history || []
+              );
               return { render, widget, fields, model };
             })
           ),

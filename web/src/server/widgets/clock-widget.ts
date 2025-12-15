@@ -53,6 +53,10 @@ export const ClockWidgetSchema = z.object({
   timezones: z.array(ClockWidgetTimezoneSchema).nullish().optional(),
 });
 
+export const ClockWidgetStateSchema = z.object({
+  type: z.literal('clock'),
+});
+
 export type ClockWidgetTimezoneType = z.infer<typeof ClockWidgetTimezoneSchema>;
 
 export type ClockWidgetType = z.infer<typeof ClockWidgetSchema>;
@@ -176,7 +180,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
 
     WINDOW?.initializeClockWidget?.(
       widget.id,
-      widget.options.timezones.map((tz: ClockWidgetTimezoneType) => {
+      widget.options?.timezones?.map((tz: ClockWidgetTimezoneType) => {
         return {
           name: tz.name,
           timezone: tz.timezone,
@@ -198,30 +202,29 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
     }
     const render = () => {
       // Get current times for the timezones
-      const mainTime = widget.options.timezones[0]
+      const mainTime = widget.options?.timezones?.[0]
         ? getDigitalTime(widget.options.timezones[0].timezone)
         : '--:--';
-      const smallTime1 = widget.options.timezones[1]
+      const smallTime1 = widget.options?.timezones?.[1]
         ? getDigitalTime(widget.options.timezones[1].timezone)
         : '--:--';
-      const smallTime2 = widget.options.timezones[2]
+      const smallTime2 = widget.options?.timezones?.[2]
         ? getDigitalTime(widget.options.timezones[2].timezone)
         : '--:--';
 
       // Get current times for the timezones
-      const mainTimeName = widget.options.timezones[0]?.name
+      const mainTimeName = widget.options?.timezones?.[0]?.name
         ? getClockName(widget.id, 'main')
         : '--:--';
-      const smallTime1Name = widget.options.timezones[1]
+      const smallTime1Name = widget.options?.timezones?.[1]
         ? getClockName(widget.id, 'small1')
         : '--:--';
-      const smallTime2Name = widget.options.timezones[2]
+      const smallTime2Name = widget.options?.timezones?.[2]
         ? getClockName(widget.id, 'small2')
         : '--:--';
 
       const modalId = getClockName(widget.id, 'clocks-modal');
 
-      console.log({ modalId });
       return `
 <!--
     ========================================
@@ -233,14 +236,14 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
         <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
                 <i data-lucide="globe" class="w-6 h-6 mr-2 text-pastel-green"></i>
-                All Timezones (<span id="${modalId}-modal-total-clocks">${widget.options.timezones.length}</span>)
+                All Timezones (<span id="${modalId}-modal-total-clocks">${widget.options?.timezones?.length}</span>)
             </h2>
             <button onclick="hideClockModal('${modalId}','${widget.id}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
         </div>
         
-        <p class="text-sm text-gray-600 mb-6">Total of <span id="${modalId}-modal-total-clocks-text">${widget.options.timezones.length}</span> locations configured for tracking.</p>
+        <p class="text-sm text-gray-600 mb-6">Total of <span id="${modalId}-modal-total-clocks-text">${widget.options?.timezones?.length}</span> locations configured for tracking.</p>
 
         <!-- Grid for all clocks (populated dynamically) -->
         <div id="${modalId}-all-clocks-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto pr-2">
@@ -269,7 +272,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
             <!-- Digital time (reduced font, no seconds) -->
             <p id="main-clock-time-${mainTimeName}" class="text-4xl font-extrabold transition-colors duration-300 tracking-tight text-gray-800">${mainTime}</p>
             <!-- Clock name (under digital time) -->
-            <p id="main-clock-name-${mainTimeName}" class="text-md font-medium mt-1 text-center text-gray-600">${widget.options.timezones[0]?.name || ''}</p>
+            <p id="main-clock-name-${mainTimeName}" class="text-md font-medium mt-1 text-center text-gray-600">${widget.options?.timezones?.[0]?.name || ''}</p>
         </div>
     </div>
         
@@ -277,11 +280,11 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
     <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
         <div class="text-center w-1/2">
             <p id="small-clock-time-${smallTime1Name}" class="text-xl font-bold text-gray-800">${smallTime1}</p>
-            <p id="small-clock-name-${smallTime1Name}" class="text-xs text-gray-500">${widget.options.timezones[1]?.name || ''}</p>
+            <p id="small-clock-name-${smallTime1Name}" class="text-xs text-gray-500">${widget.options?.timezones?.[1]?.name || ''}</p>
         </div>
         <div class="text-center w-1/2">
             <p id="small-clock-time-${smallTime2Name}" class="text-xl font-bold text-gray-800">${smallTime2}</p>
-            <p id="small-clock-name-${smallTime2Name}" class="text-xs text-gray-500">${widget.options.timezones[2]?.name || ''}</p>
+            <p id="small-clock-name-${smallTime2Name}" class="text-xs text-gray-500">${widget.options?.timezones?.[2]?.name || ''}</p>
         </div>
     </div>
 </div>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RouteMeta } from '@analogjs/router';
 import { AsyncPipe, TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
@@ -11,6 +12,7 @@ import { catchError, first, map, shareReplay, tap } from 'rxjs';
 import { ClientValidationErrorType } from '../../../../../../server/types/client-error-type';
 import {
   WIDGETS_FORMLY_FIELDS,
+  WIDGETS_RENDERERS,
   WidgetsType,
 } from '../../../../../../server/widgets/widgets';
 import { NoSanitizePipe } from '../../../../../directives/no-sanitize.directive';
@@ -138,7 +140,14 @@ export default class DashboardsWidgetsEditPageComponent {
     shareReplay(1)
   );
 
-  html$ = this.data$.pipe(mapToRenderHtml(true));
+  html$ = this.data$.pipe(
+    mapToRenderHtml(true, (state, widget) => {
+      this.widgetsService
+        .updateState({ id: widget.id, state })
+        .pipe(first())
+        .subscribe();
+    })
+  );
 
   private setFormFields(options?: { clientError?: ClientValidationErrorType }) {
     this.formHandlerService.updateFormFields(this.formFields$, {
@@ -151,14 +160,19 @@ export default class DashboardsWidgetsEditPageComponent {
 
   onSubmit(data: { type: string; id: string }) {
     this.setFormFields({});
+    
+    const widget = {
+      ...data,
+      options: {
+        ...this.formModel,
+        type: data.type,
+      } as WidgetsType,
+    };
+
+    WIDGETS_RENDERERS[data.type].beforeSave?.(widget);
+
     this.widgetsService
-      .update({
-        ...data,
-        options: {
-          ...this.formModel,
-          type: data.type,
-        } as WidgetsType,
-      })
+      .update(widget)
       .pipe(
         catchError(err =>
           this.errorHandlerService.catchAndProcessServerError({

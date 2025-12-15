@@ -213,12 +213,6 @@ function updateClocksUI(
       `main-analog-clock-${mainClockId}`
     );
 
-    console.log({
-      timeElement,
-      nameElement,
-      canvasElement,
-    });
-
     if (timeElement) {
       setTextContent(timeElement, getDigitalTime(mainClock.timezone));
     }
@@ -320,7 +314,7 @@ function renderAllClocksModal(
   scope: Document | HTMLElement = document
 ) {
   const modalGrid = getElementById(scope, `${modalId}-all-clocks-grid`);
-  console.log({ modalGrid });
+  
   if (!modalGrid) return;
 
   modalGrid.innerHTML = ''; // Clear
@@ -353,10 +347,6 @@ function renderAllClocksModal(
       scope,
       `${modalId} button.flat-btn-shadow`
     );
-    console.log({
-      modalButton,
-      c: `${modalId} button.flat-btn-shadow`,
-    });
 
     if (modalButton) {
       setTextContent(

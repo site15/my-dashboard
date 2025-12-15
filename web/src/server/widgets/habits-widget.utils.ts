@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /**
  * Client-side TypeScript for handling habits tracking widget
  * This replicates the functionality from gemini-template.html
@@ -7,6 +8,7 @@
 import { createIcons, icons } from 'lucide';
 
 import { WINDOW } from '../../app/utils/window';
+import { WidgetType } from '../types/WidgetSchema';
 import {
   addClass,
   appendChild,
@@ -19,6 +21,11 @@ import {
   setTextContent,
 } from '../utils/dom-utils';
 import { isSSR } from '../utils/is-ssr';
+import {
+  HabitsWidgetItemType,
+  HabitsWidgetStateHistoryType,
+} from './habits-widget';
+import { CreateWidgetsStateType } from './widgets';
 
 // Type definitions
 interface HabitHistoryEntry {
@@ -33,39 +40,46 @@ interface HabitItem {
   color: string;
   minValue: number;
   maxValue: number;
-  currentValue: number;
   history: HabitHistoryEntry[];
 }
 
 // Global variable for habit items
 const habitItems: Record<string, HabitItem[]> = {};
 
-export function setHabitItems(widgetId: string, items: HabitItem[]): void {
+let saveState:
+  | undefined
+  | ((state: CreateWidgetsStateType, widget: WidgetType) => void) = undefined;
+
+export function setSaveState(
+  fn: (state: CreateWidgetsStateType, widget: WidgetType) => void
+): void {
+  saveState = fn;
+}
+
+export function setHabitItems(
+  widgetId: string,
+  items: HabitsWidgetItemType[],
+  history: HabitsWidgetStateHistoryType[]
+): void {
+  
   habitItems[widgetId] = (items?.length ? items : []).map(item => ({
-    ...item,
-    id: item.id || Math.random().toString(36).substring(2, 9),
+    id: item.id || Math.random().toString(36).substring(2, 15),
+    name: item.name || '',
+    icon: item.icon || '',
+    color: item.color || '',
+    minValue: item.minValue || 0,
+    maxValue: item.maxValue || 0,
+    history: history
+      .filter(h => h.itemId === item.id)
+      .map(h => ({
+        id: h.id,
+        time: h.time,
+      })),
   }));
-  console.log(habitItems);
 }
 
 export function getHabitItems(widgetId: string) {
-  console.log(habitItems);
   return habitItems[widgetId] || [];
-}
-/**
- * Initializes the habits widget with provided items
- * @param items - Array of habit items
- * @param scope - Document or element scope for DOM operations
- */
-function initializeHabitsWidget(
-  widgetId: string,
-  items: HabitItem[],
-  scope: Document | HTMLElement = document
-): void {
-  setHabitItems(widgetId, items);
-
-  updateWidgetDisplay(widgetId, scope);
-  updateTrackingCounts(widgetId, scope);
 }
 
 /**
@@ -83,11 +97,9 @@ function addItem(
 
   // Increment current value if not at max
   if (
-    habitItems[widgetId][itemIndex].currentValue <
+    habitItems[widgetId][itemIndex].history.length <
     habitItems[widgetId][itemIndex].maxValue
   ) {
-    habitItems[widgetId][itemIndex].currentValue++;
-
     if (!habitItems[widgetId][itemIndex].history) {
       habitItems[widgetId][itemIndex].history = [];
     }
@@ -95,7 +107,7 @@ function addItem(
     // Add to history
     const now = new Date();
     habitItems[widgetId][itemIndex].history.push({
-      id: Math.random().toString(36).substring(2, 9),
+      id: Math.random().toString(36).substring(2, 15),
       time: now.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
@@ -121,9 +133,6 @@ function removeItem(
   const itemIndex = habitItems[widgetId].findIndex(i => i.id === itemId);
   if (itemIndex === -1) return;
 
-  // Decrement current value
-  habitItems[widgetId][itemIndex].currentValue--;
-
   // Remove from history
   if (habitItems[widgetId][itemIndex].history.length > 0) {
     habitItems[widgetId][itemIndex].history.pop();
@@ -144,7 +153,7 @@ function updateProgressBar(
   itemId: string,
   scope: Document | HTMLElement = document
 ): void {
-  console.log({ habitItems });
+  
   const itemIndex = habitItems[widgetId].findIndex(i => i.id === itemId);
   if (itemIndex === -1) return;
 
@@ -153,19 +162,12 @@ function updateProgressBar(
     `.${progressBarIdClass}`
   ) as NodeListOf<HTMLElement>;
 
-  console.log({ progressBars });
   progressBars.forEach(progressBar => {
-    console.log({
-      widgetId,
-      itemId,
-      scope,
-      progressBar,
-    });
     if (!progressBar) return;
 
     // Calculate percentage
     const percentage =
-      ((habitItems[widgetId][itemIndex].currentValue -
+      ((habitItems[widgetId][itemIndex].history.length -
         habitItems[widgetId][itemIndex].minValue) /
         (habitItems[widgetId][itemIndex].maxValue -
           habitItems[widgetId][itemIndex].minValue)) *
@@ -186,7 +188,6 @@ function updateProgressBar(
       progressBar.className = `${progressBarIdClass} h-2 rounded-full bg-green-500 transition-all duration-500`;
     }
 
-    console.log({ progressBar });
   });
 
   // Update the text display for current/max
@@ -194,7 +195,7 @@ function updateProgressBar(
   if (textElement) {
     setTextContent(
       textElement,
-      `${habitItems[widgetId][itemIndex].currentValue} / ${habitItems[widgetId][itemIndex].maxValue}`
+      `${habitItems[widgetId][itemIndex].history.length} / ${habitItems[widgetId][itemIndex].maxValue}`
     );
   }
 }
@@ -210,7 +211,7 @@ function updateTrackingCounts(
   habitItems[widgetId]?.forEach(item => {
     const countElement = getElementById(scope, `habit-${item.id}-count`);
     if (countElement) {
-      setTextContent(countElement, item.currentValue.toString());
+      setTextContent(countElement, item.history.length.toString());
     }
 
     // Update progress bar
@@ -259,7 +260,7 @@ function updateWidgetDisplay(
       const count = createElement(document, 'span');
       count.className = 'text-lg font-bold text-gray-800 ml-1';
       setAttribute(count, 'id', `habit-${item.id}-count`);
-      setTextContent(count, item.currentValue.toString());
+      setTextContent(count, item.history.length.toString());
 
       appendChild(iconCountContainer, icon);
       appendChild(iconCountContainer, count);
@@ -297,7 +298,7 @@ function updateWidgetDisplay(
       const value = createElement(document, 'span');
       value.className = 'font-bold text-gray-800';
       setAttribute(value, 'id', `habit-${item.id}-count`);
-      setTextContent(value, item.currentValue.toString());
+      setTextContent(value, item.history.length.toString());
 
       appendChild(itemElement, text);
       appendChild(itemElement, value);
@@ -365,13 +366,53 @@ function renderModalItems(
     buttonsContainer.className = 'flex gap-3';
 
     const minusButton = createElement(document, 'button');
-    minusButton.onclick = () => removeItem(widgetId, item.id, scope);
+    minusButton.onclick = () => {
+      removeItem(widgetId, item.id, scope);
+      if (saveState) {
+        saveState(
+          {
+            type: 'habits',
+            history:
+              habitItems[widgetId]
+                ?.map(it =>
+                  it.history?.map(h => ({
+                    id: h.id,
+                    itemId: it.id,
+                    time: h.time,
+                  }))
+                )
+                .flat() || [],
+          },
+          { id: widgetId } as WidgetType
+        );
+      }
+    };
     minusButton.className =
       'w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-red-600 transition-colors';
     setTextContent(minusButton, '-');
 
     const plusButton = createElement(document, 'button');
-    plusButton.onclick = () => addItem(widgetId, item.id, scope);
+    plusButton.onclick = () => {
+      addItem(widgetId, item.id, scope);
+      if (saveState) {
+        saveState(
+          {
+            type: 'habits',
+            history:
+              habitItems[widgetId]
+                ?.map(it =>
+                  it.history?.map(h => ({
+                    id: h.id,
+                    itemId: it.id,
+                    time: h.time,
+                  }))
+                )
+                .flat() || [],
+          },
+          { id: widgetId } as WidgetType
+        );
+      }
+    };
     plusButton.className = `w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-green-600 transition-colors`;
     setTextContent(plusButton, '+');
 
@@ -390,7 +431,7 @@ function renderModalItems(
     const countText = createElement(document, 'div');
     setAttribute(countText, 'id', `habit-${item.id}-count-text`);
     countText.className = 'text-xs text-gray-500 mt-1';
-    setTextContent(countText, `${item.currentValue} / ${item.maxValue}`);
+    setTextContent(countText, `${item.history.length} / ${item.maxValue}`);
 
     appendChild(itemElement, icon);
     appendChild(itemElement, name);
@@ -656,7 +697,6 @@ function switchHabitsTab(
 export const linkFunctionsToWindow = (): void => {
   // Export all utility functions
   if (WINDOW) {
-    WINDOW.initializeHabitsWidget = initializeHabitsWidget;
     WINDOW.addItem = addItem;
     WINDOW.removeItem = removeItem;
     WINDOW.updateTrackingCounts = updateTrackingCounts;

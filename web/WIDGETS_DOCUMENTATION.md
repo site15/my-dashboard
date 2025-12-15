@@ -70,7 +70,6 @@ interface HabitsWidgetItem {
   color: string;
   minValue: number;
   maxValue: number;
-  currentValue: number;
   history: Array<{
     id: number;
     time: string;
@@ -108,7 +107,6 @@ The widget is integrated with the general widget system of the project and uses 
       "color": "blue",
       "minValue": 0,
       "maxValue": 8,
-      "currentValue": 0,
       "history": []
     }
   ]

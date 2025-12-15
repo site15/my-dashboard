@@ -9,8 +9,10 @@ import { LucideAngularModule } from 'lucide-angular';
 import { catchError, first, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import { ClientValidationErrorType } from '../../../../../../../server/types/client-error-type';
+import { CreateWidgetType } from '../../../../../../../server/types/WidgetSchema';
 import {
   WIDGETS_FORMLY_FIELDS,
+  WIDGETS_RENDERERS,
   WidgetsType,
 } from '../../../../../../../server/widgets/widgets';
 import { mapFormlyTypes } from '../../../../../../formly/get-formly-type';
@@ -142,15 +144,20 @@ export default class DashboardsWidgetsAddByTypePageComponent {
 
   onSubmit(data: { type: string; dashboardId: string }) {
     this.setFormFields({});
-    this.widgetsService
-      .create({
-        dashboardId: data.dashboardId,
+
+    const widget = {
+      dashboardId: data.dashboardId,
+      type: data.type,
+      options: {
+        ...this.formModel,
         type: data.type,
-        options: {
-          ...this.formModel,
-          type: data.type,
-        } as unknown as WidgetsType,
-      })
+      } as unknown as WidgetsType,
+    } as CreateWidgetType;
+
+    WIDGETS_RENDERERS[data.type].beforeSave?.(widget);
+
+    this.widgetsService
+      .create(widget)
       .pipe(
         catchError(err =>
           this.errorHandlerService.catchAndProcessServerError({
