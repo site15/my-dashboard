@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../../prisma';
-import { DashboardSchema, DashboardType } from '../../types/DashboardSchema';
+import { DashboardSchema } from '../../types/DashboardSchema';
 import {
   DeviceInfoSchema,
   DeviceLinkSchema,
@@ -132,8 +132,9 @@ export const deviceRouter = router({
       id: dashboard.id,
       name: dashboard.name,
       isBlackTheme: dashboard.isBlackTheme,
-      widgets: dashboard.Widget.map(widget => ({
+      widgets: dashboard.Widget.map((widget) => ({
         id: widget.id,
+        type: widget.type,
         options: widget.options,
         state: widget.state,
         columnIndex: widget.columnIndex,
@@ -159,12 +160,34 @@ export const deviceRouter = router({
           message: 'Device ID not found!',
         });
       }
-      return (await prisma.dashboard.update({
+      // Get the current dashboard to get the widgetsCount
+      const currentDashboard = await prisma.dashboard.findFirst({
+        where: { deviceId: ctx.deviceId, userId: ctx.user.id },
+        include: {
+          Widget: true,
+        },
+      });
+
+      if (!currentDashboard) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Dashboard not found!',
+        });
+      }
+
+      // Update the dashboard
+      const updatedDashboard = await prisma.dashboard.update({
         data: {
           isBlackTheme: input.isBlackTheme,
           updatedAt: new Date(),
         },
         where: { deviceId: ctx.deviceId, userId: ctx.user.id },
-      })) satisfies DashboardType;
+      });
+
+      // Return the dashboard with widgetsCount
+      return {
+        ...updatedDashboard,
+        widgetsCount: currentDashboard.Widget.length,
+      };
     }),
 });

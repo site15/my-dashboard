@@ -213,6 +213,7 @@ export function ifThisIsAnObjectWithCauseThatsAZodErrorTRPCWrapsZod({
     }
     return { serverError, clientError };
   }
+  return null;
 }
 
 // standardErrorObjectHandlingErrorInstancesOrTRPCError
@@ -278,6 +279,7 @@ export function standardErrorObjectHandlingErrorInstancesOrTRPCError(
       },
     };
   }
+  return null;
 }
 
 // catchPrismaErrors
@@ -356,6 +358,7 @@ export function catchPrismaErrors(
       clientError,
     };
   }
+  return null;
 }
 
 // normalStructuredOrStringPayloads

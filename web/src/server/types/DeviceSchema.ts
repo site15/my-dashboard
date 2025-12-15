@@ -17,6 +17,7 @@ export type DeviceLinkType = z.infer<typeof DeviceLinkSchema>;
 // Device info response schema
 export const DeviceInfoWidgetSchema = z.object({
   [WidgetScalarFieldEnum.id]: z.string().uuid(),
+  [WidgetScalarFieldEnum.type]: z.string(),
   [WidgetScalarFieldEnum.options]: z.any().nullish(),
   [WidgetScalarFieldEnum.state]: z.any().nullish(),
   [WidgetScalarFieldEnum.columnIndex]: z.number().nullish(),
