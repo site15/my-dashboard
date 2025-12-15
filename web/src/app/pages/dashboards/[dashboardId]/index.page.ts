@@ -5,12 +5,15 @@ import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { FormlyForm } from '@ngx-formly/core';
+import { createIcons, icons } from 'lucide';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   catchError,
+  filter,
   first,
   forkJoin,
   map,
+  mergeMap,
   of,
   shareReplay,
   switchMap,
@@ -19,6 +22,7 @@ import {
 
 import { ClientValidationErrorType } from '../../../../server/types/client-error-type';
 import { UpdateDashboardType } from '../../../../server/types/DashboardSchema';
+import { isSSR } from '../../../../server/utils/is-ssr';
 import { WIDGETS_RENDERERS } from '../../../../server/widgets/widgets';
 import { mapFormlyTypes } from '../../../formly/get-formly-type';
 import { ShowNavGuard } from '../../../guards/nav.guard';
@@ -29,6 +33,7 @@ import {
 import { ErrorHandlerService } from '../../../services/error-handler.service';
 import { FormHandlerService } from '../../../services/form-handler.service';
 import { WidgetsService } from '../../../services/widgets.service';
+import { NoSanitizePipe } from '../../../directives/no-sanitize.directive';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],
@@ -45,6 +50,7 @@ export const routeMeta: RouteMeta = {
     FormlyForm,
     LucideAngularModule,
     TitleCasePipe,
+    NoSanitizePipe,
   ],
   template: `
     @if (dashboardAndWidgets$ | async; as dashboardAndWidgets) {
@@ -113,118 +119,188 @@ export const routeMeta: RouteMeta = {
         </div>
       </div>
 
-      <!-- Widget Grid -->
-      <h2 class="text-3xl font-bold text-gray-800 mb-6">Widget Grid</h2>
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-6"
-      >
-        @for (
-          widget of dashboardAndWidgets.widgets;
-          track widget.id;
-          let last = $last
-        ) {
-          <a
-            href="/dashboards/{{ dashboardAndWidgets.dashboard.id }}/widgets/{{
-              widget.id
-            }}"
-            class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+      <!-- Tabs -->
+      <div class="mb-6 border-b border-gray-200">
+        <nav class="flex space-x-8">
+          <button
+            (click)="activeTab = 'grid'"
+            [class.border-pastel-blue]="activeTab === 'grid'"
+            [class.text-pastel-blue]="activeTab === 'grid'"
+            class="py-4 px-1 border-b-2 font-medium text-sm transition-colors"
           >
-            <div class="flex justify-between items-start mb-4">
-              <i-lucide
-                [name]="
-                  widget.type === 'clock'
-                    ? 'clock'
-                    : widget.type === 'calendar'
-                      ? 'calendar'
-                      : 'activity'
-                "
-                class="w-8 h-8 text-pastel-blue mr-3"
-              ></i-lucide>
-              <p class="text-lg font-medium text-gray-600">
-                {{ widget.type | titlecase }} Widget
-              </p>
-            </div>
+            Widgets Grid
+          </button>
+          <button
+            (click)="activeTab = 'preview'"
+            [class.border-pastel-blue]="activeTab === 'preview'"
+            [class.text-pastel-blue]="activeTab === 'preview'"
+            class="py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+          >
+            Widgets Preview
+          </button>
+        </nav>
+      </div>
 
+      <!-- Tab Content -->
+      <div>
+        <!-- Widgets Grid Tab -->
+        @if (activeTab === 'grid') {
+          <div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Widgets Grid</h2>
             <div
-              class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100"
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-6"
             >
-              <span>ID: {{ widget.id.substring(0, 8) }}...</span>
-              <span
-                class="flex items-center text-pastel-blue hover:text-pastel-blue/80"
-              >
-                Open
-                <i-lucide name="arrow-right" class="w-4 h-4 ml-1"></i-lucide>
-              </span>
-            </div>
-          </a>
-
-          @if (last) {
-            <!-- "Add Widget" Button for when there are widgets -->
-            <div
-              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center"
-            >
-              <div class="text-center">
-                <p
-                  class="text-gray-500 hover:text-pastel-blue font-bold text-lg flex items-center justify-center"
+              @for (
+                widget of dashboardAndWidgets.widgets;
+                track widget.id;
+                let last = $last
+              ) {
+                <a
+                  href="/dashboards/{{
+                    dashboardAndWidgets.dashboard.id
+                  }}/widgets/{{ widget.id }}"
+                  class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                 >
-                  <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
-                  Add Widget
-                </p>
-                <div class="flex flex-wrap gap-2 mt-4 justify-center">
-                  @for (widgetType of widgetTypes; track $index) {
-                    <a
-                      href="/dashboards/{{
-                        dashboardAndWidgets.dashboard.id
-                      }}/widgets/add/{{ widgetType }}"
-                      class="text-xs bg-gray-200 hover:bg-gray-300 hover:text-gray-700 px-3 py-1 rounded-full transition-colors whitespace-nowrap"
-                    >
-                      {{ widgetType | titlecase }}
-                    </a>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        } @empty {
-          <div
-            class="col-span-full text-center py-12 flex flex-col items-center"
-          >
-            <div class="inline-block p-4 bg-gray-100 rounded-full mb-4">
-              <i-lucide
-                name="layout-dashboard"
-                class="w-12 h-12 text-gray-400"
-              ></i-lucide>
-            </div>
+                  <div class="flex justify-between items-start mb-4">
+                    <i-lucide
+                      [name]="
+                        widget.type === 'clock'
+                          ? 'clock'
+                          : widget.type === 'calendar'
+                            ? 'calendar'
+                            : 'activity'
+                      "
+                      class="w-8 h-8 text-pastel-blue mr-3"
+                    ></i-lucide>
+                    <p class="text-lg font-medium text-gray-600">
+                      {{ widget.type | titlecase }} Widget
+                    </p>
+                  </div>
 
-            <h3 class="text-2xl font-bold text-gray-700 mb-2">
-              No widgets yet
-            </h3>
-            <p class="text-gray-500 max-w-md mx-auto mb-8">
-              Get started by adding your first widget to this dashboard.
-            </p>
-
-            <!-- "Add Widget" Button -->
-            <div
-              class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 p-8 flex flex-col items-center justify-center"
-            >
-              <p
-                class="text-gray-500 hover:text-pastel-blue font-bold text-lg flex items-center justify-center mb-4"
-              >
-                <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
-                Add Widget
-              </p>
-              <div class="flex flex-wrap gap-2 justify-center">
-                @for (widgetType of widgetTypes; track $index) {
-                  <a
-                    href="/dashboards/{{
-                      dashboardAndWidgets.dashboard.id
-                    }}/widgets/add/{{ widgetType }}"
-                    class="text-xs bg-gray-200 hover:bg-gray-300 hover:text-gray-700 px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                  <div
+                    class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100"
                   >
-                    {{ widgetType | titlecase }}
-                  </a>
+                    <span>ID: {{ widget.id.substring(0, 8) }}...</span>
+                    <span
+                      class="flex items-center text-pastel-blue hover:text-pastel-blue/80"
+                    >
+                      Open
+                      <i-lucide
+                        name="arrow-right"
+                        class="w-4 h-4 ml-1"
+                      ></i-lucide>
+                    </span>
+                  </div>
+                </a>
+
+                @if (last) {
+                  <!-- "Add Widget" Button for when there are widgets -->
+                  <div
+                    class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center"
+                  >
+                    <div class="text-center">
+                      <p
+                        class="text-gray-500 hover:text-pastel-blue font-bold text-lg flex items-center justify-center"
+                      >
+                        <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
+                        Add Widget
+                      </p>
+                      <div class="flex flex-wrap gap-2 mt-4 justify-center">
+                        @for (widgetType of widgetTypes; track $index) {
+                          <a
+                            href="/dashboards/{{
+                              dashboardAndWidgets.dashboard.id
+                            }}/widgets/add/{{ widgetType }}"
+                            class="text-xs bg-gray-200 hover:bg-gray-300 hover:text-gray-700 px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                          >
+                            {{ widgetType | titlecase }}
+                          </a>
+                        }
+                      </div>
+                    </div>
+                  </div>
                 }
-              </div>
+              } @empty {
+                <div
+                  class="col-span-full text-center py-12 flex flex-col items-center"
+                >
+                  <div class="inline-block p-4 bg-gray-100 rounded-full mb-4">
+                    <i-lucide
+                      name="layout-dashboard"
+                      class="w-12 h-12 text-gray-400"
+                    ></i-lucide>
+                  </div>
+
+                  <h3 class="text-2xl font-bold text-gray-700 mb-2">
+                    No widgets yet
+                  </h3>
+                  <p class="text-gray-500 max-w-md mx-auto mb-8">
+                    Get started by adding your first widget to this dashboard.
+                  </p>
+
+                  <!-- "Add Widget" Button -->
+                  <div
+                    class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 p-8 flex flex-col items-center justify-center"
+                  >
+                    <p
+                      class="text-gray-500 hover:text-pastel-blue font-bold text-lg flex items-center justify-center mb-4"
+                    >
+                      <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
+                      Add Widget
+                    </p>
+                    <div class="flex flex-wrap gap-2 justify-center">
+                      @for (widgetType of widgetTypes; track $index) {
+                        <a
+                          href="/dashboards/{{
+                            dashboardAndWidgets.dashboard.id
+                          }}/widgets/add/{{ widgetType }}"
+                          class="text-xs bg-gray-200 hover:bg-gray-300 hover:text-gray-700 px-3 py-1 rounded-full transition-colors whitespace-nowrap"
+                        >
+                          {{ widgetType | titlecase }}
+                        </a>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Widgets Preview Tab -->
+        @if (activeTab === 'preview') {
+          <div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+              Widgets Preview
+            </h2>
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            >
+              @for (
+                widget of dashboardAndWidgets.widgets;
+                track widget.id;
+                let idx = $index
+              ) {
+                <div
+                  [innerHTML]="dashboardAndWidgets.htmls[idx] | noSanitize"
+                  class="w-full"
+                ></div>
+              } @empty {
+                <div class="col-span-full text-center py-12">
+                  <div class="inline-block p-4 bg-gray-100 rounded-full mb-4">
+                    <i-lucide
+                      name="eye-off"
+                      class="w-12 h-12 text-gray-400"
+                    ></i-lucide>
+                  </div>
+                  <h3 class="text-2xl font-bold text-gray-700 mb-2">
+                    No widgets to preview
+                  </h3>
+                  <p class="text-gray-500 max-w-md mx-auto">
+                    Add widgets to this dashboard to see their previews.
+                  </p>
+                </div>
+              }
             </div>
           </div>
         }
@@ -239,6 +315,8 @@ export default class DashboardsEditPageComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly formHandlerService = inject(FormHandlerService);
+
+  activeTab: 'grid' | 'preview' = 'grid'; // Default to grid tab
 
   form = new UntypedFormGroup({});
   formModel: UpdateDashboardType = {
@@ -270,6 +348,53 @@ export default class DashboardsEditPageComponent {
           })
         : of(null)
     ),
+    mergeMap(result => {
+      // When dashboard and widgets data loads, render all widgets for preview
+      if (result) {
+        // Render each widget and store the HTML
+        return forkJoin(
+          result.widgets.map(widget => {
+            const renderer = WIDGETS_RENDERERS[widget.type];
+            if (renderer) {
+              return renderer
+                .render(widget, {
+                  static: false,
+                  saveState: (state, widget) => {
+                    this.widgetsService
+                      .updateState({ id: widget.id, state })
+                      .pipe(first())
+                      .subscribe();
+                  },
+                })
+                .pipe(
+                  map(html => {
+                    // html
+                    requestAnimationFrame(() => {
+                      requestAnimationFrame(() => {
+                        if (!isSSR) {
+                          createIcons({ icons });
+                        }
+                      });
+                    });
+                    return { html, widget };
+                  })
+                );
+            }
+            return of({ html: '', widget });
+          })
+        ).pipe(
+          filter(widgetWithHtml => widgetWithHtml !== null),
+          map(widgetWithHtml => ({
+            ...result,
+            widgets: widgetWithHtml.map(
+              widgetWithHtml => widgetWithHtml!.widget
+            ),
+            htmls: widgetWithHtml.map(widgetWithHtml => widgetWithHtml!.html),
+          }))
+        );
+      }
+      return of(null);
+    }),
     shareReplay(1)
   );
 

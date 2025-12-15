@@ -26,7 +26,7 @@ const timeZoneClocks: Record<
   Array<{ name: string; timezone: string; color: string }>
 > = {};
 
-let clockUpdateInterval: NodeJS.Timeout | null = null;
+const clockUpdateInterval: Record<string, NodeJS.Timeout | null> = {};
 
 // Type definitions
 interface ClockConfig {
@@ -199,12 +199,14 @@ function updateClocksUI(
   widgetId: string,
   scope: Document | HTMLElement = document
 ): void {
-  const visibleClocks = timeZoneClocks[widgetId].slice(0, 3);
+  const visibleClocks = timeZoneClocks[widgetId]?.slice(0, 3);
 
   // Main clock (Widget)
   if (visibleClocks[0]) {
     const mainClock = visibleClocks[0];
     const mainClockId = getClockName(widgetId, 'main');
+
+    console.log('Updating main clock:', mainClock);
 
     const timeElement = getElementById(scope, `main-clock-time-${mainClockId}`);
     const nameElement = getElementById(scope, `main-clock-name-${mainClockId}`);
@@ -269,10 +271,10 @@ function rotateClocks(
     event.stopPropagation();
   }
 
-  if (timeZoneClocks[widgetId].length > 1) {
-    const firstClock = timeZoneClocks[widgetId].shift();
+  if (timeZoneClocks[widgetId]?.length > 1) {
+    const firstClock = timeZoneClocks[widgetId]?.shift();
     if (firstClock) {
-      timeZoneClocks[widgetId].push(firstClock);
+      timeZoneClocks[widgetId]?.push(firstClock);
       updateClocksUI(widgetId, scope);
       renderAllClocksModal(modalId, widgetId);
     }
@@ -290,14 +292,14 @@ function setupClockInterval(
   staticMode: boolean,
   scope: Document | HTMLElement = document
 ): void {
-  if (clockUpdateInterval) {
-    clearInterval(clockUpdateInterval);
-    clockUpdateInterval = null;
+  if (clockUpdateInterval[widgetId]) {
+    clearInterval(clockUpdateInterval[widgetId]);
+    clockUpdateInterval[widgetId] = null;
   }
   if (shouldStart) {
     updateClocksUI(widgetId, scope);
     if (!staticMode) {
-      clockUpdateInterval = setInterval(
+      clockUpdateInterval[widgetId] = setInterval(
         () => updateClocksUI(widgetId, scope),
         1000
       );
@@ -314,12 +316,12 @@ function renderAllClocksModal(
   scope: Document | HTMLElement = document
 ) {
   const modalGrid = getElementById(scope, `${modalId}-all-clocks-grid`);
-  
+
   if (!modalGrid) return;
 
   modalGrid.innerHTML = ''; // Clear
 
-  timeZoneClocks[widgetId].forEach((clock, index) => {
+  timeZoneClocks[widgetId]?.forEach((clock, index) => {
     const clockCard = createElement(scope as Document, 'div');
     clockCard.className =
       'bg-gray-50 p-4 rounded-xl flex flex-col items-center long-shadow';
@@ -338,7 +340,7 @@ function renderAllClocksModal(
   // Update total count in modal header
   setTextContent(
     getElementById(scope, `${modalId}-modal-total-clocks`),
-    String(timeZoneClocks[widgetId].length)
+    String(timeZoneClocks[widgetId]?.length)
   );
 
   // Update button text
@@ -351,7 +353,7 @@ function renderAllClocksModal(
     if (modalButton) {
       setTextContent(
         modalButton,
-        `Change Main Clocks (Now: ${getDigitalTime(timeZoneClocks[widgetId][0].timezone)})`
+        `Change Main Clocks (Now: ${getDigitalTime(timeZoneClocks[widgetId]?.[0]?.timezone)})`
       );
     }
   });
@@ -365,7 +367,7 @@ function updateAllClocksModalTimes(
   widgetId: string,
   scope: Document | HTMLElement = document
 ) {
-  timeZoneClocks[widgetId].forEach((clock, index) => {
+  timeZoneClocks[widgetId]?.forEach((clock, index) => {
     const timeElement = getElementById(
       scope,
       `${modalId}-modal-clock-time-${index}`

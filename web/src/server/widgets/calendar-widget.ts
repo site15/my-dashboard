@@ -131,15 +131,16 @@ function generateWeekdayHeaders(firstDayOfWeek: string): string {
 }
 
 export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
-  private inited = false;
+  private inited: Record<string, boolean> = {};
+
   init(
     widget: WidgetRenderType<CalendarWidgetType>,
     options?: WidgetRenderInitFunctionOptions
   ) {
-    if (this.inited) {
+    if (this.inited[widget.id]) {
       return;
     }
-    this.inited = true;
+    this.inited[widget.id] = true;
 
     linkFunctionsToWindow();
   }

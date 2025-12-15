@@ -166,15 +166,16 @@ function getDigitalTime(timezoneOffset: string): string {
 }
 
 export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
-  private inited = false;
+  private inited: Record<string, boolean> = {};
+
   init(
     widget: WidgetRenderType<ClockWidgetType>,
     options?: WidgetRenderInitFunctionOptions
   ) {
-    if (this.inited) {
+    if (this.inited[widget.id]) {
       return;
     }
-    this.inited = true;
+    this.inited[widget.id] = true;
 
     linkFunctionsToWindow();
 
@@ -185,7 +186,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
           name: tz.name,
           timezone: tz.timezone,
         };
-      }),
+      }) || [],
       options?.static || false
     );
   }
@@ -275,7 +276,9 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
             <p id="main-clock-name-${mainTimeName}" class="text-md font-medium mt-1 text-center text-gray-600">${widget.options?.timezones?.[0]?.name || ''}</p>
         </div>
     </div>
-        
+    ${
+      smallTime1 !== '--:--' && smallTime2 !== '--:--'
+        ? `
     <!-- Small clocks (Horizontal stack) -->
     <div class="flex justify-around items-center w-full pt-2 mt-4 border-t border-gray-100">
         <div class="text-center w-1/2">
@@ -286,7 +289,9 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
             <p id="small-clock-time-${smallTime2Name}" class="text-xl font-bold text-gray-800">${smallTime2}</p>
             <p id="small-clock-name-${smallTime2Name}" class="text-xs text-gray-500">${widget.options?.timezones?.[2]?.name || ''}</p>
         </div>
-    </div>
+    </div>`
+        : ''
+    }
 </div>
 <!-- END Widget 1 -->
 `;

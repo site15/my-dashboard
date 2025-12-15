@@ -222,7 +222,7 @@ function getProgressBarColor(percentage: number): string {
 export class HabitsWidgetRender
   implements WidgetRender<HabitsWidgetType, HabitsWidgetStateType>
 {
-  private inited = false;
+  private inited: Record<string, boolean> = {};
 
   beforeSave(
     widget: WidgetRenderType<HabitsWidgetType, HabitsWidgetStateType>
@@ -252,10 +252,10 @@ export class HabitsWidgetRender
     widget: WidgetRenderType<HabitsWidgetType>,
     options?: WidgetRenderInitFunctionOptions
   ) {
-    if (this.inited) {
+    if (this.inited[widget.id]) {
       return;
     }
-    this.inited = true;
+    this.inited[widget.id] = true;
 
     linkFunctionsToWindow();
   }

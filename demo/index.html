@@ -498,7 +498,7 @@
             // Update button text
             const modalButton = document.querySelector('#clocks-modal button.flat-btn-shadow');
             if (modalButton) {
-                modalButton.textContent = `Change Main Clocks (Currently: ${timeZoneClocks[0].name})`;
+                modalButton.textContent = `Change Main Clocks (Currently: ${timeZoneClocks[0]?.name})`;
             }
         }
         

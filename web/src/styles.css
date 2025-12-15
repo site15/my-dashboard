@@ -74,6 +74,31 @@ body {
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
+/* Custom color definitions */
+.bg-pastel-blue {
+  background-color: #8a89f0 !important;
+}
+
+.text-pastel-blue {
+  color: #8a89f0 !important;
+}
+
+.border-pastel-blue {
+  border-color: #8a89f0 !important;
+}
+
+.hover\:bg-pastel-blue:hover {
+  background-color: #8a89f0 !important;
+}
+
+.hover\:text-pastel-blue:hover {
+  color: #8a89f0 !important;
+}
+
+.hover\:border-pastel-blue:hover {
+  border-color: #8a89f0 !important;
+}
+
 /* --- Стили для Тёмной Темы --- */
 [data-theme='dark'] body {
   background-color: #121212; /* Темный фон */
@@ -137,6 +162,18 @@ body {
 
 [data-theme='dark'] .bg-gray-50 {
   background-color: #121212 !important;
+}
+
+[data-theme='dark'] .bg-pastel-blue {
+  background-color: #8a89f0 !important;
+}
+
+[data-theme='dark'] .text-pastel-blue {
+  color: #8a89f0 !important;
+}
+
+[data-theme='dark'] .border-pastel-blue {
+  border-color: #8a89f0 !important;
 }
 
 .view-transition {
