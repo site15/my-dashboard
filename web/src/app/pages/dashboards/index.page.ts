@@ -37,7 +37,7 @@ export const routeMeta: RouteMeta = {
           <div class="flex justify-between items-start mb-4">
             <i-lucide
               name="layout-dashboard"
-              class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg"
+              class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 rounded-lg"
             ></i-lucide>
             <span
               class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full"

@@ -65,7 +65,7 @@ export const routeMeta: RouteMeta = {
           <a
             href="/dashboards/{{ dashboard.id }}"
             class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-gray-500 transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
-              bg-gradient-to-tr from-[#9CA3AF] to-[#6B7280] tracking-wide cursor-pointer"
+              bg-gradient-to-tr from-[#AAB1BF] to-[#8B92A0] tracking-wide cursor-pointer"
           >
             <i-lucide name="x" class="w-5 h-5 mr-2"></i-lucide>
             Cancel

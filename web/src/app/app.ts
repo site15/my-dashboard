@@ -77,8 +77,8 @@ export const routeMeta: RouteMeta = {
           </a>
 
           <a
+            href="/analytics"
             class="flex items-center p-3 rounded-xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-100 hover:text-gray-800"
-            (click)="showError()"
           >
             <i-lucide
               name="chart-bar-big"
@@ -88,7 +88,7 @@ export const routeMeta: RouteMeta = {
           </a>
 
           <a
-            (click)="showError()"
+            href="/settings"
             class="flex items-center p-3 rounded-xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-100 hover:text-gray-800"
           >
             <i-lucide name="settings" class="w-6 h-6 mr-0 lg:mr-3"></i-lucide>

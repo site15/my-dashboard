@@ -20,7 +20,7 @@ export const routeMeta: RouteMeta = {
       <div class="flex items-start mb-4">
         <i-lucide 
           name="smartphone" 
-          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg mr-4">
+          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 rounded-lg">
         </i-lucide>
         <div>
           <h3 class="text-2xl font-bold text-gray-800 mb-2">Project Goal</h3>
@@ -33,7 +33,7 @@ export const routeMeta: RouteMeta = {
       <div class="flex items-start mb-4">
         <i-lucide 
           name="mouse-pointer-click" 
-          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg mr-4">
+          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 rounded-lg">
         </i-lucide>
         <div>
           <h3 class="text-xl font-bold text-gray-800 mb-2">How It Works</h3>
@@ -46,7 +46,7 @@ export const routeMeta: RouteMeta = {
       <div class="flex items-start">
         <i-lucide 
           name="zap" 
-          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 p-2 rounded-lg mr-4">
+          class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 rounded-lg">
         </i-lucide>
         <div>
           <h3 class="text-xl font-bold text-gray-800 mb-2">Real-time Updates</h3>
@@ -67,8 +67,8 @@ export const routeMeta: RouteMeta = {
           Create Your First Dashboard
         </a>
         <a 
-          class="flex items-center justify-center text-lg font-bold py-3 px-6 rounded-xl text-pastel-blue border-2 border-pastel-blue transition-all duration-300 hover:bg-pastel-blue/10"
-          (click)="showError()">
+          href="/documentation"
+          class="flex items-center justify-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-gray-500 transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow bg-gradient-to-tr from-[#AAB1BF] to-[#8B92A0] tracking-wide">
           <i-lucide name="book-open" class="w-5 h-5 mr-2"></i-lucide>
           View Documentation
         </a>
