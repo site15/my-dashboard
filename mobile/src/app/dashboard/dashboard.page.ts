@@ -1,10 +1,5 @@
-import { JsonPipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  inject,
-} from '@angular/core';
+import { AsyncPipe, JsonPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -16,6 +11,7 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonSpinner,
   IonTitle,
   IonToolbar,
   ToastController,
@@ -25,16 +21,18 @@ import { qrCodeOutline, refreshOutline } from 'ionicons/icons';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 // Import types from the backend Zod schemas
-import { firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
-import { ErrorHandlerService } from '../services/error-handler.service';
 import { DeviceInfoType } from '../../../../web/src/server/types/DeviceSchema';
+import { ErrorHandlerService } from '../services/error-handler.service';
 import { TrpcPureHeaders } from '../trpc-pure-client';
 
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @let dashboardInfo=(dashboardInfo$ | async)||null; @let
+    isLoading=(isLoading$ | async)||null;
     <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-title>
@@ -58,6 +56,16 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
       </ion-header>
 
       <app-explore-container name="Dashboard page">
+        @if (isLoading) {
+        <div style="padding: 20px; text-align: center;">
+          <div
+            style="display: flex; flex-direction: column; align-items: center; gap: 16px;"
+          >
+            <ion-spinner></ion-spinner>
+            <p>Loading...</p>
+          </div>
+        </div>
+        } @else {
         <div style="padding: 20px;">
           @if (dashboardInfo) {
           <div>
@@ -97,10 +105,12 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
           </ion-card>
           }
         </div>
+        }
       </app-explore-container>
     </ion-content>
   `,
   imports: [
+    IonSpinner,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -115,6 +125,7 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
     RouterLink,
     ExploreContainerComponent,
     JsonPipe,
+    AsyncPipe,
   ],
 })
 export class DashboardPage {
@@ -122,9 +133,9 @@ export class DashboardPage {
   private readonly toastController = inject(ToastController);
   private readonly errorHandler = inject(ErrorHandlerService);
 
-  dashboardInfo: DeviceInfoType | null = null;
-  loading = false;
-  error: string | null = null;
+  dashboardInfo$ = new BehaviorSubject<DeviceInfoType | null>(null);
+  isLoading$ = new BehaviorSubject<boolean>(false);
+  error$ = new BehaviorSubject<string | null>(null);
 
   constructor() {
     addIcons({ refreshOutline, qrCodeOutline });
@@ -142,12 +153,13 @@ export class DashboardPage {
     const deviceId = localStorage.getItem('deviceId');
 
     if (!deviceId) {
-      this.error = 'No device ID found. Please scan a QR code first.';
+      this.dashboardInfo$.next(null);
+      this.error$.next('No device ID found. Please scan a QR code first.');
       return;
     }
 
-    this.loading = true;
-    this.error = null;
+    this.isLoading$.next(true);
+    this.error$.next(null);
 
     TrpcHeaders.set({ [X_DEVICE_ID]: deviceId });
     TrpcPureHeaders.set({ [X_DEVICE_ID]: deviceId });
@@ -156,17 +168,18 @@ export class DashboardPage {
       // Fetch dashboard info using deviceId
       // Using a simple approach to avoid type issues
       const response = await firstValueFrom(this.trpc.device.info.query());
-      this.dashboardInfo = response;
+      this.dashboardInfo$.next(response);
     } catch (err) {
+      this.dashboardInfo$.next(null);
       console.error('Error fetching dashboard info:', err);
-      this.error = 'Failed to load dashboard information.';
+      this.error$.next('Failed to load dashboard information.');
       // Use global error handler
       await this.errorHandler.handleError(
         err,
         'Failed to load dashboard information'
       );
     } finally {
-      this.loading = false;
+      this.isLoading$.next(false);
     }
   }
 }

@@ -10,6 +10,33 @@ import {
 import { publicProcedure, router } from '../trpc';
 
 export const deviceRouter = router({
+  unlink: publicProcedure.mutation(async ({ ctx }) => {
+    try {
+      // First, clear the deviceId from any existing dashboard
+      await prisma.dashboard.updateMany({
+        where: {
+          deviceId: { equals: ctx.deviceId },
+        },
+        data: { deviceId: null },
+      });
+
+      ctx.logger.info('Device unlinked successfully', {
+        deviceId: ctx.deviceId,
+      });
+    } catch (error) {
+      // Re-throw as TRPCError if it isn't already
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to unlink device',
+        cause: error instanceof Error ? error : new Error(String(error)),
+      });
+    }
+  }),
+
   link: publicProcedure
     .input(DeviceLinkSchema)
     .mutation(async ({ input, ctx }) => {
@@ -26,7 +53,6 @@ export const deviceRouter = router({
         const qrCode = await prisma.qrCode.findFirst({
           where: {
             code: input.code,
-            deletedAt: null,
           },
           include: {
             Dashboard: true,
@@ -36,21 +62,14 @@ export const deviceRouter = router({
         if (!qrCode) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: 'QR code not found or already used',
+            message: 'QR code not found',
           });
         }
 
-        // Check if another dashboard already has this deviceId
-        const existingDashboard = await prisma.dashboard.findUnique({
-          where: {
-            deviceId: input.deviceId,
-          },
-        });
-
-        if (existingDashboard && existingDashboard.id !== qrCode.dashboardId) {
+        if (qrCode.deletedAt) {
           throw new TRPCError({
-            code: 'CONFLICT',
-            message: 'Device ID is already linked to another dashboard',
+            code: 'NOT_FOUND',
+            message: 'QR code already used',
           });
         }
 
@@ -72,6 +91,7 @@ export const deviceRouter = router({
           },
           data: { deletedAt: new Date() },
         });
+
         ctx.logger.info('Device linked successfully', {
           deviceId: input.deviceId,
           dashboardId: qrCode.dashboardId,
@@ -132,7 +152,7 @@ export const deviceRouter = router({
       id: dashboard.id,
       name: dashboard.name,
       isBlackTheme: dashboard.isBlackTheme,
-      widgets: dashboard.Widget.map((widget) => ({
+      widgets: dashboard.Widget.map(widget => ({
         id: widget.id,
         type: widget.type,
         options: widget.options,

@@ -238,7 +238,7 @@ export function standardErrorObjectHandlingErrorInstancesOrTRPCError(
     const out: StandardErrorType = {
       event: 'standard_error',
       name: errObj.name ?? 'Error',
-      message: errObj.message ?? String(errObj),
+      message: errObj.message || typeof errObj === 'object' ? errObj.stack : String(errObj),
       data: { ...errObj },
       stack,
       stackFrame: frame,

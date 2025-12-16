@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { LucideAngularModule } from 'lucide-angular';
-import { map, of, shareReplay, switchMap } from 'rxjs';
+import { BehaviorSubject, map, of, shareReplay, switchMap } from 'rxjs';
 
 import { ShowNavGuard } from '../../../guards/nav.guard';
 import { DashboardsService } from '../../../services/dashboards.service';
@@ -47,6 +47,15 @@ export const routeMeta: RouteMeta = {
               Open the mobile app and scan this QR code to link your device to the
               <span class="font-bold">{{ dashboard.name }}</span> dashboard.
             </p>
+            
+            <!-- Regenerate QR Code Button -->
+            <button
+              (click)="regenerateQrCode()"
+              class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow"
+            >
+              <i-lucide name="refresh-cw" class="w-5 h-5 mr-2"></i-lucide>
+              Regenerate QR Code
+            </button>
           }
         </div>
       </div>
@@ -57,6 +66,10 @@ export default class DashboardsLinkDevicePageComponent {
   private readonly dashboardsService = inject(DashboardsService);
   private readonly route = inject(ActivatedRoute);
 
+  // Use BehaviorSubject to allow manual QR code regeneration
+  private qrCodeSubject = new BehaviorSubject<string | null>(null);
+  readonly qrForLinkDevice$ = this.qrCodeSubject.asObservable();
+
   readonly dashboard$ = this.route.paramMap.pipe(
     map(params => params.get('dashboardId')),
     switchMap(dashboardId =>
@@ -65,14 +78,36 @@ export default class DashboardsLinkDevicePageComponent {
     shareReplay(1)
   );
 
-  readonly qrForLinkDevice$ = this.route.paramMap.pipe(
-    switchMap(params =>
-      params.get('dashboardId') !== null
-        ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          this.dashboardsService.generateQrCode(params.get('dashboardId')!)
-        : of(null)
-    ),
-    map(result => result?.qr),
-    shareReplay(1)
-  );
+  constructor() {
+    // Load initial QR code when component initializes
+    this.loadInitialQrCode();
+  }
+
+  private loadInitialQrCode() {
+    this.route.paramMap.pipe(
+      switchMap(params =>
+        params.get('dashboardId') !== null
+          ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.dashboardsService.generateQrCode(params.get('dashboardId')!)
+          : of(null)
+      ),
+      map(result => result?.qr)
+    ).subscribe(qrCode => {
+      this.qrCodeSubject.next(qrCode || null);
+    });
+  }
+
+  regenerateQrCode() {
+    this.route.paramMap.pipe(
+      switchMap(params =>
+        params.get('dashboardId') !== null
+          ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.dashboardsService.generateQrCode(params.get('dashboardId')!)
+          : of(null)
+      ),
+      map(result => result?.qr)
+    ).subscribe(qrCode => {
+      this.qrCodeSubject.next(qrCode || null);
+    });
+  }
 }

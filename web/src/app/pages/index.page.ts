@@ -61,7 +61,7 @@ export const routeMeta: RouteMeta = {
       <h3 class="text-xl font-bold text-gray-800 mb-4">Getting Started</h3>
       <div class="flex flex-col sm:flex-row gap-4">
         <a 
-          href="/dashboards" 
+          href="/dashboards/new" 
           class="flex items-center justify-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide">
           <i-lucide name="layout-dashboard" class="w-5 h-5 mr-2"></i-lucide>
           Create Your First Dashboard

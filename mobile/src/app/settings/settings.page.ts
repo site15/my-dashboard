@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -29,7 +30,7 @@ import {
   saveOutline,
   unlinkOutline,
 } from 'ionicons/icons';
-import { firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { ErrorHandlerService } from '../services/error-handler.service';
@@ -38,12 +39,16 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
 
 @Component({
   selector: 'app-settings',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @let deviceSettings=(deviceSettings$ | async) || { name: '', isBlackTheme:
+    false }; @let deviceId=(deviceId$ | async) || null; @let saving=(saving$ |
+    async) || false; @let loading=(loading$ | async) || false;
     <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-title> Settings </ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="loadDashboardInfo()">
+          <ion-button (click)="loadDashboardInfo()" [disabled]="loading">
             <ion-icon name="refresh-outline"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -59,7 +64,12 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
 
       <app-explore-container name="Settings page">
         <div style="padding: 20px;">
-          @if (deviceSettings.name && deviceId) {
+          @if (loading) {
+          <div class="flex flex-col items-center justify-center py-8">
+            <ion-spinner></ion-spinner>
+            <p class="mt-4 text-gray-600">Loading settings...</p>
+          </div>
+          } @else if (deviceSettings.name && deviceId) {
           <form (ngSubmit)="saveSettings()" #settingsForm="ngForm">
             <ion-card>
               <ion-card-header>
@@ -165,6 +175,7 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
     FormsModule,
     RouterLink,
     ExploreContainerComponent,
+    AsyncPipe,
   ],
 })
 export class SettingsPage {
@@ -173,12 +184,13 @@ export class SettingsPage {
   private alertController = inject(AlertController);
   private errorHandler = inject(ErrorHandlerService);
 
-  deviceSettings = {
+  deviceSettings$ = new BehaviorSubject({
     name: '',
     isBlackTheme: false,
-  };
-  deviceId: string | null = null;
-  saving = false;
+  });
+  deviceId$ = new BehaviorSubject<string | null>(null);
+  saving$ = new BehaviorSubject(false);
+  loading$ = new BehaviorSubject(false);
 
   constructor() {
     addIcons({ refreshOutline, saveOutline, qrCodeOutline, unlinkOutline });
@@ -191,21 +203,24 @@ export class SettingsPage {
   }
 
   async loadDashboardInfo() {
-    // Get device ID from localStorage
-    this.deviceId = localStorage.getItem('deviceId');
-
-    if (!this.deviceId) {
-      this.deviceSettings = {
-        name: '',
-        isBlackTheme: false,
-      };
-      return;
-    }
+    // Set loading state to true when starting to load data
+    this.loading$.next(true);
 
     try {
+      // Get device ID from localStorage
+      this.deviceId$.next(localStorage.getItem('deviceId'));
+
+      if (!this.deviceId$.value) {
+        this.deviceSettings$.next({
+          name: '',
+          isBlackTheme: false,
+        });
+        return;
+      }
+
       // Set the device ID header for the request
-      TrpcHeaders.set({ [X_DEVICE_ID]: this.deviceId });
-      TrpcPureHeaders.set({ [X_DEVICE_ID]: this.deviceId });
+      TrpcHeaders.set({ [X_DEVICE_ID]: this.deviceId$.value });
+      TrpcPureHeaders.set({ [X_DEVICE_ID]: this.deviceId$.value });
 
       // Fetch dashboard info
       const deviceSettings = await firstValueFrom(
@@ -213,31 +228,36 @@ export class SettingsPage {
       );
 
       // Update local settings
-      this.deviceSettings.name = deviceSettings.name;
-      this.deviceSettings.isBlackTheme = deviceSettings.isBlackTheme ?? false;
+      this.deviceSettings$.next({
+        name: deviceSettings.name,
+        isBlackTheme: deviceSettings.isBlackTheme ?? false,
+      });
     } catch (err) {
       console.error('Error loading dashboard info:', err);
       // Use global error handler
       await this.errorHandler.handleError(err, 'Failed to load dashboard info');
-      this.deviceSettings = {
+      this.deviceSettings$.next({
         name: '',
         isBlackTheme: false,
-      };
+      });
+    } finally {
+      // Set loading state to false when operation completes
+      this.loading$.next(false);
     }
   }
 
   async saveSettings() {
-    if (!this.deviceSettings.name || !this.deviceId) {
+    if (!this.deviceSettings$.value.name || !this.deviceId$.value) {
       return;
     }
 
-    this.saving = true;
+    this.saving$.next(true);
 
     try {
       // Update dashboard settings
       await firstValueFrom(
         this.trpc.device.saveSettings.mutate({
-          isBlackTheme: this.deviceSettings.isBlackTheme,
+          isBlackTheme: this.deviceSettings$.value.isBlackTheme,
         })
       );
 
@@ -256,12 +276,12 @@ export class SettingsPage {
       // Use global error handler
       await this.errorHandler.handleError(err, 'Failed to save settings');
     } finally {
-      this.saving = false;
+      this.saving$.next(false);
     }
   }
 
   async unlinkDevice() {
-    if (!this.deviceSettings || !this.deviceId) {
+    if (!this.deviceSettings$.value || !this.deviceId$.value) {
       return;
     }
 
@@ -281,7 +301,10 @@ export class SettingsPage {
             role: 'destructive',
             handler: async () => {
               // Remove deviceId from localStorage
-              localStorage.removeItem('deviceId');
+              await firstValueFrom(this.trpc.device.unlink.mutate());
+
+              TrpcHeaders.set({});
+              TrpcPureHeaders.set({});
 
               // Show success message
               const toast = await this.toastController.create({
@@ -292,11 +315,11 @@ export class SettingsPage {
               await toast.present();
 
               // Clear dashboard info
-              this.deviceSettings = {
+              this.deviceSettings$.next({
                 name: '',
                 isBlackTheme: false,
-              };
-              this.deviceId = null;
+              });
+              this.deviceId$.next(null);
             },
           },
         ],
