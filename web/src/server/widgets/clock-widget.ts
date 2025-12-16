@@ -233,8 +233,8 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
     ========================================
 -->
 <div id="${modalId}" class="fixed inset-0 bg-opacity-10 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
-    <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300">
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
+    <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6 sticky top-0 bg-white z-50">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
                 <i data-lucide="globe" class="w-6 h-6 mr-2 text-pastel-green"></i>
                 All Timezones (<span id="${modalId}-modal-total-clocks">${widget.options?.timezones?.length}</span>)

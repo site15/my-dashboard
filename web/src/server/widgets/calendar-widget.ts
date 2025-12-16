@@ -197,14 +197,13 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
       
       <!-- Calendar Modal -->
       <div id="${modalId}" class="fixed inset-0 bg-opacity-10 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
-        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-md transform transition-all duration-300">
-          <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-md transform transition-all duration-300 max-h-[90vh] overflow-y-auto">
+          <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4 sticky top-0 bg-white z-50">
             <h2 id="${modalId}-calendar-month-title" class="text-2xl font-bold text-gray-800"></h2>
             <button onclick="hideCalendarModal('${modalId}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100">
               <i data-lucide="x" class="w-6 h-6"></i>
             </button>
-          </div>
-          
+          </div>          
           <div class="grid grid-cols-7 gap-1 text-sm font-bold uppercase text-gray-500 mb-2 text-center">
             ${weekdayHeaders}
           </div>

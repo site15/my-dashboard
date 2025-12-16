@@ -297,27 +297,28 @@ export class HabitsWidgetRender
       
       <!-- Habits Modal -->
       <div id="${modalId}" class="fixed inset-0 bg-opacity-10 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300 hidden opacity-0">
-        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300">
-          <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
+        <div class="bg-white rounded-3xl long-shadow p-6 w-full max-w-2xl transform transition-all duration-300 max-h-[90vh] overflow-y-auto">
+          <div class="flex justify-between items-center border-b border-gray-100 pb-4 sticky top-0 bg-white z-50">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
               <i data-lucide="activity" class="w-6 h-6 mr-2 text-pastel-green"></i>
               Habits Tracking
             </h2>
-            <button onclick="hideHabitsModal('${modalId}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100">
-              <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-          </div>
-          
-          <!-- Tabs -->
-          <div class="flex border-b border-gray-200 mb-6">
-            <button class="tab-button py-2 px-4 font-medium text-gray-700 border-b-2 border-transparent hover:text-pastel-blue hover:border-pastel-blue focus:outline-none" 
-                    onclick="switchHabitsTab('${modalId}', 'counters')">
-              Counters
-            </button>
-            <button class="tab-button py-2 px-4 font-medium text-gray-700 border-b-2 border-transparent hover:text-pastel-blue hover:border-pastel-blue focus:outline-none" 
-                    onclick="switchHabitsTab('${modalId}', 'history')">
-              History
-            </button>
+            <div class="flex items-center space-x-2">
+              <!-- Icon-based Tab Switcher -->
+              <div class="inline-flex rounded-lg p-1 bg-gray-100">
+                <button class="tab-button counters-tab flex items-center justify-center w-8 h-8 rounded-md transition-colors bg-white text-pastel-blue shadow-sm" 
+                        onclick="switchHabitsTab('${modalId}', 'counters')">
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                </button>
+                <button class="tab-button history-tab flex items-center justify-center w-8 h-8 rounded-md transition-colors text-gray-500" 
+                        onclick="switchHabitsTab('${modalId}', 'history')">
+                  <i data-lucide="history" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <button onclick="hideHabitsModal('${modalId}')" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100">
+                <i data-lucide="x" class="w-6 h-6"></i>
+              </button>
+            </div>
           </div>
           
           <!-- Tab Content -->
@@ -329,16 +330,14 @@ export class HabitsWidgetRender
           
           <div id="${modalId}-history-tab" class="tab-content hidden">
             <div class="border-t border-gray-100 pt-4">
-              <h3 class="text-lg font-bold text-gray-800 mb-3">History</h3>
-              <div id="${modalId}-consumption-list" class="max-h-60 overflow-y-auto pr-2">
+              <div id="${modalId}-consumption-list" class="max-h-96 overflow-y-auto pr-2">
                 <!-- Items will be added dynamically -->
                 <p class="text-gray-500 text-center py-4" id="${modalId}-no-consumption-message">No records</p>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    `;
+      </div>    `;
     };
 
     // Helper function to render widget content

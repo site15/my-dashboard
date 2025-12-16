@@ -24,6 +24,7 @@ import { ClientValidationErrorType } from '../../../../server/types/client-error
 import { UpdateDashboardType } from '../../../../server/types/DashboardSchema';
 import { isSSR } from '../../../../server/utils/is-ssr';
 import { WIDGETS_RENDERERS } from '../../../../server/widgets/widgets';
+import { NoSanitizePipe } from '../../../directives/no-sanitize.directive';
 import { mapFormlyTypes } from '../../../formly/get-formly-type';
 import { ShowNavGuard } from '../../../guards/nav.guard';
 import {
@@ -33,7 +34,6 @@ import {
 import { ErrorHandlerService } from '../../../services/error-handler.service';
 import { FormHandlerService } from '../../../services/form-handler.service';
 import { WidgetsService } from '../../../services/widgets.service';
-import { NoSanitizePipe } from '../../../directives/no-sanitize.directive';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],

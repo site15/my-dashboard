@@ -667,30 +667,26 @@ function switchHabitsTab(
     }
   }
 
-  // Update tab button styles
-  const tabButtons = scope.querySelectorAll('.tab-button');
-  tabButtons.forEach(button => {
-    removeClass(
-      button as HTMLElement,
-      'text-pastel-blue',
-      'border-pastel-blue'
-    );
-    addClass(button as HTMLElement, 'text-gray-700', 'border-transparent');
-  });
-
-  // Highlight active tab button
-  const activeButton = scope.querySelector(`button[onclick*="'${tabName}'"]`);
-  if (activeButton) {
-    removeClass(
-      activeButton as HTMLElement,
-      'text-gray-700',
-      'border-transparent'
-    );
-    addClass(
-      activeButton as HTMLElement,
-      'text-pastel-blue',
-      'border-pastel-blue'
-    );
+  // Update tab button styles for icon-based tabs
+  const countersTabButton = scope.querySelector('.counters-tab');
+  const historyTabButton = scope.querySelector('.history-tab');
+  
+  if (countersTabButton && historyTabButton) {
+    // Reset all buttons
+    removeClass(countersTabButton as HTMLElement, 'bg-white', 'text-pastel-blue', 'shadow-sm');
+    addClass(countersTabButton as HTMLElement, 'text-gray-500');
+    
+    removeClass(historyTabButton as HTMLElement, 'bg-white', 'text-pastel-blue', 'shadow-sm');
+    addClass(historyTabButton as HTMLElement, 'text-gray-500');
+    
+    // Highlight active tab button
+    if (tabName === 'counters') {
+      removeClass(countersTabButton as HTMLElement, 'text-gray-500');
+      addClass(countersTabButton as HTMLElement, 'bg-white', 'text-pastel-blue', 'shadow-sm');
+    } else {
+      removeClass(historyTabButton as HTMLElement, 'text-gray-500');
+      addClass(historyTabButton as HTMLElement, 'bg-white', 'text-pastel-blue', 'shadow-sm');
+    }
   }
 }
 
