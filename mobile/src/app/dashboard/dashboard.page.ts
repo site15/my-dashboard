@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, JsonPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -19,6 +19,7 @@ import { qrCodeOutline, refreshOutline } from 'ionicons/icons';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 // Import types from the backend Zod schemas
+import { createIcons, icons } from 'lucide';
 import {
   BehaviorSubject,
   filter,
@@ -29,7 +30,6 @@ import {
   of,
   shareReplay,
 } from 'rxjs';
-import { createIcons, icons } from 'lucide';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { DeviceInfoType } from '../../../../web/src/server/types/DeviceSchema';
 import { WIDGETS_RENDERERS } from '../../../../web/src/server/widgets/widgets';
@@ -40,14 +40,27 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
 
 @Component({
   selector: 'app-dashboard',
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let dashboardAndWidgets=(dashboardAndWidgets$ | async)||null; @let
-    isLoading=(isLoading$ | async)||null;
+    isLoading=(isLoading$ | async)||null; @if (dashboardAndWidgets?.id) {
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3"
+    >
+      @for (widget of dashboardAndWidgets?.widgets; track widget.id; let idx =
+      $index) {
+      <div
+        [innerHTML]="dashboardAndWidgets?.htmls?.[idx] | noSanitize"
+        class="w-full"
+      ></div>
+      }
+    </div>
+    } @else {
+
     <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-title>
-          {{ dashboardAndWidgets?.name || 'Dashboard' }}
+          {{ 'Dashboard' }}
         </ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="loadDashboardInfo()">
@@ -60,9 +73,7 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
     <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">{{
-            dashboardAndWidgets?.name || 'Dashboard'
-          }}</ion-title>
+          <ion-title size="large">{{ 'Dashboard' }}</ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -78,20 +89,6 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
         </div>
         } @else {
         <div style="padding: 20px;">
-          @if (dashboardAndWidgets) {
-          <div>
-            <h2>Widgets</h2>
-            @for (widget of dashboardAndWidgets.widgets; track widget.id; let
-            idx = $index) {
-            <ion-card>
-              <div
-                [innerHTML]="dashboardAndWidgets.htmls[idx] | noSanitize"
-                class="w-full"
-              ></div>
-            </ion-card>
-            }
-          </div>
-          } @else {
           <ion-card>
             <ion-card-content>
               <p>No dashboard linked to this device.</p>
@@ -105,11 +102,12 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
               </ion-button>
             </ion-card-content>
           </ion-card>
-          }
         </div>
-        }
-      </app-explore-container>
+
+        }</app-explore-container
+      >
     </ion-content>
+    }
   `,
   imports: [
     IonSpinner,
@@ -126,6 +124,7 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
     ExploreContainerComponent,
     AsyncPipe,
     NoSanitizePipe,
+    JsonPipe,
   ],
 })
 export class DashboardPage {
