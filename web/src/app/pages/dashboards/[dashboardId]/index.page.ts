@@ -348,9 +348,6 @@ export default class DashboardsEditPageComponent {
           })
         : of(null)
     ),
-    tap(d => {
-      console.log(d);
-    }),
     mergeMap(result => {
       // When dashboard and widgets data loads, render all widgets for preview
       if (result && result.widgets.length) {
@@ -402,7 +399,6 @@ export default class DashboardsEditPageComponent {
         htmls: [],
       });
     }),
-    tap(ss => console.log({ ss })),
     shareReplay(1)
   );
 

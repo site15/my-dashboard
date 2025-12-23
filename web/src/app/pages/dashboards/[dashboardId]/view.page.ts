@@ -18,11 +18,13 @@ import { isSSR } from '../../../../server/utils/is-ssr';
 import { WIDGETS_RENDERERS } from '../../../../server/widgets/widgets';
 import { NoSanitizePipe } from '../../../directives/no-sanitize.directive';
 import { HideNavGuard } from '../../../guards/nav.guard';
+import { StoreThemeInClientGuard } from '../../../guards/theme.guard';
 import { DashboardsService } from '../../../services/dashboards.service';
+import { ThemeService } from '../../../services/theme.service';
 import { WidgetsService } from '../../../services/widgets.service';
 
 export const routeMeta: RouteMeta = {
-  canActivate: [HideNavGuard],
+  canActivate: [HideNavGuard, StoreThemeInClientGuard],
 };
 
 @Component({
@@ -53,6 +55,7 @@ export default class DashboardsViewPageComponent {
   private readonly dashboardsService = inject(DashboardsService);
   private readonly widgetsService = inject(WidgetsService);
   private readonly route = inject(ActivatedRoute);
+  private readonly themeService = inject(ThemeService);
 
   widgetTypes = Object.keys(WIDGETS_RENDERERS);
 
@@ -67,6 +70,11 @@ export default class DashboardsViewPageComponent {
         : of(null)
     ),
     mergeMap(result => {
+      if (result?.dashboard.isBlackTheme){
+        this.themeService.setDark();
+      } else {
+        this.themeService.setLight();
+      }
       // When dashboard and widgets data loads, render all widgets for preview
       if (result && result.widgets.length) {
         // Render each widget and store the HTML
@@ -111,7 +119,11 @@ export default class DashboardsViewPageComponent {
           }))
         );
       }
-      return of(null);
+      return of({
+        ...result,
+        widgets: [],
+        htmls: [],
+      });
     }),
     shareReplay(1)
   );

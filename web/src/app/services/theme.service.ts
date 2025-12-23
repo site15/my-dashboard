@@ -24,18 +24,11 @@ export class ThemeService extends LocalStorageService<ColorScheme> {
       const theme = e.newValue;
 
       if (!theme) {
-        await this.set('light');
+        await this.setLight();
       } else {
         // Set the data-theme attribute for any components that might use it
         if (htmlTag) {
           htmlTag.setAttribute('data-theme', theme);
-        }
-
-        // Apply the appropriate class for Tailwind dark mode
-        if (theme === 'dark') {
-          this.document.documentElement.classList.add('dark');
-        } else {
-          this.document.documentElement.classList.remove('dark');
         }
       }
     },
@@ -51,7 +44,11 @@ export class ThemeService extends LocalStorageService<ColorScheme> {
         ? 'dark'
         : 'light';
 
-    await this.set(newTheme);
+    if (newTheme === 'light') {
+      this.setLight();
+    } else {
+      this.setDark();
+    }
   }
 
   async init() {
@@ -59,7 +56,15 @@ export class ThemeService extends LocalStorageService<ColorScheme> {
     if (current) {
       await this.set(current);
     } else {
-      await this.set('light'); // Default to light theme
+      await this.setLight(); // Default to light theme
     }
+  }
+
+  setLight() {
+    return this.set('light');
+  }
+
+  setDark() {
+    return this.set('dark');
   }
 }

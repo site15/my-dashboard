@@ -3,7 +3,7 @@ export default {
   content: [
     "./src/**/*.{html,ts}",
   ],
-  darkMode: ['class', '[data-theme="dark"]'], // Use data-theme attribute for dark mode
+  darkMode: ['[data-theme="dark"]'], // Use data-theme attribute for dark mode
   theme: {
     extend: {
       colors: {

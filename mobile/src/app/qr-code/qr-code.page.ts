@@ -32,8 +32,9 @@ import {
   tap,
 } from 'rxjs';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+import { DeviceService } from '../services/device.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
-import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
+import { TrpcHeaders } from '../trpc-client';
 import { TrpcPureHeaders } from '../trpc-pure-client';
 
 //
@@ -235,8 +236,8 @@ export class QrCodePage {
   private readonly alertController = inject(AlertController);
   private readonly toastController = inject(ToastController);
   private readonly errorHandler = inject(ErrorHandlerService);
-  private readonly trpc = injectTrpcClient();
   private readonly router = inject(Router);
+  private readonly deviceService = inject(DeviceService);
 
   scanResultQrData$ = new BehaviorSubject<QrCodeData | null>(null);
   isLoading$ = new BehaviorSubject<boolean>(false);
@@ -275,7 +276,7 @@ export class QrCodePage {
 
             // Call the device/link API
             return from(
-              this.trpc.device.link.mutate({
+              this.deviceService.link({
                 code: qrData.code,
                 deviceId: deviceId,
               })

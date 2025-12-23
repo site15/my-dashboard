@@ -98,11 +98,12 @@ export class LocalStorageService<T = unknown> {
       if (isSSR && this.key) {
         //
       } else {
-        LOCAL_STORAGE?.setItem(key, newValue);
         if (this.type === 'server') {
           await firstValueFrom(
             this.trpc.userStorage.set.mutate({ name: key, value: newValue }, {})
           );
+        } else {
+          LOCAL_STORAGE?.setItem(key, newValue);
         }
       }
     }
@@ -134,12 +135,15 @@ export class LocalStorageService<T = unknown> {
       }
       return null;
     } else {
-      let value = LOCAL_STORAGE?.getItem(key);
-      if (!value && this.type === 'server') {
+      let value;
+      if (this.type === 'server') {
         value =
           (await firstValueFrom(this.trpc.userStorage.get.query({ name: key })))
             ?.value || undefined;
+      } else {
+        value = LOCAL_STORAGE?.getItem(key);
       }
+
       if (value && value !== 'undefined' && value !== 'empty') {
         return JSON.parse(value);
       }
@@ -160,9 +164,10 @@ export class LocalStorageService<T = unknown> {
       //
     } else {
       try {
-        LOCAL_STORAGE?.removeItem(key);
         if (this.type === 'server') {
           await firstValueFrom(this.trpc.userStorage.del.mutate({ name: key }));
+        } else {
+          LOCAL_STORAGE?.removeItem(key);
         }
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {

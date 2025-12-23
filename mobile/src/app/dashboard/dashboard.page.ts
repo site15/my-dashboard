@@ -19,11 +19,12 @@ import {
 import { addIcons } from 'ionicons';
 import { qrCodeOutline, refreshOutline } from 'ionicons/icons';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
-import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
+import { TrpcHeaders } from '../trpc-client';
 // Import types from the backend Zod schemas
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { DeviceInfoType } from '../../../../web/src/server/types/DeviceSchema';
+import { DeviceService } from '../services/device.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { TrpcPureHeaders } from '../trpc-pure-client';
 
@@ -129,9 +130,9 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
   ],
 })
 export class DashboardPage {
-  private readonly trpc = injectTrpcClient();
   private readonly toastController = inject(ToastController);
   private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly deviceService = inject(DeviceService);
 
   dashboardInfo$ = new BehaviorSubject<DeviceInfoType | null>(null);
   isLoading$ = new BehaviorSubject<boolean>(false);
@@ -167,7 +168,7 @@ export class DashboardPage {
     try {
       // Fetch dashboard info using deviceId
       // Using a simple approach to avoid type issues
-      const response = await firstValueFrom(this.trpc.device.info.query());
+      const response = await this.deviceService.info();
       this.dashboardInfo$.next(response);
     } catch (err) {
       this.dashboardInfo$.next(null);

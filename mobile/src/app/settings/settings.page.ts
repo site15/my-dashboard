@@ -30,11 +30,12 @@ import {
   saveOutline,
   unlinkOutline,
 } from 'ionicons/icons';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+import { DeviceService } from '../services/device.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
-import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
+import { TrpcHeaders } from '../trpc-client';
 import { TrpcPureHeaders } from '../trpc-pure-client';
 
 @Component({
@@ -179,10 +180,10 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
   ],
 })
 export class SettingsPage {
-  private trpc = injectTrpcClient();
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
   private errorHandler = inject(ErrorHandlerService);
+  private readonly deviceService = inject(DeviceService);
 
   deviceSettings$ = new BehaviorSubject({
     name: '',
@@ -223,9 +224,7 @@ export class SettingsPage {
       TrpcPureHeaders.set({ [X_DEVICE_ID]: this.deviceId$.value });
 
       // Fetch dashboard info
-      const deviceSettings = await firstValueFrom(
-        this.trpc.device.info.query()
-      );
+      const deviceSettings = await this.deviceService.info();
 
       // Update local settings
       this.deviceSettings$.next({
@@ -255,11 +254,9 @@ export class SettingsPage {
 
     try {
       // Update dashboard settings
-      await firstValueFrom(
-        this.trpc.device.saveSettings.mutate({
-          isBlackTheme: this.deviceSettings$.value.isBlackTheme,
-        })
-      );
+      await this.deviceService.saveSettings({
+        isBlackTheme: this.deviceSettings$.value.isBlackTheme,
+      });
 
       // Show success message
       const toast = await this.toastController.create({
@@ -300,8 +297,7 @@ export class SettingsPage {
             text: 'Unlink',
             role: 'destructive',
             handler: async () => {
-              // Remove deviceId from localStorage
-              await firstValueFrom(this.trpc.device.unlink.mutate());
+              await this.deviceService.unlink();
 
               TrpcHeaders.set({});
               TrpcPureHeaders.set({});
