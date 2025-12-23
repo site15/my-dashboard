@@ -229,7 +229,7 @@ export class SettingsPage {
       // Update local settings
       this.deviceSettings$.next({
         name: deviceSettings.name,
-        isBlackTheme: deviceSettings.isBlackTheme ?? false,
+        isBlackTheme: deviceSettings.isBlackTheme === true,
       });
     } catch (err) {
       console.error('Error loading dashboard info:', err);
@@ -265,9 +265,6 @@ export class SettingsPage {
         color: 'success',
       });
       await toast.present();
-
-      // Reload dashboard info to reflect changes
-      await this.loadDashboardInfo();
     } catch (err) {
       console.error('Error saving settings:', err);
       // Use global error handler

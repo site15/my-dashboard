@@ -389,6 +389,7 @@ export function showClockModal(
   scope: Document | HTMLElement = document
 ) {
   const modal = getElementById(scope, modalId);
+  console.log('Showing clock modal:', { modalId, modal });
   if (modal) {
     modal.classList.remove('hidden', 'opacity-0');
     modal.classList.add('opacity-100');
