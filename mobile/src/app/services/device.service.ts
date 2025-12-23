@@ -14,20 +14,15 @@ export class DeviceService {
 
   info() {
     return firstValueFrom(
-      this.trpc.device.info.query().pipe(
-        tap((info) => {
-          const shouldAdd = !!info.isBlackTheme;
-          document.documentElement.classList.toggle(
-            'ion-palette-dark',
-            shouldAdd
-          );
-          document.documentElement.classList.toggle(
-            'ion-palette-light',
-            !shouldAdd
-          );
-        })
-      )
+      this.trpc.device.info
+        .query()
+        .pipe(tap((info) => this.setDarkTheme(!!info.isBlackTheme)))
     );
+  }
+
+  setDarkTheme(shouldAdd: boolean) {
+    document.documentElement.classList.toggle('ion-palette-dark', shouldAdd);
+    document.documentElement.classList.toggle('ion-palette-light', !shouldAdd);
   }
 
   link(input: { deviceId: string; code: string }) {
@@ -42,19 +37,7 @@ export class DeviceService {
     return firstValueFrom(
       this.trpc.device.saveSettings
         .mutate({ isBlackTheme: input.isBlackTheme })
-        .pipe(
-          tap((info) => {
-            const shouldAdd = !!info.isBlackTheme;
-            document.documentElement.classList.toggle(
-              'ion-palette-dark',
-              shouldAdd
-            );
-            document.documentElement.classList.toggle(
-              'ion-palette-light',
-              !shouldAdd
-            );
-          })
-        )
+        .pipe(tap((info) => this.setDarkTheme(!!info.isBlackTheme)))
     );
   }
 }

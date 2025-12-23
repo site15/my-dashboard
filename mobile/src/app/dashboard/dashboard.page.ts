@@ -1,4 +1,4 @@
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -6,8 +6,6 @@ import {
   IonButtons,
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonContent,
   IonHeader,
   IonIcon,
@@ -19,25 +17,37 @@ import {
 import { addIcons } from 'ionicons';
 import { qrCodeOutline, refreshOutline } from 'ionicons/icons';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
-import { TrpcHeaders } from '../trpc-client';
+import { injectTrpcClient, TrpcHeaders } from '../trpc-client';
 // Import types from the backend Zod schemas
-import { BehaviorSubject } from 'rxjs';
+import {
+  BehaviorSubject,
+  filter,
+  first,
+  forkJoin,
+  map,
+  mergeMap,
+  of,
+  shareReplay,
+} from 'rxjs';
+import { createIcons, icons } from 'lucide';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
 import { DeviceInfoType } from '../../../../web/src/server/types/DeviceSchema';
+import { WIDGETS_RENDERERS } from '../../../../web/src/server/widgets/widgets';
+import { NoSanitizePipe } from '../pipes/no-sanitize.directive';
 import { DeviceService } from '../services/device.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { TrpcPureHeaders } from '../trpc-pure-client';
 
 @Component({
   selector: 'app-dashboard',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @let dashboardInfo=(dashboardInfo$ | async)||null; @let
+    @let dashboardAndWidgets=(dashboardAndWidgets$ | async)||null; @let
     isLoading=(isLoading$ | async)||null;
     <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-title>
-          {{ dashboardInfo?.name || 'Dashboard' }}
+          {{ dashboardAndWidgets?.name || 'Dashboard' }}
         </ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="loadDashboardInfo()">
@@ -51,7 +61,7 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
       <ion-header collapse="condense">
         <ion-toolbar>
           <ion-title size="large">{{
-            dashboardInfo?.name || 'Dashboard'
+            dashboardAndWidgets?.name || 'Dashboard'
           }}</ion-title>
         </ion-toolbar>
       </ion-header>
@@ -68,25 +78,16 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
         </div>
         } @else {
         <div style="padding: 20px;">
-          @if (dashboardInfo) {
+          @if (dashboardAndWidgets) {
           <div>
             <h2>Widgets</h2>
-            @for (widget of dashboardInfo.widgets; track widget.id) {
+            @for (widget of dashboardAndWidgets.widgets; track widget.id; let
+            idx = $index) {
             <ion-card>
-              <ion-card-header>
-                <ion-card-title
-                  >Widget {{ widget.id.substring(0, 8) }}</ion-card-title
-                >
-              </ion-card-header>
-              <ion-card-content>
-                <p><strong>Options:</strong> {{ widget.options | json }}</p>
-                <p><strong>State:</strong> {{ widget.state | json }}</p>
-                @if (widget.columnIndex !== null) {
-                <p>Column: {{ widget.columnIndex }}</p>
-                } @if (widget.rowIndex !== null) {
-                <p>Row: {{ widget.rowIndex }}</p>
-                }
-              </ion-card-content>
+              <div
+                [innerHTML]="dashboardAndWidgets.htmls[idx] | noSanitize"
+                class="w-full"
+              ></div>
             </ion-card>
             }
           </div>
@@ -118,18 +119,17 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
     IonContent,
     IonCard,
     IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
     IonButton,
     IonIcon,
     IonButtons,
     RouterLink,
     ExploreContainerComponent,
-    JsonPipe,
     AsyncPipe,
+    NoSanitizePipe,
   ],
 })
 export class DashboardPage {
+  private readonly trpc = injectTrpcClient();
   private readonly toastController = inject(ToastController);
   private readonly errorHandler = inject(ErrorHandlerService);
   private readonly deviceService = inject(DeviceService);
@@ -137,6 +137,58 @@ export class DashboardPage {
   dashboardInfo$ = new BehaviorSubject<DeviceInfoType | null>(null);
   isLoading$ = new BehaviorSubject<boolean>(false);
   error$ = new BehaviorSubject<string | null>(null);
+  readonly dashboardAndWidgets$ = this.dashboardInfo$.asObservable().pipe(
+    mergeMap((dashboardInfo) => {
+      // When dashboard and widgets data loads, render all widgets for preview
+      if (dashboardInfo && dashboardInfo.widgets.length) {
+        // Render each widget and store the HTML
+        return forkJoin(
+          dashboardInfo.widgets.map((widget) => {
+            const renderer = WIDGETS_RENDERERS[widget.type];
+            if (renderer) {
+              return renderer
+                .render(widget as any, {
+                  static: false,
+                  saveState: (state, widget) => {
+                    this.trpc.widgets.updateState
+                      .mutate({ id: widget.id, state })
+                      .pipe(first())
+                      .subscribe();
+                  },
+                })
+                .pipe(
+                  map((html) => {
+                    // html
+                    requestAnimationFrame(() => {
+                      requestAnimationFrame(() => {
+                        createIcons({ icons });
+                      });
+                    });
+                    return { html, widget };
+                  })
+                );
+            }
+            return of({ html: '', widget });
+          })
+        ).pipe(
+          filter((widgetWithHtml) => widgetWithHtml !== null),
+          map((widgetWithHtml) => ({
+            ...dashboardInfo,
+            widgets: widgetWithHtml.map(
+              (widgetWithHtml) => widgetWithHtml!.widget
+            ),
+            htmls: widgetWithHtml.map((widgetWithHtml) => widgetWithHtml!.html),
+          }))
+        );
+      }
+      return of({
+        ...dashboardInfo,
+        widgets: [],
+        htmls: [],
+      });
+    }),
+    shareReplay(1)
+  );
 
   constructor() {
     addIcons({ refreshOutline, qrCodeOutline });
@@ -183,4 +235,6 @@ export class DashboardPage {
       this.isLoading$.next(false);
     }
   }
+
+  widgetTypes = Object.keys(WIDGETS_RENDERERS);
 }
