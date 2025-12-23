@@ -47,7 +47,7 @@ docker-compose up -d
 
 Это запустит базу данных PostgreSQL со следующей конфигурацией:
 - Имя пользователя: `postgres`
-- Пароль: `pgtoolspassword`
+- Пароль: `mydashboardpassword`
 - База данных: `postgres`
 - Порт: `5432` (сопоставлен с localhost:5432)
 
@@ -56,7 +56,7 @@ docker-compose up -d
 После запуска базы данных добавьте следующее в ваш файл `web/.env`:
 
 ```
-MY_DASHBOARD_DATABASE_POSTGRES_URL=postgresql://postgres:pgtoolspassword@localhost:5432/postgres
+MY_DASHBOARD_DATABASE_POSTGRES_URL=postgresql://postgres:mydashboardpassword@localhost:5432/postgres
 ```
 
 ### Остановка базы данных
@@ -70,7 +70,7 @@ docker-compose down
 
 ### Сохранение данных базы данных
 
-Данные базы данных сохраняются в томе Docker с именем `pg-tools-postgre-sql-volume`. Это означает, что ваши данные будут сохраняться между перезапусками контейнеров.
+Данные базы данных сохраняются в томе Docker с именем `my-dashboard-sql-volume`. Это означает, что ваши данные будут сохраняться между перезапусками контейнеров.
 
 Чтобы полностью удалить данные, вы можете удалить том:
 

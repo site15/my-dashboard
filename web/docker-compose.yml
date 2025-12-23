@@ -1,9 +1,9 @@
 services:
-  pg-tools-postgre-sql:
+  my-dashboard-sql:
     image: 'bitnami/postgresql:latest'
-    container_name: 'pg-tools-postgre-sql'
+    container_name: 'my-dashboard-sql'
     volumes:
-      - 'pg-tools-postgre-sql-volume:/bitnami/postgresql'
+      - 'my-dashboard-sql-volume:/bitnami/postgresql'
     ports:
       - '5432:5432'
     healthcheck:
@@ -17,8 +17,8 @@ services:
     restart: 'always'
     environment:
       POSTGRESQL_USERNAME: 'postgres'
-      POSTGRESQL_PASSWORD: 'pgtoolspassword'
+      POSTGRESQL_PASSWORD: 'mydashboardpassword'
       POSTGRESQL_DATABASE: 'postgres'
 volumes:
-  pg-tools-postgre-sql-volume:
-    name: 'pg-tools-postgre-sql-volume'
+  my-dashboard-sql-volume:
+    name: 'my-dashboard-sql-volume'

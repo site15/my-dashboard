@@ -25,7 +25,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
     "prepare": "husky",
-    "db:up": "docker compose up -d && ./node_modules/.bin/prisma migrate deploy",
+    "db:up": "docker compose up -d && sleep 10 && ./node_modules/.bin/prisma migrate deploy",
     "db:down": "docker compose down",
     "postinstall": "patch-package"
   },

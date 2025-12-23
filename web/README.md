@@ -44,7 +44,7 @@ docker-compose up -d
 
 This will start a PostgreSQL database with the following configuration:
 - Username: `postgres`
-- Password: `pgtoolspassword`
+- Password: `mydashboardpassword`
 - Database: `postgres`
 - Port: `5432` (mapped to localhost:5432)
 
@@ -53,7 +53,7 @@ This will start a PostgreSQL database with the following configuration:
 After starting the database, add the following to your `.env` file:
 
 ```
-MY_DASHBOARD_DATABASE_POSTGRES_URL=postgresql://postgres:pgtoolspassword@localhost:5432/postgres
+MY_DASHBOARD_DATABASE_POSTGRES_URL=postgresql://postgres:mydashboardpassword@localhost:5432/postgres
 ```
 
 ### Stopping the Database
@@ -66,7 +66,7 @@ docker-compose down
 
 ### Database Persistence
 
-The database data is persisted in a Docker volume named `pg-tools-postgre-sql-volume`. This means your data will be preserved between container restarts.
+The database data is persisted in a Docker volume named `my-dashboard-sql-volume`. This means your data will be preserved between container restarts.
 
 To completely remove the data, you can remove the volume:
 
