@@ -1,4 +1,4 @@
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -124,7 +124,6 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
     ExploreContainerComponent,
     AsyncPipe,
     NoSanitizePipe,
-    JsonPipe,
   ],
 })
 export class DashboardPage {

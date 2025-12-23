@@ -17,7 +17,7 @@ import {
 } from '@ionic/angular/standalone';
 import { BrowserQRCodeReader } from '@zxing/browser';
 import { addIcons } from 'ionicons';
-import { scanOutline } from 'ionicons/icons';
+import { keypadOutline, scanOutline } from 'ionicons/icons';
 import jsQR from 'jsqr';
 import {
   BehaviorSubject,
@@ -213,6 +213,15 @@ interface QrCodeData {
             <ion-icon name="scan-outline" slot="start"></ion-icon>
             Scan QR Code
           </ion-button>
+          <br />
+          <ion-button
+            (click)="startManualCodeEntry()"
+            fill="outline"
+            style="margin-top: 10px;"
+          >
+            <ion-icon name="keypad-outline" slot="start"></ion-icon>
+            Enter Code Manually
+          </ion-button>
           }
         </div>
       </app-explore-container>
@@ -243,7 +252,7 @@ export class QrCodePage {
   isLoading$ = new BehaviorSubject<boolean>(false);
 
   constructor() {
-    addIcons({ scanOutline });
+    addIcons({ scanOutline, keypadOutline });
     // Initialize the error handler with the toast controller
     this.errorHandler.initialize(this.toastController);
   }
@@ -270,26 +279,10 @@ export class QrCodePage {
           // Parse the QR code data
           try {
             const qrData: QrCodeData = JSON.parse(result);
-
+            const code = qrData.code;
             // Generate a unique device ID (in a real app, you might want to use a more robust method)
-            const deviceId = this.generateDeviceId();
-
-            // Call the device/link API
-            return from(
-              this.deviceService.link({
-                code: qrData.code,
-                deviceId: deviceId,
-              })
-            ).pipe(
-              map(() => qrData), // Return the QR data on success
-              catchError((err) => {
-                console.error('Error linking device:', err);
-                // Handle the error using our global error handler
-                this.errorHandler
-                  .handleError(err, 'Failed to link device')
-                  .catch(console.error);
-                throw new Error('link failed');
-              })
+            return this.link(code).pipe(
+              map(() => qrData) // Return the QR data on success
             );
           } catch (parseError) {
             console.error('Error parsing QR code data:', parseError);
@@ -332,8 +325,97 @@ export class QrCodePage {
       .subscribe();
   }
 
+  private link(code: string) {
+    const deviceId = this.generateDeviceId();
+
+    // Call the device/link API
+    return from(
+      this.deviceService.link({
+        code,
+        deviceId,
+      })
+    ).pipe(
+      catchError((err) => {
+        console.error('Error linking device:', err);
+        // Handle the error using our global error handler
+        this.errorHandler
+          .handleError(err, 'Failed to link device')
+          .catch(console.error);
+        throw new Error('link failed');
+      })
+    );
+  }
+
   resetScanner() {
     this.scanResultQrData$.next(null);
+  }
+
+  async startManualCodeEntry() {
+    const alert = await this.alertController.create({
+      header: 'Enter Code',
+      inputs: [
+        {
+          name: 'code',
+          type: 'text',
+          placeholder: 'Enter the code',
+          value: '',
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Send',
+          handler: (data) => {
+            if (data && data.code) {
+              this.processManualCode(data.code);
+            }
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  processManualCode(code: string) {
+    // Set loading state to true when processing the manual code
+    this.isLoading$.next(true);
+
+    // Generate a unique device ID
+    const deviceId = this.generateDeviceId();
+
+    TrpcHeaders.set({});
+    TrpcPureHeaders.set({});
+
+    // Call the device/link API
+    this.link(code)
+      .pipe(
+        first(),
+        tap((data: any) => {
+          if (data && typeof data === 'object' && 'dashboardId' in data) {
+            console.log('Device linked successfully:', data);
+            this.scanResultQrData$.next(data);
+            // Navigate to the dashboard tab after successful linking
+            this.router.navigate(['/tabs/dashboard']);
+          }
+        }),
+        catchError((error) => {
+          console.error('Error scanning barcode:', error);
+          // Handle the error using our global error handler
+          this.errorHandler
+            .handleError(error, 'Error scanning QR code')
+            .catch(console.error);
+          return of(null);
+        }),
+        // Always set loading state to false when the operation completes
+        finalize(() => {
+          this.isLoading$.next(false);
+        })
+      )
+      .subscribe();
   }
 
   private generateDeviceId(): string {
