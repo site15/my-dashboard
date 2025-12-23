@@ -22,7 +22,7 @@ defineCustomElements(window);
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
+    provideIonicAngular({ innerHTMLTemplatesEnabled: true }),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideTrpcClient(),
     provideTrpcPureClient(),
