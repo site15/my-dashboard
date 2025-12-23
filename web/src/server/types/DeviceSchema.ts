@@ -35,7 +35,9 @@ export type DeviceInfoWidgetType = z.infer<typeof DeviceInfoWidgetSchema>;
 
 export const DeviceInfoSchema = z.object({
   [DashboardScalarFieldEnum.id]: z.string().uuid(),
-  [DashboardScalarFieldEnum.name]: z.string().min(1, { message: 'Name cannot be empty' }),
+  [DashboardScalarFieldEnum.name]: z
+    .string()
+    .min(1, { message: 'Name cannot be empty' }),
   [DashboardScalarFieldEnum.isBlackTheme]: z.boolean().nullish(),
   widgets: z.array(DeviceInfoWidgetSchema),
 });

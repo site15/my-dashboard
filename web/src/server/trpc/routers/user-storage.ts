@@ -8,7 +8,7 @@ export const userStorageRouter = router({
     .output(z.object({ name: z.string(), value: z.string().nullish() }))
     .query(({ input, ctx }) => {
       const name = input.name;
-      const value = ctx.getCookie(name);
+      const value = ctx.getCookie?.(name);
       return {
         name,
         value,
@@ -22,7 +22,7 @@ export const userStorageRouter = router({
       const name = input.name;
       const value = input.value;
       if (!value) {
-        ctx.setCookie(name, null, {
+        ctx.setCookie?.(name, null, {
           httpOnly: true,
           path: '/',
           maxAge: 0,
@@ -30,7 +30,7 @@ export const userStorageRouter = router({
           ...{ secure: process.env?.['NODE_ENV'] === 'production' },
         });
       } else {
-        ctx.setCookie(name, value, {
+        ctx.setCookie?.(name, value, {
           httpOnly: true,
           path: '/',
           maxAge: 7 * 24 * 60 * 60,
@@ -48,7 +48,7 @@ export const userStorageRouter = router({
     .input(z.object({ name: z.string() }))
     .mutation(({ input, ctx }) => {
       const name = input.name;
-      ctx.setCookie(name, null, {
+      ctx.setCookie?.(name, null, {
         httpOnly: true,
         path: '/',
         maxAge: 0,

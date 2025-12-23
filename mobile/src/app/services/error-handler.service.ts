@@ -25,6 +25,8 @@ export class ErrorHandlerService {
    * Handle error and show toast notification
    */
   async handleError(error: any, customMessage?: string): Promise<void> {
+    (console as any).hiddenError?.(error);
+
     if (!this.toastController) {
       return;
     }
@@ -59,5 +61,4 @@ export class ErrorHandlerService {
       console.error('Failed to show error toast:', toastError);
     }
   }
-
 }

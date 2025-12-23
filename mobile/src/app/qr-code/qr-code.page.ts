@@ -302,8 +302,8 @@ export class QrCodePage {
           );
         }),
         tap((data) => {
-          if (data && typeof data === 'object' && 'dashboardId' in data) {
-            console.log('Device linked successfully:', data);
+          console.log('Device linked successfully:', data);
+          if (data && typeof data === 'object' && 'id' in data) {
             this.scanResultQrData$.next(data);
             // Navigate to the dashboard tab after successful linking
             this.router.navigate(['/tabs/dashboard']);
@@ -395,8 +395,8 @@ export class QrCodePage {
       .pipe(
         first(),
         tap((data: any) => {
-          if (data && typeof data === 'object' && 'dashboardId' in data) {
-            console.log('Device linked successfully:', data);
+          console.log('Device linked successfully:', data);
+          if (data && typeof data === 'object' && 'id' in data) {
             this.scanResultQrData$.next(data);
             // Navigate to the dashboard tab after successful linking
             this.router.navigate(['/tabs/dashboard']);

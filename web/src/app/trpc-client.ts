@@ -68,6 +68,7 @@ export const { provideTrpcClient, TrpcClient, TrpcHeaders } =
     batchLinkOptions: { fetch: customFetch, transformer: superjson } as any, // use custom fetch
   });
 
+  
 export function injectTrpcClient() {
   return inject(TrpcClient);
 }

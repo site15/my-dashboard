@@ -4,7 +4,10 @@ import {
   IonRouterOutlet,
   ToastController,
 } from '@ionic/angular/standalone';
+import { first } from 'rxjs';
+import { initLogger } from './remote-log';
 import { ErrorHandlerService } from './services/error-handler.service';
+import { injectTrpcClient } from './trpc-client';
 
 @Component({
   selector: 'app-root',
@@ -19,9 +22,13 @@ import { ErrorHandlerService } from './services/error-handler.service';
 export class AppComponent {
   private toastController = inject(ToastController);
   private errorHandler = inject(ErrorHandlerService);
+  private trpc = injectTrpcClient();
 
   constructor() {
     // Initialize the error handler with the toast controller
     this.errorHandler.initialize(this.toastController);
+    initLogger((data) =>
+      this.trpc.device.log.mutate({ data }).pipe(first()).subscribe()
+    );
   }
 }

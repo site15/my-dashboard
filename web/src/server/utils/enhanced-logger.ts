@@ -40,6 +40,7 @@ import { randomUUID } from 'crypto';
 import pino, { Logger as PinoLogger } from 'pino';
 import { any, z } from 'zod';
 
+import { SerializeOptions } from './cookie';
 import {
   ClientStandardErrorType,
   ClientValidationErrorType,
@@ -49,6 +50,19 @@ import {
   StandardErrorType,
   ZodErrorType,
 } from '../types/error-type';
+
+// Define the Logger interface
+export interface CustomLoggerType {
+  traceId: string;
+  info: (payload?: any, meta?: any) => void;
+  debug: (payload?: any, meta?: any) => void;
+  warn: (payload?: any, meta?: any) => void;
+  error: (payload?: any, meta?: any) => void;
+  log: (payload?: any, meta?: any) => void;
+  zodError: (err: z.ZodError, contextInfo?: any) => void;
+  errorWithStack: (err: Error, contextInfo?: any) => void;
+  child: (meta?: Record<string, any>) => CustomLoggerType;
+}
 
 //
 // CONFIG
@@ -238,7 +252,10 @@ export function standardErrorObjectHandlingErrorInstancesOrTRPCError(
     const out: StandardErrorType = {
       event: 'standard_error',
       name: errObj.name ?? 'Error',
-      message: errObj.message || typeof errObj === 'object' ? errObj.stack : String(errObj),
+      message:
+        errObj.message || typeof errObj === 'object'
+          ? errObj.stack
+          : String(errObj),
       data: { ...errObj },
       stack,
       stackFrame: frame,
@@ -365,13 +382,13 @@ export function catchPrismaErrors(
 export function normalStructuredOrStringPayloads(
   payload: any,
   meta?: any,
-  callback?: (payload: any) => void
+  callback?: (payload: any, original: any) => void
 ) {
   const structured =
     typeof payload === 'string' ? { message: payload } : (payload ?? {});
   if (meta && typeof meta === 'object') structured._meta = meta;
   if (callback) {
-    callback(structured);
+    callback(structured, payload);
   }
 }
 
@@ -443,8 +460,11 @@ export function createRequestLogger(opts: {
 
     // normalStructuredOrStringPayloads
     // Normal structured or string payloads
-    normalStructuredOrStringPayloads(payload, meta, ({ serverError }) => {
-      const masked = maskSensitiveData(serverError, maskRegexList);
+    normalStructuredOrStringPayloads(payload, meta, (result, original) => {
+      const masked = maskSensitiveData(
+        result.serverError || result,
+        maskRegexList
+      );
       (child as any)[level](masked);
     });
   };
@@ -490,7 +510,7 @@ export function createRequestLogger(opts: {
       child.error(maskSensitiveData(payload, maskRegexList));
     },
 
-    child: (meta?: Record<string, any>) =>
+    child: (meta?: Record<string, any>): CustomLoggerType =>
       createRequestLogger({
         traceId,
         userId,
@@ -508,7 +528,30 @@ export function createRequestLogger(opts: {
  * - auto logs req.body/query/params (masked)
  * ==================================================================================== */
 
-export function attachLoggerToContext(ctx: any) {
+export function attachLoggerToContext(ctx: {
+  deviceId?: any;
+  setCookie?:
+    | ((
+        name: string,
+        value?: string | null,
+        options?: SerializeOptions
+      ) => void)
+    | ((
+        name: string,
+        value?: string | null,
+        options?: SerializeOptions
+      ) => void);
+  getCookie?:
+    | ((name: string) => string | undefined)
+    | ((name: string) => string | undefined);
+  clearCookies?:
+    | ((options?: SerializeOptions) => void)
+    | ((options?: SerializeOptions) => void);
+  req?: any;
+  user?: any;
+  session?: any;
+  event?: any;
+}) {
   const req = ctx?.req ?? ctx?.event?.node?.req ?? undefined; // adapt to variety of shapes
   const traceIdHeader = (() => {
     const h = req?.headers?.['x-trace-id'] ?? req?.headers?.['trace-id'];

@@ -1,4 +1,5 @@
 import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 
 import { prisma } from '../../prisma';
 import { DashboardSchema } from '../../types/DashboardSchema';
@@ -10,6 +11,13 @@ import {
 import { publicProcedure, router } from '../trpc';
 
 export const deviceRouter = router({
+  log: publicProcedure.input(z.any()).mutation(async ({ input, ctx }) => {
+    ctx.logger.log({
+      event: 'Device log',
+      ...(typeof input === 'string' ? { message: input } : { ...input }),
+    });
+  }),
+
   unlink: publicProcedure.mutation(async ({ ctx }) => {
     try {
       // First, clear the deviceId from any existing dashboard
@@ -20,8 +28,11 @@ export const deviceRouter = router({
         data: { deviceId: null },
       });
 
-      ctx.logger.info('Device unlinked successfully', {
-        deviceId: ctx.deviceId,
+      ctx.logger.log({
+        event: 'Device unlinked successfully',
+        payload: {
+          deviceId: ctx.deviceId,
+        },
       });
     } catch (error) {
       // Re-throw as TRPCError if it isn't already
@@ -39,6 +50,7 @@ export const deviceRouter = router({
 
   link: publicProcedure
     .input(DeviceLinkSchema)
+    .output(DashboardSchema)
     .mutation(async ({ input, ctx }) => {
       try {
         // First, clear the deviceId from any existing dashboard
@@ -92,9 +104,19 @@ export const deviceRouter = router({
           data: { deletedAt: new Date() },
         });
 
-        ctx.logger.info('Device linked successfully', {
-          deviceId: input.deviceId,
-          dashboardId: qrCode.dashboardId,
+        ctx.logger.log({
+          event: 'Device linked successfully',
+          payload: {
+            deviceId: input.deviceId,
+            dashboardId: qrCode.dashboardId,
+          },
+        });
+
+        return await prisma.dashboard.findFirstOrThrow({
+          where: {
+            deviceId: input.deviceId,
+            id: qrCode.dashboardId,
+          },
         });
       } catch (error) {
         // Re-throw as TRPCError if it isn't already
