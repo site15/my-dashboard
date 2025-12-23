@@ -23,6 +23,11 @@ export class DeviceService {
   setDarkTheme(shouldAdd: boolean) {
     document.documentElement.classList.toggle('ion-palette-dark', shouldAdd);
     document.documentElement.classList.toggle('ion-palette-light', !shouldAdd);
+    if (shouldAdd) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
   }
 
   link(input: { deviceId: string; code: string }) {
