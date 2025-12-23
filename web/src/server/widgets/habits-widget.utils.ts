@@ -61,7 +61,6 @@ export function setHabitItems(
   items: HabitsWidgetItemType[],
   history: HabitsWidgetStateHistoryType[]
 ): void {
-  
   habitItems[widgetId] = (items?.length ? items : []).map(item => ({
     id: item.id || Math.random().toString(36).substring(2, 15),
     name: item.name || '',
@@ -153,7 +152,6 @@ function updateProgressBar(
   itemId: string,
   scope: Document | HTMLElement = document
 ): void {
-  
   const itemIndex = habitItems[widgetId].findIndex(i => i.id === itemId);
   if (itemIndex === -1) return;
 
@@ -187,7 +185,6 @@ function updateProgressBar(
       // Green (maximum)
       progressBar.className = `${progressBarIdClass} h-2 rounded-full bg-green-500 transition-all duration-500`;
     }
-
   });
 
   // Update the text display for current/max
@@ -643,10 +640,15 @@ export function hideHabitsModal(
  * @param scope - Document or element scope for DOM operations
  */
 function switchHabitsTab(
+  widgetId: string,
   modalId: string,
   tabName: 'counters' | 'history',
   scope: Document | HTMLElement = document
 ): void {
+  renderModalItems(widgetId, modalId, scope);
+  renderConsumptionList(widgetId, modalId, scope);
+  updateTrackingCounts(widgetId, scope);
+
   // Hide all tab contents
   const countersTab = getElementById(scope, `${modalId}-counters-tab`);
   const historyTab = getElementById(scope, `${modalId}-history-tab`);
@@ -670,22 +672,42 @@ function switchHabitsTab(
   // Update tab button styles for icon-based tabs
   const countersTabButton = scope.querySelector('.counters-tab');
   const historyTabButton = scope.querySelector('.history-tab');
-  
+
   if (countersTabButton && historyTabButton) {
     // Reset all buttons
-    removeClass(countersTabButton as HTMLElement, 'bg-white', 'text-pastel-blue', 'shadow-sm');
+    removeClass(
+      countersTabButton as HTMLElement,
+      'bg-white',
+      'text-pastel-blue',
+      'shadow-sm'
+    );
     addClass(countersTabButton as HTMLElement, 'text-gray-500');
-    
-    removeClass(historyTabButton as HTMLElement, 'bg-white', 'text-pastel-blue', 'shadow-sm');
+
+    removeClass(
+      historyTabButton as HTMLElement,
+      'bg-white',
+      'text-pastel-blue',
+      'shadow-sm'
+    );
     addClass(historyTabButton as HTMLElement, 'text-gray-500');
-    
+
     // Highlight active tab button
     if (tabName === 'counters') {
       removeClass(countersTabButton as HTMLElement, 'text-gray-500');
-      addClass(countersTabButton as HTMLElement, 'bg-white', 'text-pastel-blue', 'shadow-sm');
+      addClass(
+        countersTabButton as HTMLElement,
+        'bg-white',
+        'text-pastel-blue',
+        'shadow-sm'
+      );
     } else {
       removeClass(historyTabButton as HTMLElement, 'text-gray-500');
-      addClass(historyTabButton as HTMLElement, 'bg-white', 'text-pastel-blue', 'shadow-sm');
+      addClass(
+        historyTabButton as HTMLElement,
+        'bg-white',
+        'text-pastel-blue',
+        'shadow-sm'
+      );
     }
   }
 }

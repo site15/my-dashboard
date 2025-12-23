@@ -56,7 +56,7 @@ export const routeMeta: RouteMeta = {
     @if (dashboardAndWidgets$ | async; as dashboardAndWidgets) {
       <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
         <a href="/dashboards"
-          >Edit Dashboard "{{ dashboardAndWidgets.dashboard.name }}"</a
+          >Edit Dashboard "{{ dashboardAndWidgets.dashboard?.name }}"</a
         >
       </h1>
       <p class="text-xl text-gray-500 mb-8">
@@ -85,7 +85,7 @@ export const routeMeta: RouteMeta = {
               <div class="flex gap-4">
                 <a
                   href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
+                    dashboardAndWidgets.dashboard?.id
                   }}/delete"
                   class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
                   bg-gradient-to-tr from-[#FF988A] to-[#FFD5A2] text-gray-800 cursor-pointer"
@@ -96,7 +96,7 @@ export const routeMeta: RouteMeta = {
 
                 <a
                   href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
+                    dashboardAndWidgets.dashboard?.id
                   }}/link-device"
                   class="flex items-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow mb-8 
                   bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide cursor-pointer"
@@ -157,7 +157,7 @@ export const routeMeta: RouteMeta = {
               ) {
                 <a
                   href="/dashboards/{{
-                    dashboardAndWidgets.dashboard.id
+                    dashboardAndWidgets.dashboard?.id
                   }}/widgets/{{ widget.id }}"
                   class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                 >
@@ -209,7 +209,7 @@ export const routeMeta: RouteMeta = {
                         @for (widgetType of widgetTypes; track $index) {
                           <a
                             href="/dashboards/{{
-                              dashboardAndWidgets.dashboard.id
+                              dashboardAndWidgets.dashboard?.id
                             }}/widgets/add/{{ widgetType }}"
                             class="text-xs bg-gray-200 hover:bg-gray-300 hover:text-gray-700 px-3 py-1 rounded-full transition-colors whitespace-nowrap"
                           >
@@ -252,7 +252,7 @@ export const routeMeta: RouteMeta = {
                       @for (widgetType of widgetTypes; track $index) {
                         <a
                           href="/dashboards/{{
-                            dashboardAndWidgets.dashboard.id
+                            dashboardAndWidgets.dashboard?.id
                           }}/widgets/add/{{ widgetType }}"
                           class="text-xs bg-gray-200 hover:bg-gray-300 hover:text-gray-700 px-3 py-1 rounded-full transition-colors whitespace-nowrap"
                         >
@@ -348,9 +348,12 @@ export default class DashboardsEditPageComponent {
           })
         : of(null)
     ),
+    tap(d => {
+      console.log(d);
+    }),
     mergeMap(result => {
       // When dashboard and widgets data loads, render all widgets for preview
-      if (result) {
+      if (result && result.widgets.length) {
         // Render each widget and store the HTML
         return forkJoin(
           result.widgets.map(widget => {
@@ -393,8 +396,13 @@ export default class DashboardsEditPageComponent {
           }))
         );
       }
-      return of(null);
+      return of({
+        ...result,
+        widgets: [],
+        htmls: [],
+      });
     }),
+    tap(ss => console.log({ ss })),
     shareReplay(1)
   );
 

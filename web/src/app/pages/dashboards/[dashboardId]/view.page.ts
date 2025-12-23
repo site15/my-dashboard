@@ -36,7 +36,7 @@ export const routeMeta: RouteMeta = {
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3"
       >
         @for (
-          widget of dashboardAndWidgets.widgets;
+          widget of (dashboardAndWidgets && dashboardAndWidgets.widgets) || [];
           track widget.id;
           let idx = $index
         ) {
@@ -68,7 +68,7 @@ export default class DashboardsViewPageComponent {
     ),
     mergeMap(result => {
       // When dashboard and widgets data loads, render all widgets for preview
-      if (result) {
+      if (result && result.widgets.length) {
         // Render each widget and store the HTML
         return forkJoin(
           result.widgets.map(widget => {

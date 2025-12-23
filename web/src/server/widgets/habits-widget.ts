@@ -307,11 +307,11 @@ export class HabitsWidgetRender
               <!-- Icon-based Tab Switcher -->
               <div class="inline-flex rounded-lg p-1 bg-gray-100">
                 <button class="tab-button counters-tab flex items-center justify-center w-8 h-8 rounded-md transition-colors bg-white text-pastel-blue shadow-sm" 
-                        onclick="switchHabitsTab('${modalId}', 'counters')">
+                        onclick="switchHabitsTab('${widget.id}', '${modalId}', 'counters')">
                   <i data-lucide="plus-circle" class="w-4 h-4"></i>
                 </button>
                 <button class="tab-button history-tab flex items-center justify-center w-8 h-8 rounded-md transition-colors text-gray-500" 
-                        onclick="switchHabitsTab('${modalId}', 'history')">
+                        onclick="switchHabitsTab('${widget.id}', '${modalId}', 'history')">
                   <i data-lucide="history" class="w-4 h-4"></i>
                 </button>
               </div>
