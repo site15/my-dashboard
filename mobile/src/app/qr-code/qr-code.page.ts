@@ -192,7 +192,24 @@ interface QrCodeData {
         <div style="padding: 20px; text-align: center;">
           @if (showScanner$ | async) {
           <div style="width: 100%; height:100%; ">
-            <html5-qrcode (decodedText)="onDecodedText($event)"></html5-qrcode>
+            <div style="width: 100%; height: 80%;">
+              <html5-qrcode
+                (decodedText)="onDecodedText($event)"
+                style="width: 100%; height: 90%;"
+                #qrcode
+              >
+              </html5-qrcode>
+            </div>
+            <div
+              style="display: flex; justify-content: center;padding-top: 10px; gap: 10px;"
+            >
+              <ion-button size="small" (click)="qrcode.switchCamera()">
+                Switch camera
+              </ion-button>
+              <ion-button size="small" (click)="stopScan()">
+                Stop camera
+              </ion-button>
+            </div>
           </div>
           } @if (isLoading$ | async) {
           <div
@@ -210,27 +227,21 @@ interface QrCodeData {
               </ion-button>
             </ion-card-content>
           </ion-card>
-          } @else { @if ((showScanner$|async)===false) {
-          <ion-button (click)="startScan()">
-            <ion-icon name="scan-outline" slot="start"></ion-icon>
-            Scan QR Code
-          </ion-button>
-          <br />
           } @else {
-          <ion-button (click)="stopScan()">
-            <ion-icon name="scan-outline" slot="start"></ion-icon>
-            Stop scan QR Code
-          </ion-button>
-          <br />
-          }
-          <ion-button
-            (click)="startManualCodeEntry()"
-            fill="outline"
-            style="margin-top: 10px;"
+          <div
+            style="display: flex; justify-content: center;padding-top: 10px; gap: 10px;"
           >
-            <ion-icon name="keypad-outline" slot="start"></ion-icon>
-            Enter Code Manually
-          </ion-button>
+            @if ((showScanner$|async)===false) {
+            <ion-button (click)="startScan()">
+              <ion-icon name="scan-outline" slot="start"></ion-icon>
+              Scan QR
+            </ion-button>
+            }
+            <ion-button (click)="startManualCodeEntry()" fill="outline">
+              <ion-icon name="keypad-outline" slot="start"></ion-icon>
+              Enter Code
+            </ion-button>
+          </div>
           }
         </div>
       </app-explore-container>
@@ -305,7 +316,7 @@ export class QrCodePage {
   }
 
   private link(code: string) {
-    if (this.isLoading$.value || !this.showScanner$.value) {
+    if (this.isLoading$.value) {
       return of(null);
     }
 
@@ -362,6 +373,8 @@ export class QrCodePage {
 
   async startManualCodeEntry() {
     this.showScanner$.next(false);
+    this.isLoading$.next(false);
+
     const alert = await this.alertController.create({
       header: 'Enter Code',
       inputs: [

@@ -2,56 +2,63 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  OnDestroy,
-  OnInit,
-  Renderer2,
-  ViewChild,
-  Output,
-  Input,
   EventEmitter,
+  Input,
+  OnDestroy,
+  Output,
+  ViewChild,
 } from '@angular/core';
-import { Html5Qrcode } from 'html5-qrcode';
-import { Html5QrcodeCameraScanConfig } from 'html5-qrcode/esm/html5-qrcode';
+import { CameraDevice, Html5Qrcode } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
+import { Html5QrcodeCameraScanConfig } from 'html5-qrcode/esm/html5-qrcode';
 
 @Component({
   selector: 'html5-qrcode',
   template: ` <div #reader id="reader" width="600px"></div> `,
   styles: [],
 })
-export class NgxHtml5QrcodeComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class NgxHtml5QrcodeComponent implements AfterViewInit, OnDestroy {
   @ViewChild('reader') reader: ElementRef | undefined;
   html5QrCode!: Html5Qrcode;
   cameraId: string = '';
+  cameraIndex = 0;
+  cameras: CameraDevice[] = [];
 
   @Input() useFrontCamera: boolean = false;
   @Input() config: Html5QrcodeCameraScanConfig = {
     fps: 10,
-    qrbox: { width: 200, height: 200 },
+    qrbox: { width: 250, height: 250 },
   };
   @Output() decodedText: EventEmitter<string> = new EventEmitter<string>();
   @Output() decodedResult: EventEmitter<Html5QrcodeResult> =
     new EventEmitter<Html5QrcodeResult>();
 
-  constructor() {}
-
-  ngOnInit(): void {}
-
   ngAfterViewInit() {
     // This method will trigger user permissions
     Html5Qrcode.getCameras()
       .then((devices) => {
-        if (devices && devices.length) {
-          // .. use this to start scanning.
-          this.cameraId = this.useFrontCamera ? devices[1].id : devices[0].id;
-          this.startHtmlQrCode();
-        }
+        this.cameras = devices || [];
+        this.switchCamera(0);
       })
       .catch((err) => {
         console.log(err);
       });
+  }
+
+  switchCamera(cameraIndex?: number) {
+    if (this.cameras && this.cameras.length) {
+      if (cameraIndex === undefined) {
+        this.cameraIndex = this.cameraIndex + 1;
+        if (this.cameraIndex > this.cameras.length - 1) {
+          this.cameraIndex = 0;
+        }
+      } else {
+        this.cameraIndex = cameraIndex;
+      }
+      this.cameraId = this.cameras[this.cameraIndex].id;
+      this.stopHtmlQrCode();
+      this.startHtmlQrCode();
+    }
   }
 
   qrCodeSuccessCallback(decodedText: any, decodedResult: Html5QrcodeResult) {
@@ -62,10 +69,10 @@ export class NgxHtml5QrcodeComponent
 
   qrCodeErrorCallback(errorMessage: any) {
     /* handle success */
-   // console.error(errorMessage);
+    // console.error(errorMessage);
   }
 
-  startHtmlQrCode() {
+  private startHtmlQrCode() {
     this.html5QrCode = new Html5Qrcode(this.reader?.nativeElement?.id);
 
     this.html5QrCode
@@ -82,13 +89,15 @@ export class NgxHtml5QrcodeComponent
   }
 
   ngOnDestroy() {
+    this.stopHtmlQrCode();
+  }
+
+  private stopHtmlQrCode() {
     this.html5QrCode
-      .stop()
+      ?.stop()
       .then((ignore) => {
         // QR Code scanning is stopped.
       })
-      .catch((err) => {
-        // Stop failed, handle it.
-      });
+      .catch((err) => {});
   }
 }
