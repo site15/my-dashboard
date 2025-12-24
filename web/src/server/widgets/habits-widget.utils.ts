@@ -410,6 +410,7 @@ function renderModalItems(
         );
       }
     };
+    // todo: not apply style in mobile, maybe we must downgrade tailwind to version 3 in web application, and fix styles for correct work
     plusButton.className = `w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center text-2xl font-bold hover:bg-green-600 transition-colors`;
     setTextContent(plusButton, '+');
 
