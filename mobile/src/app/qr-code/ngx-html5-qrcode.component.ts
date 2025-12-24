@@ -92,7 +92,7 @@ export class NgxHtml5QrcodeComponent implements AfterViewInit, OnDestroy {
     this.stopHtmlQrCode();
   }
 
-  private stopHtmlQrCode() {
+  stopHtmlQrCode() {
     this.html5QrCode
       ?.stop()
       .then((ignore) => {

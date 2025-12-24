@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import {
@@ -273,6 +273,9 @@ export class QrCodePage {
   showScanner$ = new BehaviorSubject<boolean>(false);
   isLoading$ = new BehaviorSubject<boolean>(false);
 
+  @ViewChild('#qrcode', { static: true })
+  qrcode?: NgxHtml5QrcodeComponent;
+
   constructor() {
     addIcons({ scanOutline, keypadOutline });
     // Initialize the error handler with the toast controller
@@ -291,7 +294,7 @@ export class QrCodePage {
           first(),
           mergeMap((qrData: QrCodeData) => {
             // Generate a unique device ID (in a real app, you might want to use a more robust method)
-            return this.link(qrData.code);
+            return this.link(qrData.code, 'camera');
           })
         )
         .subscribe();
@@ -307,16 +310,25 @@ export class QrCodePage {
     this.resetScanner();
   }
 
+  ionViewDidLeave() {
+    this.stopScan();
+  }
+
   startScan() {
+    this.qrcode?.stopHtmlQrCode();
     this.showScanner$.next(true);
   }
 
   stopScan() {
+    this.qrcode?.stopHtmlQrCode();
     this.showScanner$.next(false);
   }
 
-  private link(code: string) {
-    if (this.isLoading$.value) {
+  private link(code: string, mode: 'camera' | 'manual') {
+    if (
+      this.isLoading$.value ||
+      (mode === 'camera' && !this.showScanner$.value)
+    ) {
       return of(null);
     }
 
@@ -406,7 +418,7 @@ export class QrCodePage {
 
   processManualCode(code: string) {
     // Call the device/link API
-    this.link(code).pipe(first()).subscribe();
+    this.link(code, 'manual').pipe(first()).subscribe();
   }
 
   private generateDeviceId(): string {
