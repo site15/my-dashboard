@@ -149,7 +149,7 @@ v
    - ✅ Implementation of Habits Tracking Widget
    - ✅ Widget configuration interface
    - ✅ Widget grid positioning
-   - ✅ Multiple widget types (clock, calendar, habits tracking, weather, news, etc.)
+   - ✅ Multiple widget types (clock, calendar, habits tracking)
 
 4. **Mobile Application**
    - ✅ QR code scanning functionality

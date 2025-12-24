@@ -8,7 +8,7 @@ This is a comprehensive dashboard management system for displaying information o
 - Mobile application for displaying widgets on Android phones
 - QR code based device binding
 - Real-time widget updates
-- Support for multiple widget types (clock, calendar, habits tracking, etc.)
+- Support for multiple widget types (clock, calendar, habits tracking)
 - Anonymous user mode
 - Telegram authentication
 - Dark/light theme support

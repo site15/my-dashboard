@@ -178,79 +178,14 @@ interface CalendarWidgetOptions {
 }
 ```
 
-### Weather Widget
 
-The Weather Widget displays current weather information based on location.
-
-#### Widget Features:
-
-1. **Dashboard Display**:
-   - Current temperature
-   - Weather conditions (sunny, cloudy, rainy, etc.)
-   - Location information
-   - High and low temperatures
-
-2. **Configuration Options**:
-   - Location selection
-   - Temperature unit (Celsius/Fahrenheit)
-   - Weather service API key
-
-#### Technical Implementation:
-
-##### Implementation Files:
-- `web/src/server/widgets/weather-widget.ts` - Main widget class and display template
-- `web/src/server/widgets/weather-widget.utils.ts` - Client-side helper functions
-
-##### Data Structure:
-```typescript
-interface WeatherWidgetOptions {
-  location: string;
-  unit: 'celsius' | 'fahrenheit';
-  apiKey: string;
-}
-```
-
-### News Widget
-
-The News Widget displays latest news headlines based on category or source.
-
-#### Widget Features:
-
-1. **Dashboard Display**:
-   - Top news headlines
-   - News source information
-   - Publication time
-   - News categories
-
-2. **Configuration Options**:
-   - News category selection
-   - News source selection
-   - Number of articles to display
-   - Auto-refresh interval
-
-#### Technical Implementation:
-
-##### Implementation Files:
-- `web/src/server/widgets/news-widget.ts` - Main widget class and display template
-- `web/src/server/widgets/news-widget.utils.ts` - Client-side helper functions
-
-##### Data Structure:
-```typescript
-interface NewsWidgetOptions {
-  category: string;
-  source: string;
-  maxArticles: number;
-  refreshInterval: number;
-}
-```
 
 ## Widgets Development Roadmap
 
 ### Near-term Tasks:
-1. Implementation of additional widgets (clock, calendar)
-2. Improvement of widget configuration system
-3. Adding ability to save widget states in the database
-4. Implementation of widget change logging system
+1. Improvement of widget configuration system
+2. Adding ability to save widget states in the database
+3. Implementation of widget change logging system
 
 ### Long-term Goals:
 1. Creation of an extensible widget system with ability to add new types
