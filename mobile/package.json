@@ -35,6 +35,7 @@
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
     "@zxing/browser": "^0.1.5",
+    "html5-qrcode": "^2.3.8",
     "ionicons": "^7.0.0",
     "jsqr": "^1.4.0",
     "lucide": "^0.555.0",

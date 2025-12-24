@@ -25,10 +25,8 @@ import {
   finalize,
   first,
   from,
-  map,
   mergeMap,
   of,
-  switchMap,
   tap,
 } from 'rxjs';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
@@ -36,6 +34,7 @@ import { DeviceService } from '../services/device.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { TrpcHeaders } from '../trpc-client';
 import { TrpcPureHeaders } from '../trpc-pure-client';
+import { NgxHtml5QrcodeComponent } from './ngx-html5-qrcode.component';
 
 //
 // --- 1. Take photo via camera ---
@@ -191,7 +190,11 @@ interface QrCodeData {
 
       <app-explore-container name="QR Code page">
         <div style="padding: 20px; text-align: center;">
-          @if (isLoading$ | async) {
+          @if (showScanner$ | async) {
+          <div style="width: 100%; height:100%; ">
+            <html5-qrcode (decodedText)="onDecodedText($event)"></html5-qrcode>
+          </div>
+          } @if (isLoading$ | async) {
           <div
             style="display: flex; flex-direction: column; align-items: center; gap: 16px;"
           >
@@ -202,18 +205,24 @@ interface QrCodeData {
           <ion-card>
             <ion-card-content>
               <h2>Device Linked Successfully!</h2>
-              <p>Dashboard ID: {{ scanResultQrData.dashboardId }}</p>
               <ion-button (click)="resetScanner()" fill="clear">
                 Scan Another QR Code
               </ion-button>
             </ion-card-content>
           </ion-card>
-          } @else {
+          } @else { @if ((showScanner$|async)===false) {
           <ion-button (click)="startScan()">
             <ion-icon name="scan-outline" slot="start"></ion-icon>
             Scan QR Code
           </ion-button>
           <br />
+          } @else {
+          <ion-button (click)="stopScan()">
+            <ion-icon name="scan-outline" slot="start"></ion-icon>
+            Stop scan QR Code
+          </ion-button>
+          <br />
+          }
           <ion-button
             (click)="startManualCodeEntry()"
             fill="outline"
@@ -239,6 +248,7 @@ interface QrCodeData {
     IonSpinner,
     ExploreContainerComponent,
     AsyncPipe,
+    NgxHtml5QrcodeComponent,
   ],
 })
 export class QrCodePage {
@@ -249,6 +259,7 @@ export class QrCodePage {
   private readonly deviceService = inject(DeviceService);
 
   scanResultQrData$ = new BehaviorSubject<QrCodeData | null>(null);
+  showScanner$ = new BehaviorSubject<boolean>(false);
   isLoading$ = new BehaviorSubject<boolean>(false);
 
   constructor() {
@@ -257,75 +268,53 @@ export class QrCodePage {
     this.errorHandler.initialize(this.toastController);
   }
 
+  onDecodedText(data: any) {
+    try {
+      const parsedData = JSON.parse(data);
+      if (!parsedData.dashboardId) {
+        throw new Error('wrong data');
+      }
+
+      of(parsedData)
+        .pipe(
+          first(),
+          mergeMap((qrData: QrCodeData) => {
+            // Generate a unique device ID (in a real app, you might want to use a more robust method)
+            return this.link(qrData.code);
+          })
+        )
+        .subscribe();
+    } catch (error) {
+      // Handle the error using our global error handler
+      this.errorHandler
+        .handleError('Invalid QR code parsed data')
+        .catch(console.error);
+    }
+  }
+
   ionViewWillEnter() {
     this.resetScanner();
   }
 
   startScan() {
-    // Set loading state to true when starting the scan
-    this.isLoading$.next(true);
+    this.showScanner$.next(true);
+  }
 
-    from(scanQRFromCamera())
-      .pipe(
-        first(),
-        mergeMap((result) => {
-          if (!result) {
-            throw new Error('decode failed');
-          }
-
-          TrpcHeaders.set({});
-          TrpcPureHeaders.set({});
-
-          // Parse the QR code data
-          try {
-            const qrData: QrCodeData = JSON.parse(result);
-            const code = qrData.code;
-            // Generate a unique device ID (in a real app, you might want to use a more robust method)
-            return this.link(code).pipe(
-              map(() => qrData) // Return the QR data on success
-            );
-          } catch (parseError) {
-            console.error('Error parsing QR code data:', parseError);
-            // Handle the error using our global error handler
-            this.errorHandler
-              .handleError(parseError, 'Invalid QR code format')
-              .catch(console.error);
-            throw new Error('invalid qr code');
-          }
-        }),
-        catchError((err) => {
-          console.warn('Scan error:', err);
-          // Handle the error by showing an alert and returning null to continue the stream
-          const errorMessage = err instanceof Error ? err.message : String(err);
-          return from(this.showScanErrorAlert(errorMessage)).pipe(
-            switchMap(() => of(null))
-          );
-        }),
-        tap((data) => {
-          console.info('Device linked successfully:', data);
-          if (data && typeof data === 'object' && 'id' in data) {
-            this.scanResultQrData$.next(data);
-            // Navigate to the dashboard tab after successful linking
-            this.router.navigate(['/tabs/dashboard']);
-          }
-        }),
-        catchError((error) => {
-          console.error('Error scanning barcode:', error);
-          // Handle the error using our global error handler
-          this.errorHandler
-            .handleError(error, 'Error scanning QR code')
-            .catch(console.error);
-          return of(null);
-        }),
-        // Always set loading state to false when the operation completes
-        finalize(() => {
-          this.isLoading$.next(false);
-        })
-      )
-      .subscribe();
+  stopScan() {
+    this.showScanner$.next(false);
   }
 
   private link(code: string) {
+    if (this.isLoading$.value || !this.showScanner$.value) {
+      return of(null);
+    }
+
+    TrpcHeaders.set({});
+    TrpcPureHeaders.set({});
+
+    // Set loading state to true when processing the manual code
+    this.isLoading$.next(true);
+
     const deviceId = this.generateDeviceId();
 
     // Call the device/link API
@@ -335,22 +324,44 @@ export class QrCodePage {
         deviceId,
       })
     ).pipe(
+      tap((data) => {
+        this.stopScan();
+        console.info('Device linked successfully:', data);
+        if (data && typeof data === 'object' && 'id' in data) {
+          this.scanResultQrData$.next({ dashboardId: '', code, apiUrl: '' });
+          // Navigate to the dashboard tab after successful linking
+          this.router.navigate(['/tabs/dashboard']);
+        }
+      }),
       catchError((err) => {
         console.error('Error linking device:', err);
         // Handle the error using our global error handler
         this.errorHandler
           .handleError(err, 'Failed to link device')
           .catch(console.error);
-        throw new Error('link failed');
+        if (
+          err.message === 'QR code not found' ||
+          err.message === 'QR code already used'
+        ) {
+          this.stopScan();
+        }
+        return of(null);
+      }),
+      // Always set loading state to false when the operation completes
+      finalize(() => {
+        this.isLoading$.next(false);
       })
     );
   }
 
   resetScanner() {
     this.scanResultQrData$.next(null);
+    this.showScanner$.next(false);
+    this.isLoading$.next(false);
   }
 
   async startManualCodeEntry() {
+    this.showScanner$.next(false);
     const alert = await this.alertController.create({
       header: 'Enter Code',
       inputs: [
@@ -381,41 +392,8 @@ export class QrCodePage {
   }
 
   processManualCode(code: string) {
-    // Set loading state to true when processing the manual code
-    this.isLoading$.next(true);
-
-    // Generate a unique device ID
-    const deviceId = this.generateDeviceId();
-
-    TrpcHeaders.set({});
-    TrpcPureHeaders.set({});
-
     // Call the device/link API
-    this.link(code)
-      .pipe(
-        first(),
-        tap((data: any) => {
-          console.info('Device linked successfully:', data);
-          if (data && typeof data === 'object' && 'id' in data) {
-            this.scanResultQrData$.next(data);
-            // Navigate to the dashboard tab after successful linking
-            this.router.navigate(['/tabs/dashboard']);
-          }
-        }),
-        catchError((error) => {
-          console.error('Error scanning barcode:', error);
-          // Handle the error using our global error handler
-          this.errorHandler
-            .handleError(error, 'Error scanning QR code')
-            .catch(console.error);
-          return of(null);
-        }),
-        // Always set loading state to false when the operation completes
-        finalize(() => {
-          this.isLoading$.next(false);
-        })
-      )
-      .subscribe();
+    this.link(code).pipe(first()).subscribe();
   }
 
   private generateDeviceId(): string {
@@ -435,37 +413,5 @@ export class QrCodePage {
     localStorage.setItem('deviceId', newDeviceId);
 
     return newDeviceId;
-  }
-
-  private async showScanErrorAlert(errorMessage: string) {
-    let alertMessage = 'An unknown error occurred. Please try again.';
-
-    if (errorMessage === 'decode failed') {
-      alertMessage = 'QR code could not be decoded.';
-    } else if (errorMessage === 'invalid qr code') {
-      alertMessage = 'Invalid QR code format.';
-    } else if (errorMessage === 'link failed') {
-      alertMessage = 'Failed to link device. Please try again.';
-    }
-
-    const alert = await this.alertController.create({
-      message: alertMessage,
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {},
-        },
-        {
-          text: 'Scan Again',
-          role: 'confirm',
-          handler: () => {
-            this.startScan();
-          },
-        },
-      ],
-    });
-
-    await alert.present();
   }
 }
