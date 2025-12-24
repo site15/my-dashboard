@@ -1,6 +1,6 @@
 {
   "name": "MyDashboard",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "description": "An Ionic-Angular mobile application with Capacitor integration for Android deployment. Features a tabbed interface with explore container and dynamic routing.",
   "author": "Ilshat Khamitov <ilshat.m.khamitov@gmail.com>",
   "scripts": {
