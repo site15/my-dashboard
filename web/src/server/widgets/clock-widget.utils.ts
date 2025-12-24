@@ -439,6 +439,7 @@ export function hideClockModal(
 export const linkFunctionsToWindow = (): void => {
   // Export all utility functions
   if (WINDOW) {
+    console.log('Linking clock widget functions to window');
     WINDOW.initializeClockWidget = initializeClockWidget;
     WINDOW.rotateClocks = rotateClocks;
     WINDOW.showClockModal = showClockModal;

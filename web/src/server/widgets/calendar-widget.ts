@@ -137,12 +137,12 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
     widget: WidgetRenderType<CalendarWidgetType>,
     options?: WidgetRenderInitFunctionOptions
   ) {
+    linkFunctionsToWindow();
+
     if (this.inited[widget.id]) {
       return;
     }
     this.inited[widget.id] = true;
-
-    linkFunctionsToWindow();
   }
 
   render(

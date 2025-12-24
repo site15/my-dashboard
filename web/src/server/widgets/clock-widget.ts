@@ -172,12 +172,14 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
     widget: WidgetRenderType<ClockWidgetType>,
     options?: WidgetRenderInitFunctionOptions
   ) {
+    console.log('Initializing clock widget');
+    linkFunctionsToWindow();
+
     if (this.inited[widget.id]) {
+      console.log('Clock widget already initialized');
       return;
     }
     this.inited[widget.id] = true;
-
-    linkFunctionsToWindow();
 
     WINDOW?.initializeClockWidget?.(
       widget.id,
@@ -189,6 +191,8 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
       }) || [],
       options?.static || false
     );
+
+    console.log('Initialized clock widget');
   }
 
   render(
@@ -202,6 +206,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
       options.init = true;
     }
     const render = () => {
+      console.log('Rendering clock widget');
       // Get current times for the timezones
       const mainTime = widget.options?.timezones?.[0]
         ? getDigitalTime(widget.options.timezones[0].timezone)
@@ -226,6 +231,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
 
       const modalId = getClockName(widget.id, 'clocks-modal');
 
+      console.log('Rendering clock widget with modal ID:', modalId);
       return `
 <!--
     ========================================
