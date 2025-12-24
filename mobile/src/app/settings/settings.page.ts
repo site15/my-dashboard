@@ -29,6 +29,7 @@ import {
   refreshOutline,
   saveOutline,
   unlinkOutline,
+  bugOutline,
 } from 'ionicons/icons';
 import { BehaviorSubject } from 'rxjs';
 import { X_DEVICE_ID } from '../../../../web/src/server/constants';
@@ -37,6 +38,7 @@ import { DeviceService } from '../services/device.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { TrpcHeaders } from '../trpc-client';
 import { TrpcPureHeaders } from '../trpc-pure-client';
+import { activateSendLoggerMessageToServer } from '../remote-log';
 
 @Component({
   selector: 'app-settings',
@@ -49,6 +51,9 @@ import { TrpcPureHeaders } from '../trpc-pure-client';
       <ion-toolbar>
         <ion-title> Settings </ion-title>
         <ion-buttons slot="end">
+          <ion-button (click)="enableDebug()">
+            <ion-icon name="bug-outline"></ion-icon>
+          </ion-button>
           <ion-button (click)="loadDashboardInfo()" [disabled]="loading">
             <ion-icon name="refresh-outline"></ion-icon>
           </ion-button>
@@ -194,13 +199,30 @@ export class SettingsPage {
   loading$ = new BehaviorSubject(false);
 
   constructor() {
-    addIcons({ refreshOutline, saveOutline, qrCodeOutline, unlinkOutline });
+    addIcons({
+      refreshOutline,
+      saveOutline,
+      qrCodeOutline,
+      unlinkOutline,
+      bugOutline,
+    });
     // Initialize the error handler with the toast controller
     this.errorHandler.initialize(this.toastController);
   }
 
   async ionViewWillEnter() {
     await this.loadDashboardInfo();
+  }
+
+  enableDebug() {
+    activateSendLoggerMessageToServer();
+    this.toastController
+      .create({
+        message: 'Debug mode enabled',
+        duration: 2000,
+        color: 'success',
+      })
+      .then((toast) => toast.present());
   }
 
   async loadDashboardInfo() {

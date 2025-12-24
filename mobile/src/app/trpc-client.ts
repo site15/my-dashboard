@@ -63,7 +63,7 @@ function customFetch(
   });
 }
 
-export const { provideTrpcClient, TrpcClient, TrpcHeaders } =
+export const { provideTrpcClient, TrpcClient, TrpcHeaders} =
   createTrpcClient<AppRouter>({
     url: `${environment.apiUrl}/api/trpc`,
     options: { transformer: superjson },

@@ -219,6 +219,7 @@ export class DashboardPage {
       // Fetch dashboard info using deviceId
       // Using a simple approach to avoid type issues
       const response = await this.deviceService.info();
+
       this.dashboardInfo$.next(response);
     } catch (err) {
       this.dashboardInfo$.next(null);

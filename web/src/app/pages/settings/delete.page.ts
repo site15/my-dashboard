@@ -23,7 +23,7 @@ export const routeMeta: RouteMeta = {
         class="text-gray-500 hover:text-pastel-blue transition-colors mb-10 mt-2 flex items-center"
       >
         <i-lucide name="arrow-left" class="w-6 h-6 mr-0 lg:mr-2"></i-lucide>
-        <span class="hidden lg:inline text-lg font-medium">Back to Settings</span>
+        <span class="mobile-hidden lg:inline text-lg font-medium">Back to Settings</span>
       </a>
       Permanently remove your account and all associated data.
     </p>

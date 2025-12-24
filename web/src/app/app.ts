@@ -64,7 +64,7 @@ export const routeMeta: RouteMeta = {
             name="layout-dashboard"
             class="w-8 h-8 lg:mr-2 inline-block align-middle"
           ></i-lucide>
-          <span class="hidden lg:inline align-middle">My Dashboards</span>
+          <span class="mobile-hidden lg:inline align-middle">My Dashboards</span>
         </a>
 
         <nav class="flex flex-col space-y-4 w-full">
@@ -73,7 +73,7 @@ export const routeMeta: RouteMeta = {
             class="flex items-center p-3 rounded-xl bg-pastel-blue/10 text-pastel-blue font-semibold transition-all duration-300 hover:bg-pastel-blue/20"
           >
             <i-lucide name="grid-3x3" class="w-6 h-6 mr-0 lg:mr-3"></i-lucide>
-            <span class="hidden lg:inline">Dashboards</span>
+            <span class="mobile-hidden lg:inline">Dashboards</span>
           </a>
 
           <a
@@ -84,7 +84,7 @@ export const routeMeta: RouteMeta = {
               name="chart-bar-big"
               class="w-6 h-6 mr-0 lg:mr-3"
             ></i-lucide>
-            <span class="hidden lg:inline">Analytics</span>
+            <span class="mobile-hidden lg:inline">Analytics</span>
           </a>
 
           <a
@@ -92,7 +92,7 @@ export const routeMeta: RouteMeta = {
             class="flex items-center p-3 rounded-xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-100 hover:text-gray-800"
           >
             <i-lucide name="settings" class="w-6 h-6 mr-0 lg:mr-3"></i-lucide>
-            <span class="hidden lg:inline">Settings</span>
+            <span class="mobile-hidden lg:inline">Settings</span>
           </a>
         </nav>
 
@@ -105,7 +105,7 @@ export const routeMeta: RouteMeta = {
               class="mt-2 text-red-500 font-medium hover:text-red-700 transition-colors flex items-center"
             >
               <i-lucide name="log-out" class="w-5 h-5 mr-0 lg:mr-2"></i-lucide>
-              <span class="hidden lg:inline">Sign Out</span>
+              <span class="mobile-hidden lg:inline">Sign Out</span>
             </button>
             <color-scheme-switcher class="flex items-center" />
           </div>

@@ -368,3 +368,13 @@ a {
 [data-theme='dark'] .option-item.selected {
   background-color: #1e3a8a;
 }
+
+.hidden {
+  display: none;
+}
+
+.mobile-hidden {
+  @media (max-width: 1023px) {
+    display: none;
+  }
+}

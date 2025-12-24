@@ -4,6 +4,7 @@ let _log: Function;
 let _warn: Function;
 let _error: Function;
 let _info: Function;
+let _debug: Function;
 let _pending: Array<LogItem> | undefined = undefined;
 let _callback: (data: any) => void;
 interface LogItem {
@@ -11,19 +12,24 @@ interface LogItem {
   level: string;
 }
 
+export function activateSendLoggerMessageToServer() {
+  (window as any).debug = true;
+}
 /**
  * Initialize logging will override window.console and send to the serverUrl
  * @param  {string} serverUrl The servername and port number of the remote server (eg 192.168.1.1:9000)
  */
 export function initLogger(callback: (data: any) => void) {
   _log = window.console.log;
-  _warn = window.console.error;
+  _warn = window.console.warn;
   _error = window.console.error;
   _info = window.console.info;
+  _debug = window.console.debug;
   _callback = callback;
   window.console.log = consoleLog;
   window.console.warn = consoleWarn;
   window.console.error = consoleError;
+  window.console.debug = consoleDebug;
   (window.console as any).hiddenError = hiddenError;
   window.console.info = consoleInfo;
 
@@ -43,6 +49,9 @@ export function initLogger(callback: (data: any) => void) {
 }
 
 function write(message: any, _arguments: any, level: string) {
+  if (!(window as any).debug) {
+    return;
+  }
   const args = Array.prototype.slice.call(_arguments);
   let msg = message;
   args.forEach((element) => {
@@ -92,17 +101,17 @@ function post(data: any) {
 }
 
 function consoleLog(message: any, ...args: any) {
-  _log(message, ...args);
+  _log(message, ...(args || []));
   write(message, args, 'log');
 }
 
 function consoleWarn(message: any, ...args: any) {
-  _warn(message, ...args);
+  _warn(message, ...(args || []));
   write(message, args, 'warn');
 }
 
 function consoleError(message: any, ...args: any) {
-  _error(message, ...args);
+  _error(message, ...(args || []));
   write(message, args, 'error');
 }
 
@@ -111,6 +120,11 @@ function hiddenError(message: any, ...args: any) {
 }
 
 function consoleInfo(message: any, ...args: any) {
-  _info(message, ...args);
+  _info(message, ...(args || []));
   write(message, args, 'info');
+}
+
+function consoleDebug(message: any, ...args: any) {
+  _debug(message, ...(args || []));
+  write(message, args, 'debug');
 }

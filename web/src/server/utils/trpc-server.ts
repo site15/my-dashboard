@@ -172,7 +172,10 @@ export function createCustomTrpcNitroHandler<TRouter extends AnyRouter>({
           headers['Access-Control-Allow-Origin'] = corsOrigin;
           headers['Access-Control-Allow-Credentials'] = 'true';
         }
-        if (errors.length) headers['X-TRPC-Error'] = 'true';
+        if (errors.length) {
+          headers['X-TRPC-Error'] = 'true';
+        }
+        headers['cache-control'] = 'no-store, no-cache, must-revalidate';
         return { headers };
       },
 

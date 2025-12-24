@@ -14,9 +14,11 @@ export class DeviceService {
 
   info() {
     return firstValueFrom(
-      this.trpc.device.info
-        .query()
-        .pipe(tap((info) => this.setDarkTheme(!!info.isBlackTheme)))
+      this.trpc.device.info.query().pipe(
+        tap((info) => {
+          this.setDarkTheme(!!info.isBlackTheme);
+        })
+      )
     );
   }
 

@@ -206,7 +206,7 @@ function updateClocksUI(
     const mainClock = visibleClocks[0];
     const mainClockId = getClockName(widgetId, 'main');
 
-    console.log('Updating main clock:', mainClock);
+    // console.log('Updating main clock:', mainClock);
 
     const timeElement = getElementById(scope, `main-clock-time-${mainClockId}`);
     const nameElement = getElementById(scope, `main-clock-name-${mainClockId}`);

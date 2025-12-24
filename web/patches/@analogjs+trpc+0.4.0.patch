@@ -1,7 +1,16 @@
 diff --git a/node_modules/@analogjs/trpc/fesm2022/analogjs-trpc.mjs b/node_modules/@analogjs/trpc/fesm2022/analogjs-trpc.mjs
-index fd3f2b7..564f690 100644
+index fd3f2b7..ac5dcd8 100644
 --- a/node_modules/@analogjs/trpc/fesm2022/analogjs-trpc.mjs
 +++ b/node_modules/@analogjs/trpc/fesm2022/analogjs-trpc.mjs
+@@ -9,7 +9,7 @@ import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared';
+ const tRPC_CACHE_STATE = new InjectionToken('TRPC_HTTP_TRANSFER_STATE_CACHE_STATE');
+ const provideTrpcCacheState = () => ({
+     provide: tRPC_CACHE_STATE,
+-    useValue: { isCacheActive: new BehaviorSubject(true) },
++    useValue: { isCacheActive: new BehaviorSubject(false) },
+ });
+ const provideTrpcCacheStateStatusManager = () => ({
+     provide: APP_BOOTSTRAP_LISTENER,
 @@ -269,7 +269,7 @@ const createTrpcClient = ({ url, options, batchLinkOptions, }) => {
                              headers() {
                                  return TrpcHeaders();
