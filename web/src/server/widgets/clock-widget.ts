@@ -146,7 +146,10 @@ export const CLOCK_FORMLY_FIELDS: FormlyFieldConfig[] = [
 ];
 
 // Helper function to get digital time for a timezone
-function getDigitalTime(timezoneOffset: string): string {
+function getDigitalTime(
+  timezoneOffset: string,
+  widget: WidgetRenderType<ClockWidgetType>
+): string {
   try {
     const timezone = TIMEZONE_OFFSET_TO_IANA[timezoneOffset];
     if (!timezone) return '--:--';
@@ -155,11 +158,13 @@ function getDigitalTime(timezoneOffset: string): string {
     const options: Intl.DateTimeFormatOptions = {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: widget.options?.hourFormat === HourFormat['12h'],
       timeZone: timezone,
     };
 
-    return new Intl.DateTimeFormat('en-US', options).format(date);
+    const formatedDate=new Intl.DateTimeFormat('en-US', options).format(date)
+    console.log({formatedDate, options})
+    return formatedDate;
   } catch (_error) {
     return '--:--';
   }
@@ -189,6 +194,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
           timezone: tz.timezone,
         };
       }) || [],
+      widget.options?.hourFormat===HourFormat['12h'],
       options?.static || false
     );
 
@@ -209,13 +215,13 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
       console.log('Rendering clock widget');
       // Get current times for the timezones
       const mainTime = widget.options?.timezones?.[0]
-        ? getDigitalTime(widget.options.timezones[0].timezone)
+        ? getDigitalTime(widget.options.timezones[0].timezone, widget)
         : '--:--';
       const smallTime1 = widget.options?.timezones?.[1]
-        ? getDigitalTime(widget.options.timezones[1].timezone)
+        ? getDigitalTime(widget.options.timezones[1].timezone, widget)
         : '--:--';
       const smallTime2 = widget.options?.timezones?.[2]
-        ? getDigitalTime(widget.options.timezones[2].timezone)
+        ? getDigitalTime(widget.options.timezones[2].timezone, widget)
         : '--:--';
 
       // Get current times for the timezones

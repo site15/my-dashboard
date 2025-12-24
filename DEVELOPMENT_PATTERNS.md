@@ -35,6 +35,14 @@ This document outlines the established working patterns and best practices for d
 - Use service-based composition for reusable form functionality
 - Reference FORM_HANDLER_SERVICE_GUIDE.md for implementation details
 
+### Widget Development Pattern
+- Create widget-specific TypeScript files in `web/src/server/widgets/`
+- Implement both server-side rendering and client-side utilities for widgets
+- Use Zod schemas for widget configuration validation
+- Follow the widget interface pattern with display and configuration methods
+- Implement themed components that support light/dark modes
+- Use Tailwind CSS for styling with theme-compatible classes
+
 ### Routing Pattern
 - Use AnalogJS file-based routing with `routeMeta` for guard configuration
 - Implement route guards for authentication checks (ShowNavGuard/HideNavGuard)
@@ -86,6 +94,8 @@ This document outlines the established working patterns and best practices for d
 - Use loading states for asynchronous operations
 - Implement proper error feedback with alerts/toasts
 - Follow platform-specific design guidelines
+- Implement themed components that adapt to light/dark modes
+- Use consistent color palettes across the application
 
 ### Data Synchronization Pattern
 - Use TRPC for client-server communication
@@ -132,6 +142,14 @@ This document outlines the established working patterns and best practices for d
 - Implement mobile-first design approach
 - Apply proper spacing and typography scales
 - Use conditional rendering for platform-specific features
+
+### Theming and UI Kit Pattern
+- Implement theme system with light/dark mode support
+- Use customizable color schemes (background, primary, positive, negative colors)
+- Create reusable UI components with consistent styling
+- Follow flat design aesthetic with long shadows and rounded corners
+- Use Inter font family throughout the application
+- Implement themed widgets with customizable appearance
 
 ## Testing and Quality Assurance Patterns
 

@@ -1,6 +1,6 @@
 # UI Kit Documentation
 
-This document describes the UI components and styling guidelines for the dashboard application. All components follow a flat design aesthetic with long shadows and rounded corners.
+This document describes the UI components and styling guidelines for the dashboard application. All components follow a flat design aesthetic with long shadows and rounded corners. The UI Kit includes themed components that adapt to light/dark modes and customizable color schemes.
 
 ## Design Principles
 
@@ -8,6 +8,7 @@ This document describes the UI components and styling guidelines for the dashboa
 2. **Consistent Spacing**: Using Tailwind's spacing scale for consistent margins and padding
 3. **Rounded Corners**: All interactive elements have rounded corners (rounded-xl to rounded-2xl)
 4. **Limited Color Palette**: Primary purple (#8A89F0) with grayscale for backgrounds and text
+5. **Themed Components**: All components support light/dark themes and customizable color schemes
 
 ## Color Palette
 
@@ -25,7 +26,18 @@ Using the Inter font family throughout the application:
 - Subheadings: Semi-bold weights (600)
 - Body text: Regular weights (400)
 
-## Components
+## Themed Components
+
+### Theme System
+
+The application includes a comprehensive theme system that allows customization of:
+- Background colors
+- Primary colors
+- Positive colors (for success states)
+- Negative colors (for error states)
+- Support for both light and dark modes
+
+### Components
 
 ### Buttons
 
@@ -56,6 +68,30 @@ Multiple button styles are used throughout the application:
 5. **Add Widget Button**: 
    - Dashed border button for adding new items
    - Changes appearance on hover
+
+### Themed Components
+
+All components support dynamic theming with customizable colors:
+
+1. **Themed Buttons**: 
+   - Support custom background, primary, positive, and negative colors
+   - Automatically adapt to light/dark modes
+   - Consistent styling across all themes
+
+2. **Themed Widgets**: 
+   - Support custom color schemes per widget
+   - Dark/light theme compatibility
+   - Consistent visual appearance across all widgets
+
+3. **Themed Forms**: 
+   - Inputs, checkboxes, and select elements adapt to themes
+   - Consistent styling across light/dark modes
+   - Support for themed validation states
+
+4. **Themed Modals and Dialogs**: 
+   - Full theme support for overlays
+   - Consistent styling with main application theme
+   - Proper contrast ratios in all themes
 
 All buttons have:
 - Smooth hover transitions

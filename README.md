@@ -1,5 +1,25 @@
 # My Dashboard
 
+This is a comprehensive dashboard management system for displaying information on old Android phones. Users create dashboards through a web application, add widgets, and bind phones via QR code. The phone receives data through an API and displays widgets in real-time.
+
+## Features
+
+- Web application for creating and managing dashboards
+- Mobile application for displaying widgets on Android phones
+- QR code based device binding
+- Real-time widget updates
+- Support for multiple widget types (clock, calendar, habits tracking, etc.)
+- Anonymous user mode
+- Telegram authentication
+- Dark/light theme support
+- Widget grid positioning and customization
+- Mobile offline widget caching
+- Dashboard sharing and templates
+- API rate limiting and security features
+- User analytics and reporting
+- Multi-language support
+- Widget marketplace and automation features
+
 ## Live Demo
 
 The application is deployed and available at: https://site15-my-dashboard.vercel.app
@@ -81,11 +101,12 @@ docker-compose down -v
 
 ## Documentation
 
-- [Project Overview and Technical Specification](./PROJECT_OVERVIEW.md)
-- [Project Tasks Tracking](./PROJECT_TASKS.md)
+- [Project Overview and Technical Specification](./PROJECT_OVERVIEW.md) ([Russian version](./PROJECT_OVERVIEW_RU.md))
+- [Project Tasks Tracking](./PROJECT_TASKS.md) ([Russian version](./PROJECT_TASKS_RU.md))
 - [AI Project Context](./AI_PROJECT_CONTEXT.md) ([Russian version](./AI_PROJECT_CONTEXT_RU.md))
 - [Technical Documentation](./web/TECHNICAL_DOCUMENTATION.md)
 - [Development Patterns](./DEVELOPMENT_PATTERNS.md)
+- [UI Kit Documentation](./web/UI_KIT_DOCUMENTATION.md)
 - [Mobile App Documentation](./mobile/README.md) ([Russian version](./mobile/README_RU.md))
 - [Web App Documentation](./web/README.md) ([Russian version](./web/README_RU.md))
 - [Widgets Documentation](./web/WIDGETS_DOCUMENTATION.md) ([Russian version](./web/WIDGETS_DOCUMENTATION_RU.md))

@@ -65,7 +65,9 @@ export const routeMeta: RouteMeta = {
           class="text-gray-500 hover:text-pastel-blue transition-colors mb-10 mt-2 flex items-center"
         >
           <i-lucide name="arrow-left" class="w-6 h-6 mr-0 lg:mr-2"></i-lucide>
-          <span class="mobile-hidden lg:inline text-lg font-medium">Dashboards</span>
+          <span class="mobile-hidden lg:inline text-lg font-medium"
+            >Dashboards</span
+          >
         </a>
         Update settings and widgets.
       </p>
@@ -172,11 +174,21 @@ export const routeMeta: RouteMeta = {
                       "
                       class="w-8 h-8 text-pastel-blue mr-3"
                     ></i-lucide>
+
                     <p class="text-lg font-medium text-gray-600">
-                      {{ widget.type | titlecase }} Widget
+                      {{
+                        widget.options?.name ||
+                          (widget.type | titlecase) + ' Widget'
+                      }}
                     </p>
                   </div>
 
+                  @if (widget.options?.name) {
+                    <p class="text-sm text-gray-500 mt-1">
+                      {{ widget.type | titlecase }} Widget
+                    </p>
+                  }
+                  
                   <div
                     class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100"
                   >

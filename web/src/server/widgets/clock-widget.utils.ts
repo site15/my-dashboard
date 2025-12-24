@@ -7,7 +7,9 @@
 
 import { createIcons, icons } from 'lucide';
 
+import { ClockWidgetType, HourFormat } from './clock-widget';
 import { WINDOW } from '../../app/utils/window';
+import { WidgetRenderType } from '../types/WidgetSchema';
 import {
   addClass,
   appendChild,
@@ -26,6 +28,8 @@ const timeZoneClocks: Record<
   Array<{ name: string; timezone: string; color: string }>
 > = {};
 
+const timeZoneClockHour12: Record<string, boolean> = {};
+
 const clockUpdateInterval: Record<string, NodeJS.Timeout | null> = {};
 
 // Type definitions
@@ -43,10 +47,12 @@ interface ClockConfig {
 function initializeClockWidget(
   widgetId: string,
   clocks: ClockConfig[],
+  hour12: boolean,
   staticMode: boolean,
   scope: Document | HTMLElement = document
 ): void {
   timeZoneClocks[widgetId] = [];
+  timeZoneClockHour12[widgetId] = hour12;
 
   for (let i = 0; i < clocks.length; i++) {
     timeZoneClocks[widgetId].push({
@@ -74,13 +80,13 @@ function getColorForClock(index: number): string {
  * @param timezone - IANA timezone identifier
  * @returns Formatted time string (HH:MM)
  */
-function getDigitalTime(timezone: string): string {
+function getDigitalTime(timezone: string, hour12: boolean): string {
   try {
     const date = new Date();
     const options: Intl.DateTimeFormatOptions = {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12,
       timeZone: timezone,
     };
     return new Intl.DateTimeFormat('en-US', options).format(date);
@@ -216,7 +222,7 @@ function updateClocksUI(
     );
 
     if (timeElement) {
-      setTextContent(timeElement, getDigitalTime(mainClock.timezone));
+      setTextContent(timeElement, getDigitalTime(mainClock.timezone, timeZoneClockHour12[widgetId]));
     }
     if (nameElement) {
       setTextContent(nameElement, mainClock.name);
@@ -243,7 +249,7 @@ function updateClocksUI(
     const nameElement = getElementById(scope, `small-clock-name-${clockId}`);
 
     if (timeElement) {
-      setTextContent(timeElement, getDigitalTime(clock.timezone));
+      setTextContent(timeElement, getDigitalTime(clock.timezone, timeZoneClockHour12[widgetId]));
     }
     if (nameElement) {
       setTextContent(nameElement, clock.name.split('(')[0].trim());
@@ -353,7 +359,7 @@ function renderAllClocksModal(
     if (modalButton) {
       setTextContent(
         modalButton,
-        `Change Main Clocks (Now: ${getDigitalTime(timeZoneClocks[widgetId]?.[0]?.timezone)})`
+        `Change Main Clocks (Now: ${getDigitalTime(timeZoneClocks[widgetId]?.[0]?.timezone, timeZoneClockHour12[widgetId])})`
       );
     }
   });
@@ -375,7 +381,7 @@ function updateAllClocksModalTimes(
     const canvasId = `${modalId}-modal-analog-clock-${index}`;
 
     if (timeElement) {
-      timeElement.textContent = getDigitalTime(clock.timezone);
+      timeElement.textContent = getDigitalTime(clock.timezone, timeZoneClockHour12[widgetId]);
     }
 
     // Update analog clocks in modal

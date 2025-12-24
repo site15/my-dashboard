@@ -73,7 +73,7 @@ interface HabitsWidgetItem {
   history: Array<{
     id: number;
     time: string;
-  }>;
+  }>
 }
 ```
 
@@ -110,6 +110,137 @@ The widget is integrated with the general widget system of the project and uses 
       "history": []
     }
   ]
+}
+```
+
+### Clock Widget
+
+The Clock Widget displays the current time with customizable time zone and name.
+
+#### Widget Features:
+
+1. **Dashboard Display**:
+   - Shows current time in HH:MM:SS format
+   - Customizable time zone
+   - Customizable name/display label
+   - Supports 12/24 hour format
+
+2. **Configuration Options**:
+   - Time zone selection
+   - Display name
+   - 12/24 hour format selection
+   - Custom styling options
+
+#### Technical Implementation:
+
+##### Implementation Files:
+- `web/src/server/widgets/clock-widget.ts` - Main widget class and display template
+- `web/src/server/widgets/clock-widget.utils.ts` - Client-side helper functions
+
+##### Data Structure:
+```typescript
+interface ClockWidgetOptions {
+  timeZone: string;
+  name: string;
+  format24Hour: boolean;
+}
+```
+
+### Calendar Widget
+
+The Calendar Widget displays the current date with customizable month and date.
+
+#### Widget Features:
+
+1. **Dashboard Display**:
+   - Shows current date with day, month, and year
+   - Customizable fixed month and date
+   - Weekday display
+   - Month name in full
+
+2. **Configuration Options**:
+   - Fixed month selection
+   - Fixed date selection
+   - Custom styling options
+
+#### Technical Implementation:
+
+##### Implementation Files:
+- `web/src/server/widgets/calendar-widget.ts` - Main widget class and display template
+- `web/src/server/widgets/calendar-widget.utils.ts` - Client-side helper functions
+
+##### Data Structure:
+```typescript
+interface CalendarWidgetOptions {
+  month: number;
+  date: number;
+  fixedDate: boolean;
+}
+```
+
+### Weather Widget
+
+The Weather Widget displays current weather information based on location.
+
+#### Widget Features:
+
+1. **Dashboard Display**:
+   - Current temperature
+   - Weather conditions (sunny, cloudy, rainy, etc.)
+   - Location information
+   - High and low temperatures
+
+2. **Configuration Options**:
+   - Location selection
+   - Temperature unit (Celsius/Fahrenheit)
+   - Weather service API key
+
+#### Technical Implementation:
+
+##### Implementation Files:
+- `web/src/server/widgets/weather-widget.ts` - Main widget class and display template
+- `web/src/server/widgets/weather-widget.utils.ts` - Client-side helper functions
+
+##### Data Structure:
+```typescript
+interface WeatherWidgetOptions {
+  location: string;
+  unit: 'celsius' | 'fahrenheit';
+  apiKey: string;
+}
+```
+
+### News Widget
+
+The News Widget displays latest news headlines based on category or source.
+
+#### Widget Features:
+
+1. **Dashboard Display**:
+   - Top news headlines
+   - News source information
+   - Publication time
+   - News categories
+
+2. **Configuration Options**:
+   - News category selection
+   - News source selection
+   - Number of articles to display
+   - Auto-refresh interval
+
+#### Technical Implementation:
+
+##### Implementation Files:
+- `web/src/server/widgets/news-widget.ts` - Main widget class and display template
+- `web/src/server/widgets/news-widget.utils.ts` - Client-side helper functions
+
+##### Data Structure:
+```typescript
+interface NewsWidgetOptions {
+  category: string;
+  source: string;
+  maxArticles: number;
+  refreshInterval: number;
 }
 ```
 
