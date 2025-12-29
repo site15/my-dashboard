@@ -30,19 +30,10 @@ export const routeMeta: RouteMeta = {
       <div
         class="lg:w-1/2 p-8 lg:p-12 bg-pastel-accent bg-opacity-20 flex flex-col justify-center items-center text-center"
       >
-        <svg
+        <img
           class="w-2/3 h-auto text-pastel-blue mb-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          <path d="M12 16v-4"></path>
-          <path d="M9 12l3 3 3-3"></path>
-        </svg>
+          src="/my-dashboard.png"
+        />
         <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Welcome</h2>
         <p class="text-gray-600 text-lg">
           Create your perfect dashboard. Simple. Beautiful. Fast.
