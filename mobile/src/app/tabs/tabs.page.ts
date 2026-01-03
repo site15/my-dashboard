@@ -70,17 +70,17 @@ export class TabsPage {
       console.log('Размер экрана изменился');
       console.log('Портрет?', this.platform.isPortrait());
       console.log('Ландшафт?', this.platform.isLandscape());
-      if (this.isLandscape()) {
-        this.setLandscapeFullscreen();
-      } else {
-        this.exitFullscreen();
-      }
+      this.updateFullscreenMode();
     });
 
+    this.updateFullscreenMode();
+  }
+
+  private updateFullscreenMode() {
     if (this.isLandscape()) {
-      this.setLandscapeFullscreen();
+      this.setLandscapeFullscreen().then();
     } else {
-      this.exitFullscreen();
+      this.exitFullscreen().then();
     }
   }
 
