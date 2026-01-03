@@ -20,6 +20,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { NavigationBar } from '@squareetlabs/capacitor-navigation-bar';
 
 @Component({
   selector: 'app-tabs',
@@ -108,6 +109,8 @@ export class TabsPage {
       // Set immersive mode to hide navigation buttons
       await StatusBar.setOverlaysWebView({ overlay: true });
 
+      await NavigationBar.hide();
+
       // For Android, we need to use the native API to hide system UI
       if (this.isAndroid()) {
         await this.setAndroidFullscreen(true);
@@ -126,6 +129,8 @@ export class TabsPage {
 
       // Disable immersive mode
       await StatusBar.setOverlaysWebView({ overlay: false });
+      
+      await NavigationBar.show();
 
       // Set status bar style back to default
       await StatusBar.setStyle({ style: Style.Light });
