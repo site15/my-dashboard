@@ -60,11 +60,12 @@ export const routeMeta: RouteMeta = {
         class="w-16 lg:w-64 bg-white long-shadow p-4 flex flex-col items-center lg:items-start border-r border-gray-100 transition-all duration-300"
       >
         <a href="/" class="text-2xl font-bold text-pastel-blue mb-10 mt-2">
-          <i-lucide
-            name="layout-dashboard"
+          <img
             class="w-8 h-8 lg:mr-2 inline-block align-middle"
-          ></i-lucide>
-          <span class="mobile-hidden lg:inline align-middle">My Dashboards</span>
+            src="/my-dashboard-logo.png"
+          />
+
+          <span class="mobile-hidden lg:inline align-middle">My Dashboard</span>
         </a>
 
         <nav class="flex flex-col space-y-4 w-full">
