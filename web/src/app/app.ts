@@ -2,7 +2,7 @@ import { RouteMeta } from '@analogjs/router';
 import { Component, inject, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { concatMap, first, mergeMap, tap } from 'rxjs';
+import { concatMap, first, firstValueFrom, mergeMap, tap } from 'rxjs';
 
 import { AppInitializerService } from './app.initializer';
 import { ColorSchemeSwitcherComponent } from './components/theme/color-scheme-switcher.component';
@@ -133,6 +133,16 @@ export class AppComponent implements OnInit {
     this.router.events
       .pipe(
         concatMap(async event => {
+          if (
+            typeof location !== 'undefined' &&
+            location.hash.startsWith('#access_token=')
+          ) {
+            const token = location.hash
+              .split('#access_token=')?.[1]
+              ?.split('&')?.[0];
+            await firstValueFrom(this.authService.supabaseVerifyToken(token));
+            location.hash = '';
+          }
           if (event instanceof NavigationEnd) {
             return await this.appInitializerService.init();
           }

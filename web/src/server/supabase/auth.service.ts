@@ -56,7 +56,6 @@ export class SupabaseAuthService {
 
   async signIn(signInData: SupabaseSignInData): Promise<SupabaseAuthResult> {
     const { email, password } = signInData;
-    console.log({email, password})
 
     // Sign in user with Supabase
     const { data, error } = await this.supabase.auth.signInWithPassword({
@@ -83,7 +82,9 @@ export class SupabaseAuthService {
     return { user: user as UserType, sessionId: session.id };
   }
 
-  async signInWithOAuth(provider: 'google' | 'github' | 'facebook' | 'twitter') {
+  async signInWithOAuth(
+    provider: 'google' | 'github' | 'facebook' | 'twitter'
+  ) {
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -98,13 +99,41 @@ export class SupabaseAuthService {
     return data.url; // This is the URL to redirect the user to
   }
 
-  async verifyEmailToken(token: string, type: 'signup' | 'recovery' | 'invite' | 'magiclink', email?: string) {
+  async verifyToken(token: string) {
+    const { data, error } = await this.supabase.auth.getUser(token);
+
+    if (error) {
+      throw new Error(`Token verification failed: ${error.message}`);
+    }
+
+    if (!data.user) {
+      throw new Error('No user returned from token verification');
+    }
+
+    // Create or update user in our database
+    const user = await this.createOrUpdateUser(data.user);
+
+    // Create session in our database
+    const session = await prisma.session.create({
+      data: { userId: user.id },
+    });
+
+    return { user: user as UserType, sessionId: session.id };
+  }
+
+  async verifyEmailToken(
+    token: string,
+    type: 'signup' | 'recovery' | 'invite' | 'magiclink',
+    email?: string
+  ) {
     let verifyParams;
-    
+
     if (type === 'signup' || type === 'magiclink') {
       // For signup and magiclink, we need the email
       if (!email) {
-        throw new Error('Email is required for signup and magiclink verification');
+        throw new Error(
+          'Email is required for signup and magiclink verification'
+        );
       }
       verifyParams = {
         email,
@@ -118,7 +147,7 @@ export class SupabaseAuthService {
         type,
       };
     }
-    
+
     const { data, error } = await this.supabase.auth.verifyOtp(verifyParams);
 
     if (error) {
@@ -176,7 +205,11 @@ export class SupabaseAuthService {
           supabaseUserData: {
             id: supabaseUser.id,
             email: supabaseUser.email,
-            name: name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || '',
+            name:
+              name ||
+              supabaseUser.user_metadata?.name ||
+              supabaseUser.email?.split('@')[0] ||
+              '',
             aud: supabaseUser.aud,
             role: supabaseUser.role,
             emailConfirmedAt: supabaseUser.email_confirmed_at,
@@ -194,7 +227,11 @@ export class SupabaseAuthService {
           supabaseUserData: {
             id: supabaseUser.id,
             email: supabaseUser.email,
-            name: name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || '',
+            name:
+              name ||
+              supabaseUser.user_metadata?.name ||
+              supabaseUser.email?.split('@')[0] ||
+              '',
             aud: supabaseUser.aud,
             role: supabaseUser.role,
             emailConfirmedAt: supabaseUser.email_confirmed_at,

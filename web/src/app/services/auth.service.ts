@@ -118,7 +118,9 @@ export class AuthService {
     );
   }
 
-  supabaseSignInWithOAuth(provider: 'google' | 'github' | 'facebook' | 'twitter') {
+  supabaseSignInWithOAuth(
+    provider: 'google' | 'github' | 'facebook' | 'twitter'
+  ) {
     return firstValueFrom(
       this.trpc.auth.supabaseSignInWithOAuth.mutate({ provider })
     ).then(redirectUrl => {
@@ -127,7 +129,32 @@ export class AuthService {
     });
   }
 
-  supabaseVerifyEmail(token: string, type: 'signup' | 'recovery' | 'invite' | 'magiclink', email?: string) {
+  supabaseVerifyToken(token: string) {
+    return from(this.sessionService.remove()).pipe(
+      concatMap(async () => {
+        try {
+          const { sessionId, user } = await firstValueFrom(
+            this.trpc.auth.supabaseVerifyToken.mutate({ token })
+          );
+          await this.sessionService.set(sessionId);
+          await this.profileService.set(user as unknown as User);
+          return { sessionId, user };
+        } catch (error) {
+          await this.errorHandler.handleError(
+            error,
+            'Failed to verify token with Supabase'
+          );
+          throw error;
+        }
+      })
+    );
+  }
+
+  supabaseVerifyEmail(
+    token: string,
+    type: 'signup' | 'recovery' | 'invite' | 'magiclink',
+    email?: string
+  ) {
     return from(this.sessionService.remove()).pipe(
       concatMap(async () => {
         try {

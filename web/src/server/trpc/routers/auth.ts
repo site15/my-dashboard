@@ -4,7 +4,11 @@ import { z } from 'zod';
 
 import { prisma } from '../../prisma';
 import { UserSchema, UserType } from '../../types/UserSchema';
-import { SupabaseAuthService, SupabaseSignUpData, SupabaseSignInData } from '../../supabase/auth.service';
+import {
+  SupabaseAuthService,
+  SupabaseSignUpData,
+  SupabaseSignInData,
+} from '../../supabase/auth.service';
 import { publicProcedure, router } from '../trpc';
 
 const supabaseAuthService = new SupabaseAuthService();
@@ -73,7 +77,7 @@ export const authRouter = router({
         password: input.password,
         name: input.name,
       };
-      
+
       return await supabaseAuthService.signUp(signUpData);
     }),
 
@@ -95,7 +99,7 @@ export const authRouter = router({
         email: input.email,
         password: input.password,
       };
-      
+
       return await supabaseAuthService.signIn(signInData);
     }),
 
@@ -125,7 +129,26 @@ export const authRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      return await supabaseAuthService.verifyEmailToken(input.token, input.type, input.email);
+      return await supabaseAuthService.verifyEmailToken(
+        input.token,
+        input.type,
+        input.email
+      );
+    }),
+
+  supabaseVerifyToken: publicProcedure
+    .input(
+      z.object({
+        token: z.string(),
+      })
+    )
+    .output(
+      z.object({
+        sessionId: z.string().uuid(),
+        user: UserSchema,
+      })
+    )
+    .mutation(async ({ input }) => {
+      return await supabaseAuthService.verifyToken(input.token);
     }),
 });
-
