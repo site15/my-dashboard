@@ -74,4 +74,77 @@ export class AuthService {
       })
     );
   }
+
+  // Supabase Authentication Methods
+  supabaseSignUp(email: string, password: string, name?: string) {
+    return from(this.sessionService.remove()).pipe(
+      concatMap(async () => {
+        try {
+          const { sessionId, user } = await firstValueFrom(
+            this.trpc.auth.supabaseSignUp.mutate({ email, password, name })
+          );
+          await this.sessionService.set(sessionId);
+          await this.profileService.set(user as unknown as User);
+          return { sessionId, user };
+        } catch (error) {
+          await this.errorHandler.handleError(
+            error,
+            'Failed to sign up with Supabase'
+          );
+          throw error;
+        }
+      })
+    );
+  }
+
+  supabaseSignIn(email: string, password: string) {
+    return from(this.sessionService.remove()).pipe(
+      concatMap(async () => {
+        try {
+          const { sessionId, user } = await firstValueFrom(
+            this.trpc.auth.supabaseSignIn.mutate({ email, password })
+          );
+          await this.sessionService.set(sessionId);
+          await this.profileService.set(user as unknown as User);
+          return { sessionId, user };
+        } catch (error) {
+          await this.errorHandler.handleError(
+            error,
+            'Failed to sign in with Supabase'
+          );
+          throw error;
+        }
+      })
+    );
+  }
+
+  supabaseSignInWithOAuth(provider: 'google' | 'github' | 'facebook' | 'twitter') {
+    return firstValueFrom(
+      this.trpc.auth.supabaseSignInWithOAuth.mutate({ provider })
+    ).then(redirectUrl => {
+      // Redirect to the OAuth provider
+      window.location.href = redirectUrl;
+    });
+  }
+
+  supabaseVerifyEmail(token: string, type: 'signup' | 'recovery' | 'invite' | 'magiclink', email?: string) {
+    return from(this.sessionService.remove()).pipe(
+      concatMap(async () => {
+        try {
+          const { sessionId, user } = await firstValueFrom(
+            this.trpc.auth.supabaseVerifyEmail.mutate({ token, type, email })
+          );
+          await this.sessionService.set(sessionId);
+          await this.profileService.set(user as unknown as User);
+          return { sessionId, user };
+        } catch (error) {
+          await this.errorHandler.handleError(
+            error,
+            'Failed to verify email with Supabase'
+          );
+          throw error;
+        }
+      })
+    );
+  }
 }

@@ -26,13 +26,16 @@ model User {
   anonymousId      String?
   telegramUserId   String?
   telegramUserData Json?
+  supabaseUserId   String?
+  supabaseUserData Json?
   isBlackTheme     Boolean?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @default(now())
   Session          Session[]
   Dashboard        Dashboard[]
 
-  @@unique([telegramUserId], map: "UQ_USER")
+  @@unique([telegramUserId], map: "UQ_USER_TELEGRAM")
+  @@unique([supabaseUserId], map: "UQ_USER_SUPABASE")
 }
 
 model Session {

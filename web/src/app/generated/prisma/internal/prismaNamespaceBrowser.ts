@@ -78,6 +78,8 @@ export const UserScalarFieldEnum = {
   anonymousId: 'anonymousId',
   telegramUserId: 'telegramUserId',
   telegramUserData: 'telegramUserData',
+  supabaseUserId: 'supabaseUserId',
+  supabaseUserData: 'supabaseUserData',
   isBlackTheme: 'isBlackTheme',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

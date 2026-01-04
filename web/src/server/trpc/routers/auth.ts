@@ -4,7 +4,10 @@ import { z } from 'zod';
 
 import { prisma } from '../../prisma';
 import { UserSchema, UserType } from '../../types/UserSchema';
+import { SupabaseAuthService, SupabaseSignUpData, SupabaseSignInData } from '../../supabase/auth.service';
 import { publicProcedure, router } from '../trpc';
+
+const supabaseAuthService = new SupabaseAuthService();
 
 export const authRouter = router({
   profile: publicProcedure
@@ -48,4 +51,81 @@ export const authRouter = router({
       });
     }
   }),
+
+  // Supabase Authentication Methods
+  supabaseSignUp: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+        name: z.string().optional(),
+      })
+    )
+    .output(
+      z.object({
+        sessionId: z.string().uuid(),
+        user: UserSchema,
+      })
+    )
+    .mutation(async ({ input }) => {
+      const signUpData: SupabaseSignUpData = {
+        email: input.email,
+        password: input.password,
+        name: input.name,
+      };
+      
+      return await supabaseAuthService.signUp(signUpData);
+    }),
+
+  supabaseSignIn: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string(),
+      })
+    )
+    .output(
+      z.object({
+        sessionId: z.string().uuid(),
+        user: UserSchema,
+      })
+    )
+    .mutation(async ({ input }) => {
+      const signInData: SupabaseSignInData = {
+        email: input.email,
+        password: input.password,
+      };
+      
+      return await supabaseAuthService.signIn(signInData);
+    }),
+
+  supabaseSignInWithOAuth: publicProcedure
+    .input(
+      z.object({
+        provider: z.enum(['google', 'github', 'facebook', 'twitter']),
+      })
+    )
+    .output(z.string()) // Returns redirect URL
+    .mutation(async ({ input }) => {
+      return await supabaseAuthService.signInWithOAuth(input.provider);
+    }),
+
+  supabaseVerifyEmail: publicProcedure
+    .input(
+      z.object({
+        token: z.string(),
+        type: z.enum(['signup', 'recovery', 'invite', 'magiclink']),
+        email: z.string().email().optional(),
+      })
+    )
+    .output(
+      z.object({
+        sessionId: z.string().uuid(),
+        user: UserSchema,
+      })
+    )
+    .mutation(async ({ input }) => {
+      return await supabaseAuthService.verifyEmailToken(input.token, input.type, input.email);
+    }),
 });
+

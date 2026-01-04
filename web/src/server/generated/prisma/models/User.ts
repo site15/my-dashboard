@@ -28,6 +28,7 @@ export type UserMinAggregateOutputType = {
   id: string | null
   anonymousId: string | null
   telegramUserId: string | null
+  supabaseUserId: string | null
   isBlackTheme: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -37,6 +38,7 @@ export type UserMaxAggregateOutputType = {
   id: string | null
   anonymousId: string | null
   telegramUserId: string | null
+  supabaseUserId: string | null
   isBlackTheme: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -47,6 +49,8 @@ export type UserCountAggregateOutputType = {
   anonymousId: number
   telegramUserId: number
   telegramUserData: number
+  supabaseUserId: number
+  supabaseUserData: number
   isBlackTheme: number
   createdAt: number
   updatedAt: number
@@ -58,6 +62,7 @@ export type UserMinAggregateInputType = {
   id?: true
   anonymousId?: true
   telegramUserId?: true
+  supabaseUserId?: true
   isBlackTheme?: true
   createdAt?: true
   updatedAt?: true
@@ -67,6 +72,7 @@ export type UserMaxAggregateInputType = {
   id?: true
   anonymousId?: true
   telegramUserId?: true
+  supabaseUserId?: true
   isBlackTheme?: true
   createdAt?: true
   updatedAt?: true
@@ -77,6 +83,8 @@ export type UserCountAggregateInputType = {
   anonymousId?: true
   telegramUserId?: true
   telegramUserData?: true
+  supabaseUserId?: true
+  supabaseUserData?: true
   isBlackTheme?: true
   createdAt?: true
   updatedAt?: true
@@ -160,6 +168,8 @@ export type UserGroupByOutputType = {
   anonymousId: string | null
   telegramUserId: string | null
   telegramUserData: runtime.JsonValue | null
+  supabaseUserId: string | null
+  supabaseUserData: runtime.JsonValue | null
   isBlackTheme: boolean | null
   createdAt: Date
   updatedAt: Date
@@ -191,6 +201,8 @@ export type UserWhereInput = {
   anonymousId?: Prisma.StringNullableFilter<"User"> | string | null
   telegramUserId?: Prisma.StringNullableFilter<"User"> | string | null
   telegramUserData?: Prisma.JsonNullableFilter<"User">
+  supabaseUserId?: Prisma.StringNullableFilter<"User"> | string | null
+  supabaseUserData?: Prisma.JsonNullableFilter<"User">
   isBlackTheme?: Prisma.BoolNullableFilter<"User"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -203,6 +215,8 @@ export type UserOrderByWithRelationInput = {
   anonymousId?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramUserData?: Prisma.SortOrderInput | Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  supabaseUserData?: Prisma.SortOrderInput | Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -213,23 +227,27 @@ export type UserOrderByWithRelationInput = {
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   telegramUserId?: string
+  supabaseUserId?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   anonymousId?: Prisma.StringNullableFilter<"User"> | string | null
   telegramUserData?: Prisma.JsonNullableFilter<"User">
+  supabaseUserData?: Prisma.JsonNullableFilter<"User">
   isBlackTheme?: Prisma.BoolNullableFilter<"User"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   Session?: Prisma.SessionListRelationFilter
   Dashboard?: Prisma.DashboardListRelationFilter
-}, "id" | "telegramUserId">
+}, "id" | "telegramUserId" | "supabaseUserId">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   anonymousId?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramUserData?: Prisma.SortOrderInput | Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  supabaseUserData?: Prisma.SortOrderInput | Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -246,6 +264,8 @@ export type UserScalarWhereWithAggregatesInput = {
   anonymousId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   telegramUserId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   telegramUserData?: Prisma.JsonNullableWithAggregatesFilter<"User">
+  supabaseUserId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  supabaseUserData?: Prisma.JsonNullableWithAggregatesFilter<"User">
   isBlackTheme?: Prisma.BoolNullableWithAggregatesFilter<"User"> | boolean | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -256,6 +276,8 @@ export type UserCreateInput = {
   anonymousId?: string | null
   telegramUserId?: string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -268,6 +290,8 @@ export type UserUncheckedCreateInput = {
   anonymousId?: string | null
   telegramUserId?: string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -280,6 +304,8 @@ export type UserUpdateInput = {
   anonymousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -292,6 +318,8 @@ export type UserUncheckedUpdateInput = {
   anonymousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -304,6 +332,8 @@ export type UserCreateManyInput = {
   anonymousId?: string | null
   telegramUserId?: string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -314,6 +344,8 @@ export type UserUpdateManyMutationInput = {
   anonymousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -324,6 +356,8 @@ export type UserUncheckedUpdateManyInput = {
   anonymousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -334,6 +368,8 @@ export type UserCountOrderByAggregateInput = {
   anonymousId?: Prisma.SortOrder
   telegramUserId?: Prisma.SortOrder
   telegramUserData?: Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrder
+  supabaseUserData?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -343,6 +379,7 @@ export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   anonymousId?: Prisma.SortOrder
   telegramUserId?: Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -352,6 +389,7 @@ export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   anonymousId?: Prisma.SortOrder
   telegramUserId?: Prisma.SortOrder
+  supabaseUserId?: Prisma.SortOrder
   isBlackTheme?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -411,6 +449,8 @@ export type UserCreateWithoutSessionInput = {
   anonymousId?: string | null
   telegramUserId?: string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -422,6 +462,8 @@ export type UserUncheckedCreateWithoutSessionInput = {
   anonymousId?: string | null
   telegramUserId?: string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -449,6 +491,8 @@ export type UserUpdateWithoutSessionInput = {
   anonymousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -460,6 +504,8 @@ export type UserUncheckedUpdateWithoutSessionInput = {
   anonymousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -471,6 +517,8 @@ export type UserCreateWithoutDashboardInput = {
   anonymousId?: string | null
   telegramUserId?: string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -482,6 +530,8 @@ export type UserUncheckedCreateWithoutDashboardInput = {
   anonymousId?: string | null
   telegramUserId?: string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -509,6 +559,8 @@ export type UserUpdateWithoutDashboardInput = {
   anonymousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -520,6 +572,8 @@ export type UserUncheckedUpdateWithoutDashboardInput = {
   anonymousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  supabaseUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supabaseUserData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isBlackTheme?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -571,6 +625,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   anonymousId?: boolean
   telegramUserId?: boolean
   telegramUserData?: boolean
+  supabaseUserId?: boolean
+  supabaseUserData?: boolean
   isBlackTheme?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -584,6 +640,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   anonymousId?: boolean
   telegramUserId?: boolean
   telegramUserData?: boolean
+  supabaseUserId?: boolean
+  supabaseUserData?: boolean
   isBlackTheme?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -594,6 +652,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   anonymousId?: boolean
   telegramUserId?: boolean
   telegramUserData?: boolean
+  supabaseUserId?: boolean
+  supabaseUserData?: boolean
   isBlackTheme?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -604,12 +664,14 @@ export type UserSelectScalar = {
   anonymousId?: boolean
   telegramUserId?: boolean
   telegramUserData?: boolean
+  supabaseUserId?: boolean
+  supabaseUserData?: boolean
   isBlackTheme?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "anonymousId" | "telegramUserId" | "telegramUserData" | "isBlackTheme" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "anonymousId" | "telegramUserId" | "telegramUserData" | "supabaseUserId" | "supabaseUserData" | "isBlackTheme" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Session?: boolean | Prisma.User$SessionArgs<ExtArgs>
   Dashboard?: boolean | Prisma.User$DashboardArgs<ExtArgs>
@@ -629,6 +691,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     anonymousId: string | null
     telegramUserId: string | null
     telegramUserData: runtime.JsonValue | null
+    supabaseUserId: string | null
+    supabaseUserData: runtime.JsonValue | null
     isBlackTheme: boolean | null
     createdAt: Date
     updatedAt: Date
@@ -1061,6 +1125,8 @@ export interface UserFieldRefs {
   readonly anonymousId: Prisma.FieldRef<"User", 'String'>
   readonly telegramUserId: Prisma.FieldRef<"User", 'String'>
   readonly telegramUserData: Prisma.FieldRef<"User", 'Json'>
+  readonly supabaseUserId: Prisma.FieldRef<"User", 'String'>
+  readonly supabaseUserData: Prisma.FieldRef<"User", 'Json'>
   readonly isBlackTheme: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
