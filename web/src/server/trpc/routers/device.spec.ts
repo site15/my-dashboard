@@ -32,7 +32,9 @@ describe('deviceRouter', () => {
       const userCtx = { ...ctx, user: { id: 'test-user-id' } } as any;
 
       // Mock prisma update
-      (prisma.dashboard.update as any).mockResolvedValue({ id: 'test-dashboard-id' });
+      (prisma.dashboard.update as any).mockResolvedValue({
+        id: 'test-dashboard-id',
+      });
 
       const caller = deviceRouter.createCaller(userCtx);
       await caller.link(input);
@@ -57,7 +59,7 @@ describe('deviceRouter', () => {
       };
 
       const caller = deviceRouter.createCaller(ctx);
-      
+
       await expect(caller.link(input)).rejects.toThrow('User not found!');
     });
   });
@@ -65,7 +67,7 @@ describe('deviceRouter', () => {
   describe('info', () => {
     it('should return dashboard info and widgets for a valid deviceId', async () => {
       const input = { deviceId: 'test-device-id' };
-      
+
       // Mock prisma findFirst
       const mockDashboard = {
         id: 'test-dashboard-id',
@@ -88,7 +90,7 @@ describe('deviceRouter', () => {
           },
         ],
       };
-      
+
       (prisma.dashboard.findFirst as any).mockResolvedValue(mockDashboard);
 
       const caller = deviceRouter.createCaller(ctx);
@@ -119,13 +121,15 @@ describe('deviceRouter', () => {
 
     it('should throw NOT_FOUND error if dashboard is not found', async () => {
       const input = { deviceId: 'invalid-device-id' };
-      
+
       // Mock prisma findFirst to return null
       (prisma.dashboard.findFirst as any).mockResolvedValue(null);
 
       const caller = deviceRouter.createCaller(ctx);
-      
-      await expect(caller.info(input)).rejects.toThrow('Dashboard not found for this device');
+
+      await expect(caller.info(input)).rejects.toThrow(
+        'Dashboard not found for this device'
+      );
     });
   });
 });

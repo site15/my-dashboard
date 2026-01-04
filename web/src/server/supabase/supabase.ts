@@ -6,7 +6,9 @@ export const createSupabaseServerClient = () => {
   const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase URL and ANON key must be set in environment variables');
+    throw new Error(
+      'Supabase URL and ANON key must be set in environment variables'
+    );
   }
 
   return createClient(supabaseUrl, supabaseAnonKey, {

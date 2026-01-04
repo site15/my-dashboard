@@ -162,8 +162,8 @@ function getDigitalTime(
       timeZone: timezone,
     };
 
-    const formatedDate=new Intl.DateTimeFormat('en-US', options).format(date)
-    console.log({formatedDate, options})
+    const formatedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+    console.log({ formatedDate, options });
     return formatedDate;
   } catch (_error) {
     return '--:--';
@@ -194,7 +194,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
           timezone: tz.timezone,
         };
       }) || [],
-      widget.options?.hourFormat===HourFormat['12h'],
+      widget.options?.hourFormat === HourFormat['12h'],
       options?.static || false
     );
 

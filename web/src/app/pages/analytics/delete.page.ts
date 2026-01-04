@@ -23,24 +23,23 @@ export const routeMeta: RouteMeta = {
         class="text-gray-500 hover:text-pastel-blue transition-colors mb-10 mt-2 flex items-center"
       >
         <i-lucide name="arrow-left" class="w-6 h-6 mr-0 lg:mr-2"></i-lucide>
-        <span class="mobile-hidden lg:inline text-lg font-medium">Back to Analytics</span>
+        <span class="mobile-hidden lg:inline text-lg font-medium"
+          >Back to Analytics</span
+        >
       </a>
       Permanently remove analytics data.
     </p>
 
     <!-- Analytics Data Deletion Panel -->
     <div class="bg-white p-6 rounded-2xl long-shadow mb-8 space-y-4">
-      <form
-        [formGroup]="form"
-        (ngSubmit)="onSubmit()"
-        class="w-full"
-      >
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="w-full">
         <div class="mb-6">
           <p class="text-lg text-gray-700 mb-2">
             Are you sure you want to delete all analytics data?
           </p>
           <p class="text-gray-500">
-            This action cannot be undone. All collected analytics data will be permanently removed.
+            This action cannot be undone. All collected analytics data will be
+            permanently removed.
           </p>
         </div>
 

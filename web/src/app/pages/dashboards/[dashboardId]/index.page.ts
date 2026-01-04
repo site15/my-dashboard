@@ -188,7 +188,7 @@ export const routeMeta: RouteMeta = {
                       {{ widget.type | titlecase }} Widget
                     </p>
                   }
-                  
+
                   <div
                     class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100"
                   >

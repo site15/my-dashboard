@@ -35,16 +35,16 @@ export const routeMeta: RouteMeta = {
     LucideAngularModule,
   ],
   template: `
-    <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
-      New Dashboard
-    </h1>
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-2">New Dashboard</h1>
     <p class="text-xl text-gray-500 mb-8">
       <a
         href="/dashboards"
         class="text-gray-500 hover:text-pastel-blue transition-colors mb-10 mt-2 flex items-center"
       >
         <i-lucide name="arrow-left" class="w-6 h-6 mr-0 lg:mr-2"></i-lucide>
-        <span class="mobile-hidden lg:inline text-lg font-medium">Dashboards</span>
+        <span class="mobile-hidden lg:inline text-lg font-medium"
+          >Dashboards</span
+        >
       </a>
       Create a new dashboard.
     </p>

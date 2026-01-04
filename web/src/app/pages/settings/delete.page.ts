@@ -14,33 +14,30 @@ export const routeMeta: RouteMeta = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LucideAngularModule, ReactiveFormsModule],
   template: `
-    <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
-      Delete Account
-    </h1>
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Delete Account</h1>
     <p class="text-xl text-gray-500 mb-8">
       <a
         href="/settings"
         class="text-gray-500 hover:text-pastel-blue transition-colors mb-10 mt-2 flex items-center"
       >
         <i-lucide name="arrow-left" class="w-6 h-6 mr-0 lg:mr-2"></i-lucide>
-        <span class="mobile-hidden lg:inline text-lg font-medium">Back to Settings</span>
+        <span class="mobile-hidden lg:inline text-lg font-medium"
+          >Back to Settings</span
+        >
       </a>
       Permanently remove your account and all associated data.
     </p>
 
     <!-- Account Deletion Panel -->
     <div class="bg-white p-6 rounded-2xl long-shadow mb-8 space-y-4">
-      <form
-        [formGroup]="form"
-        (ngSubmit)="onSubmit()"
-        class="w-full"
-      >
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="w-full">
         <div class="mb-6">
           <p class="text-lg text-gray-700 mb-2">
             Are you sure you want to delete your account?
           </p>
           <p class="text-gray-500">
-            This action cannot be undone. All your account data, dashboards, and widgets will be permanently removed.
+            This action cannot be undone. All your account data, dashboards, and
+            widgets will be permanently removed.
           </p>
         </div>
 

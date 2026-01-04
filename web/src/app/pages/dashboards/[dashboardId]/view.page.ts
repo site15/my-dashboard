@@ -70,7 +70,7 @@ export default class DashboardsViewPageComponent {
         : of(null)
     ),
     mergeMap(result => {
-      if (result?.dashboard.isBlackTheme){
+      if (result?.dashboard.isBlackTheme) {
         this.themeService.setDark();
       } else {
         this.themeService.setLight();

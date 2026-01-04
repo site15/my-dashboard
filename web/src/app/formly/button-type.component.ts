@@ -9,7 +9,10 @@ import { LucideAngularModule } from 'lucide-angular';
     <button
       style="width: 100%;"
       [type]="props['buttonType'] || 'button'"
-      [class]="props['class'] || 'flex items-center justify-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide'"
+      [class]="
+        props['class'] ||
+        'flex items-center justify-center text-lg font-bold py-3 px-6 rounded-xl text-white bg-pastel-blue transition-all duration-300 transform hover:scale-[1.02] flat-btn-shadow bg-gradient-to-tr from-[#8A89F0] to-[#A2C0F5] tracking-wide'
+      "
       (click)="buttonClick()"
     >
       <span *ngIf="props.label">{{ props.label }}</span>

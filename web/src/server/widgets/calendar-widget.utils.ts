@@ -107,7 +107,7 @@ function renderCalendarDays(
   if (startDayOffset < 0) {
     startDayOffset += 7;
   }
-  
+
   const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
 
   // Add empty cells for days before the first day of the month

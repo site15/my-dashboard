@@ -160,7 +160,7 @@ export default class DashboardsWidgetsEditPageComponent {
 
   onSubmit(data: { type: string; id: string }) {
     this.setFormFields({});
-    
+
     const widget = {
       ...data,
       options: {

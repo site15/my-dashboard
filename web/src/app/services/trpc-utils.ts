@@ -25,32 +25,34 @@ export function executeTrpcMutation<T, P>(
 ): Observable<T> {
   return defer(() => {
     // Save the current error handling state
-    const originalErrorHandlingState = options?.errorHandler 
-      ? true 
-      : false;
-    
+    const originalErrorHandlingState = options?.errorHandler ? true : false;
+
     // Temporarily disable global error handling if requested
     if (options?.disableGlobalErrorHandling && options?.errorHandler) {
       options.errorHandler.setGlobalErrorHandling(false);
     }
-    
+
     // Execute the mutation - handle both Promise and Observable
     const result = mutationFn(params);
     const observableResult = isObservable(result) ? result : from(result);
-    
+
     return observableResult.pipe(
       catchError(error => {
         // Handle error with custom message if provided and global error handling is enabled
         if (!options?.disableGlobalErrorHandling && options?.errorHandler) {
           // We need to handle the error asynchronously but return EMPTY to prevent breaking the stream
-          options.errorHandler.handleError(error, options.customErrorMessage).catch(console.error);
+          options.errorHandler
+            .handleError(error, options.customErrorMessage)
+            .catch(console.error);
         }
         throw error;
       }),
       finalize(() => {
         // Restore the original error handling state
         if (options?.disableGlobalErrorHandling && options?.errorHandler) {
-          options.errorHandler.setGlobalErrorHandling(originalErrorHandlingState);
+          options.errorHandler.setGlobalErrorHandling(
+            originalErrorHandlingState
+          );
         }
       })
     );
@@ -73,29 +75,31 @@ export function executeTrpcQuery<T>(
 ): Observable<T> {
   return defer(() => {
     // Save the current error handling state
-    const originalErrorHandlingState = options?.errorHandler 
-      ? true 
-      : false;
-    
+    const originalErrorHandlingState = options?.errorHandler ? true : false;
+
     // Temporarily disable global error handling if requested
     if (options?.disableGlobalErrorHandling && options?.errorHandler) {
       options.errorHandler.setGlobalErrorHandling(false);
     }
-    
+
     // Execute the query
     return queryFn().pipe(
       catchError(error => {
         // Handle error with custom message if provided and global error handling is enabled
         if (!options?.disableGlobalErrorHandling && options?.errorHandler) {
           // We need to handle the error asynchronously but return EMPTY to prevent breaking the stream
-          options.errorHandler.handleError(error, options.customErrorMessage).catch(console.error);
+          options.errorHandler
+            .handleError(error, options.customErrorMessage)
+            .catch(console.error);
         }
         throw error;
       }),
       finalize(() => {
         // Restore the original error handling state
         if (options?.disableGlobalErrorHandling && options?.errorHandler) {
-          options.errorHandler.setGlobalErrorHandling(originalErrorHandlingState);
+          options.errorHandler.setGlobalErrorHandling(
+            originalErrorHandlingState
+          );
         }
       })
     );

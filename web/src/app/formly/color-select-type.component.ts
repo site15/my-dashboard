@@ -154,11 +154,11 @@ export class ColorSelectTypeComponent
   selectOption(option: ColorOption) {
     this.selectedValue = option.value;
     this.formControl.setValue(option.value);
-    
+
     // Trigger validation
     this.formControl.markAsDirty();
     this.formControl.updateValueAndValidity();
-        
+
     setTimeout(() => {
       this.isOpen$.next(false);
 

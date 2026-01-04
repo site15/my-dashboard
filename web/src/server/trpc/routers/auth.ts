@@ -3,12 +3,12 @@ import { randomUUID } from 'crypto';
 import { z } from 'zod';
 
 import { prisma } from '../../prisma';
-import { UserSchema, UserType } from '../../types/UserSchema';
 import {
   SupabaseAuthService,
   SupabaseSignUpData,
   SupabaseSignInData,
 } from '../../supabase/auth.service';
+import { UserSchema, UserType } from '../../types/UserSchema';
 import { publicProcedure, router } from '../trpc';
 
 const supabaseAuthService = new SupabaseAuthService();

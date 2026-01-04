@@ -222,7 +222,10 @@ function updateClocksUI(
     );
 
     if (timeElement) {
-      setTextContent(timeElement, getDigitalTime(mainClock.timezone, timeZoneClockHour12[widgetId]));
+      setTextContent(
+        timeElement,
+        getDigitalTime(mainClock.timezone, timeZoneClockHour12[widgetId])
+      );
     }
     if (nameElement) {
       setTextContent(nameElement, mainClock.name);
@@ -249,7 +252,10 @@ function updateClocksUI(
     const nameElement = getElementById(scope, `small-clock-name-${clockId}`);
 
     if (timeElement) {
-      setTextContent(timeElement, getDigitalTime(clock.timezone, timeZoneClockHour12[widgetId]));
+      setTextContent(
+        timeElement,
+        getDigitalTime(clock.timezone, timeZoneClockHour12[widgetId])
+      );
     }
     if (nameElement) {
       setTextContent(nameElement, clock.name.split('(')[0].trim());
@@ -381,7 +387,10 @@ function updateAllClocksModalTimes(
     const canvasId = `${modalId}-modal-analog-clock-${index}`;
 
     if (timeElement) {
-      timeElement.textContent = getDigitalTime(clock.timezone, timeZoneClockHour12[widgetId]);
+      timeElement.textContent = getDigitalTime(
+        clock.timezone,
+        timeZoneClockHour12[widgetId]
+      );
     }
 
     // Update analog clocks in modal

@@ -253,12 +253,11 @@ export class HabitsWidgetRender
     options?: WidgetRenderInitFunctionOptions
   ) {
     linkFunctionsToWindow();
-    
+
     if (this.inited[widget.id]) {
       return;
     }
     this.inited[widget.id] = true;
-
   }
 
   render(
