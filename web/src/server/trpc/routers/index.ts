@@ -6,6 +6,7 @@ import { telegramRouter } from './telegram';
 import { userStorageRouter } from './user-storage';
 import { userRouter } from './users';
 import { widgetsRouter } from './widgets';
+import { releasesRouter } from './releases';
 
 export const appRouter = router({
   users: userRouter,
@@ -15,6 +16,7 @@ export const appRouter = router({
   widgets: widgetsRouter,
   userStorage: userStorageRouter,
   device: deviceRouter,
+  releases: releasesRouter,
 });
 
 // export type definition of API

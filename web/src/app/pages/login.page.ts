@@ -8,6 +8,7 @@ import { NgxTelegramWidgetComponent } from '../components/telegram/ngx-telegram-
 import { HideNavGuard } from '../guards/nav.guard';
 import { AuthService } from '../services/auth.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
+import { ReleaseService } from '../services/release.service';
 import { TelegramSettingsService } from '../services/telegram-settings.service';
 import { TelegramService } from '../services/telegram.service';
 
@@ -300,6 +301,13 @@ export const routeMeta: RouteMeta = {
           >
             Continue as Guest
           </button>
+          <span class="text-gray-400 mx-2">|</span>
+          <button
+            (click)="downloadMobileApk()"
+            class="text-gray-500 font-medium hover:text-gray-800 transition-colors"
+          >
+            Download Mobile App
+          </button>
         </div>
       </div>
     </div>
@@ -311,6 +319,7 @@ export default class LoginPageComponent {
   private readonly telegramService = inject(TelegramService);
   private readonly telegramSettingsService = inject(TelegramSettingsService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
+  private readonly releaseService = inject(ReleaseService);
 
   activeTab: 'signin' | 'signup' = 'signin'; // Default to sign in tab
 
@@ -433,5 +442,26 @@ export default class LoginPageComponent {
         tap(() => this.router.navigate(['/dashboards']))
       )
       .subscribe();
+  }
+
+  downloadMobileApk() {
+    this.releaseService.getMobileApkDownloadUrl().subscribe({
+      next: downloadUrl => {
+        if (downloadUrl) {
+          // Open the download URL in a new tab
+          window.open(downloadUrl, '_blank');
+        } else {
+          this.errorHandlerService
+            .handleError(
+              new Error('Mobile APK download URL not found'),
+              'Download Unavailable'
+            )
+            .then();
+        }
+      },
+      error: error => {
+        this.errorHandlerService.handleError(error, 'Download Error').then();
+      },
+    });
   }
 }

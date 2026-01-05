@@ -18,6 +18,7 @@ import { ShowNavGuard } from './guards/nav.guard';
 import { AuthService } from './services/auth.service';
 import { ErrorHandlerService } from './services/error-handler.service';
 import { ProfileService } from './services/profile.service';
+import { ReleaseService } from './services/release.service';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],
@@ -95,6 +96,15 @@ export const routeMeta: RouteMeta = {
             <i-lucide name="settings" class="w-6 h-6 mr-0 lg:mr-3"></i-lucide>
             <span class="mobile-hidden lg:inline">Settings</span>
           </a>
+
+
+          <button
+            (click)="downloadMobileApk()"
+            class="flex items-center p-3 rounded-xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-100 hover:text-gray-800 w-full text-left"
+          >
+            <i-lucide name="smartphone" class="w-6 h-6 mr-0 lg:mr-3"></i-lucide>
+            <span class="mobile-hidden lg:inline">Mobile App</span>
+          </button>
         </nav>
 
         <div
@@ -103,11 +113,12 @@ export const routeMeta: RouteMeta = {
           <div class="flex justify-between items-center w-full px-2">
             <button
               (click)="signOut()"
-              class="mt-2 text-red-500 font-medium hover:text-red-700 transition-colors flex items-center"
+              class="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-red-500 font-medium transition-colors flex items-center"
             >
               <i-lucide name="log-out" class="w-5 h-5 mr-0 lg:mr-2"></i-lucide>
               <span class="mobile-hidden lg:inline">Sign Out</span>
             </button>
+
             <color-scheme-switcher class="flex items-center" />
           </div>
         </div>
@@ -128,6 +139,7 @@ export class AppComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly appInitializerService = inject(AppInitializerService);
   private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly releaseService = inject(ReleaseService);
 
   ngOnInit(): void {
     this.router.events
@@ -174,5 +186,31 @@ export class AppComponent implements OnInit {
     this.errorHandler.handleError(
       new Error('This feature is not available yet')
     );
+  }
+
+  downloadMobileApk() {
+    this.releaseService.getMobileApkDownloadUrl().subscribe({
+      next: (downloadUrl) => {
+        if (downloadUrl) {
+          // Open the download URL in a new tab
+          window.open(downloadUrl, '_blank');
+        } else {
+          this.errorHandler
+            .handleError(
+              new Error('Mobile APK download URL not found'),
+              'Download Unavailable'
+            )
+            .then();
+        }
+      },
+      error: (error) => {
+        this.errorHandler
+          .handleError(
+            error,
+            'Download Error'
+          )
+          .then();
+      }
+    });
   }
 }
