@@ -1,10 +1,10 @@
 # [2026-01-05] My Dashboard
 
-I built a full-stack web app using Analog and a mobile Android client using the Ionic Framework, and I decided to write a short post about it.
+I built a small full-stack project: a web application using Analog and an Android client built with Ionic. Along the way, there were enough details and decisions that the post turned out longer than expected, so I decided to document everything in one place.
 
 ## Idea
 
-I have several old Android devices lying around at home. I decided to turn them into dashboards for displaying information with input capabilities.
+At home, I have a few old Android devices that are no longer in use. Instead of leaving them unused, I decided to try turning them into dashboards for displaying information and handling simple input.
 
 ## Tech Stack
 
