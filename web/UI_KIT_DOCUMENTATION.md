@@ -69,6 +69,22 @@ Multiple button styles are used throughout the application:
    - Dashed border button for adding new items
    - Changes appearance on hover
 
+### Widgets
+
+The application includes several types of widgets with themed components:
+
+1. **Clock Widget**: Displays time with timezone support
+   - Themed with customizable colors
+   - Responsive design for different screen sizes
+
+2. **Calendar Widget**: Shows date information
+   - Themed with customizable colors
+   - Fixed date/month selection capability
+
+3. **Habits Tracking Widget**: Tracks daily habits with counters
+   - Themed with customizable colors
+   - History tracking with timestamps
+
 ### Themed Components
 
 All components support dynamic theming with customizable colors:

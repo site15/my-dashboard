@@ -24,6 +24,7 @@ export const deviceRouter = router({
       await prisma.dashboard.updateMany({
         where: {
           deviceId: { equals: ctx.deviceId },
+          isActive: true,
         },
         data: { deviceId: null },
       });
@@ -57,6 +58,7 @@ export const deviceRouter = router({
         await prisma.dashboard.updateMany({
           where: {
             deviceId: { equals: input.deviceId },
+            isActive: true,
           },
           data: { deviceId: null },
         });
@@ -89,6 +91,7 @@ export const deviceRouter = router({
         await prisma.dashboard.update({
           where: {
             id: qrCode.dashboardId,
+            isActive: true,
           },
           data: {
             deviceId: input.deviceId,
@@ -116,6 +119,7 @@ export const deviceRouter = router({
           where: {
             deviceId: input.deviceId,
             id: qrCode.dashboardId,
+            isActive: true,
           },
         });
       } catch (error) {
@@ -156,6 +160,7 @@ export const deviceRouter = router({
       where: {
         deviceId: deviceId,
         deletedAt: null,
+        isActive: true,
       },
       include: {
         Widget: true,
@@ -204,7 +209,7 @@ export const deviceRouter = router({
       }
       // Get the current dashboard to get the widgetsCount
       const currentDashboard = await prisma.dashboard.findFirst({
-        where: { deviceId: ctx.deviceId, userId: ctx.user.id },
+        where: { deviceId: ctx.deviceId, userId: ctx.user.id, isActive: true },
         include: {
           Widget: true,
         },
@@ -223,7 +228,7 @@ export const deviceRouter = router({
           isBlackTheme: input.isBlackTheme,
           updatedAt: new Date(),
         },
-        where: { deviceId: ctx.deviceId, userId: ctx.user.id },
+        where: { deviceId: ctx.deviceId, userId: ctx.user.id, isActive: true },
       });
 
       // Return the dashboard with widgetsCount

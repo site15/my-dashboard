@@ -47,6 +47,7 @@ export const createContext = async ({
         where: {
           deviceId: { equals: deviceId },
           deletedAt: null,
+          isActive: true,
         },
       });
       if (!result) {

@@ -8,9 +8,27 @@ This is a comprehensive dashboard management system for displaying information o
 - Mobile application for displaying widgets on Android phones
 - QR code based device binding
 - Real-time widget updates
+- Support for multiple widget types (clock, calendar, habits tracking, counter)
+- Anonymous user mode
+- Telegram authentication
+- Supabase authentication with email/password and OAuth providers
+- Dark/light theme support
+- Widget grid positioning and customization
+- Mobile offline widget caching
+- Dashboard sharing and templates
+- API rate limiting and security features
+- User analytics and reporting
+- Multi-language support
+- Widget marketplace and automation features
+
+- Web application for creating and managing dashboards
+- Mobile application for displaying widgets on Android phones
+- QR code based device binding
+- Real-time widget updates
 - Support for multiple widget types (clock, calendar, habits tracking)
 - Anonymous user mode
 - Telegram authentication
+- Supabase authentication with email/password and OAuth providers
 - Dark/light theme support
 - Widget grid positioning and customization
 - Mobile offline widget caching

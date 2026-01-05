@@ -17,7 +17,7 @@ The application is deployed and available at: https://site15-my-dashboard.vercel
 - **API**: tRPC for type-safe API communication
 - **Database**: PostgreSQL with Prisma ORM
 - **Styling**: Pico.css and Tailwind CSS
-- **Authentication**: Telegram authentication with redirect method and server-side hash verification
+- **Authentication**: Telegram authentication with redirect method and server-side hash verification, Supabase authentication with email/password and OAuth providers
 - **Deployment**: Vercel with Neon PostgreSQL database integration
 
 ### Mobile Application
@@ -190,6 +190,10 @@ model WidgetLog {
 
 ### Authentication Routes
 - `/auth` - Authentication operations
+- `/auth/supabase-sign-up` - Supabase user registration
+- `/auth/supabase-sign-in` - Supabase user sign in
+- `/auth/supabase-sign-out` - Supabase user sign out
+- `/auth/verify-token` - Supabase token verification
 
 ### Dashboard Routes
 - `/dashboards/generateQrCode` - Generate QR code for device linking
@@ -202,7 +206,7 @@ model WidgetLog {
 
 ## Widgets Implementation
 
-The project includes an initial implementation of a Habits Tracking Widget. Detailed documentation for widgets is available in the [Widgets Documentation (Russian)](WIDGETS_DOCUMENTATION_RU.md) file.
+The project includes multiple widget implementations: Habits Tracking Widget, Clock Widget, Calendar Widget, and Counter Widget. Detailed documentation for widgets is available in the [Widgets Documentation](WIDGETS_DOCUMENTATION.md) and [Widgets Documentation (Russian)](WIDGETS_DOCUMENTATION_RU.md) files.
 
 ## Mobile Application Structure
 
@@ -347,10 +351,17 @@ If you encounter this error with a different domain, you can add it to the `allo
 
 ## Future Development Roadmap
 
-1. Implement email/password registration and anonymous mode with localStorage
-2. Complete Dashboard and Widget CRUD operations
-3. Implement mobile QR code scanning and device linking
-4. Create widget components for mobile display
+1. Email/password registration and anonymous mode with localStorage (COMPLETED)
+2. Supabase authentication with email/password and OAuth providers (COMPLETED)
+3. Complete Dashboard and Widget CRUD operations
+4. Implement mobile QR code scanning and device linking
+5. Create widget components for mobile display
+6. Implement auto-refresh polling for real-time updates
+7. Add color theme support for widgets
+8. Implement widget state management and logging
+9. Add offline caching for mobile widgets
+10. Implement user metrics and logging
+11. Prepare for MVP release
 5. Implement auto-refresh polling for real-time updates
 6. Add color theme support for widgets
 7. Implement widget state management and logging
