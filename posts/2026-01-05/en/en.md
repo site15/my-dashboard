@@ -57,48 +57,48 @@ Part of the current schema tables:
 [https://github.com/site15/my-dashboard/blob/main/web/prisma/schema.prisma](https://github.com/site15/my-dashboard/blob/main/web/prisma/schema.prisma)
 
 ```prisma
-model Dashboard { 
-id String @id(map: "PK_DASHBOARD") @default(uuid()) @db.Uuid 
-name String 
-deviceId String? 
-userId String @db.Uuid 
-isBlackTheme Boolean? 
-isActiveBoolean? 
-User User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_DASHBOARD__USER_ID") 
-Widget Widget[] 
-createdAt DateTime @default(now()) 
-updatedAt DateTime @default(now()) 
-deletedAt DateTime? 
-qrCodes QrCode[] @relation(map: "FK_WIDGET__DASHBOARD_ID") 
+model Dashboard {
+  id           String    @id(map: "PK_DASHBOARD") @default(uuid()) @db.Uuid
+  name         String
+  deviceId     String?
+  userId       String    @db.Uuid
+  isBlackTheme Boolean?
+  isActive     Boolean?
+  User         User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_DASHBOARD__USER_ID")
+  Widget       Widget[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+  deletedAt    DateTime?
+  qrCodes      QrCode[]  @relation(map: "FK_WIDGET__DASHBOARD_ID")
 
-@@unique([userId, name], map: "UQ_DASHBOARD__USER_ID_NAME") 
-@@unique([deviceId], map: "UQ_DASHBOARD__DEVICE_ID") 
-@@index([userId], map: "IDX_DASHBOARD__USER_ID")
+  @@unique([userId, name], map: "UQ_DASHBOARD__USER_ID_NAME")
+  @@unique([deviceId], map: "UQ_DASHBOARD__DEVICE_ID")
+  @@index([userId], map: "IDX_DASHBOARD__USER_ID")
 }
 
-model Widget { 
-id String @id(map: "PK_WIDGET") @default(uuid()) @db.Uuid 
-type String 
-options Json? 
-state Json? 
-columnIndex Int? 
-rowIndex Int? 
-columnCount Int? 
-rowCount Int? 
-isBlackTheme Boolean? 
-isActiveBoolean? 
-backgroundColor String? 
-primaryColor String? 
-positiveColor String? 
-negativeColor String? 
-dashboardId String @db.Uuid 
-Dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_WIDGET__DASHBOARD_ID") 
-WidgetLog WidgetLog[] 
-createdAt DateTime @default(now()) 
-updatedAt DateTime @default(now()) 
-deletedAt DateTime? 
+model Widget {
+  id          String @id(map: "PK_WIDGET") @default(uuid()) @db.Uuid
+  type        String
+  options     Json?
+  state       Json?
+  columnIndex Int?
+  rowIndex    Int?
+  columnCount Int?
+  rowCount    Int?
+  isBlackTheme    Boolean?
+  isActive        Boolean?
+  backgroundColor String?
+  primaryColor    String?
+  positiveColor   String?
+  negativeColor   String?
+  dashboardId String      @db.Uuid
+  Dashboard   Dashboard   @relation(fields: [dashboardId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_WIDGET__DASHBOARD_ID")
+  WidgetLog   WidgetLog[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
 
-@@index([dashboardId], map: "IDX_WIDGET__DASHBOARD_ID")
+  @@index([dashboardId], map: "IDX_WIDGET__DASHBOARD_ID")
 }
 ```
 
@@ -112,14 +112,14 @@ Connection example routers:
 [https://github.com/site15/my-dashboard/blob/main/web/src/server/trpc/routers/index.ts](https://github.com/site15/my-dashboard/blob/main/web/src/server/trpc/routers/index.ts)
 
 ```ts
-export const appRouter = router({ 
-users: userRouter, 
-telegram: telegramRouter, 
-auth: authRouter, 
-dashboards: dashboardsRouter, 
-widgets: widgetsRouter, 
-userStorage: userStorageRouter, 
-device: deviceRouter,
+export const appRouter = router({
+  users: userRouter,
+  telegram: telegramRouter,
+  auth: authRouter,
+  dashboards: dashboardsRouter,
+  widgets: widgetsRouter,
+  userStorage: userStorageRouter,
+  device: deviceRouter,
 });
 
 // export type definition of API
@@ -130,38 +130,38 @@ Example controller:
 [https://github.com/site15/my-dashboard/blob/main/web/src/server/trpc/routers/widgets.ts](https://github.com/site15/my-dashboard/blob/main/web/src/server/trpc/routers/widgets.ts)
 
 ```ts
-export const widgetsRouter = router({ 
-create: publicProcedure 
-.input(CreateWidgetSchema) 
-.output(WidgetSchema) 
-.mutation(async ({ input, ctx }) => { 
-if (!ctx.user) { 
-throw new TRPCError({ 
-code: "FORBIDDEN", 
-message: "User not found!", 
-}); 
-} 
-return (await prisma.widget.create({ 
-data: { 
-type: input.type,
-options: {
-...input.options,
-type: input.type,
-} as any,
-columnIndex: input.columnIndex,
-rowIndex: input.rowIndex,
-columnCount: input.columnCount,
-rowCount: input.rowCount,
-isBlackTheme: input.isBlackTheme,
-backgroundColor: input.backgroundColor,
-primaryColor: input.primaryColor,
-positiveColor: input.positiveColor,
-negativeColor: input.negativeColor,
-dashboardId: input.dashboardId,
-createdAt: new Date(),
-},
-})) satisfies WidgetType;
-}),
+export const widgetsRouter = router({
+  create: publicProcedure
+    .input(CreateWidgetSchema)
+    .output(WidgetSchema)
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "User not found!",
+        });
+      }
+      return (await prisma.widget.create({
+        data: {
+          type: input.type,
+          options: {
+            ...input.options,
+            type: input.type,
+          } as any,
+          columnIndex: input.columnIndex,
+          rowIndex: input.rowIndex,
+          columnCount: input.columnCount,
+          rowCount: input.rowCount,
+          isBlackTheme: input.isBlackTheme,
+          backgroundColor: input.backgroundColor,
+          primaryColor: input.primaryColor,
+          positiveColor: input.positiveColor,
+          negativeColor: input.negativeColor,
+          dashboardId: input.dashboardId,
+          createdAt: new Date(),
+        },
+      })) satisfies WidgetType;
+    }),
 });
 ```
 
@@ -176,93 +176,93 @@ Component example:
 
 ```ts
 export const routeMeta: RouteMeta = {
-canActivate: [ShowNavGuard],
+  canActivate: [ShowNavGuard],
 };
 
 @Component({
-selector: "dashboards-list-page",
-standalone: ​​true,
-changeDetection: ChangeDetectionStrategy.OnPush,
-imports: [AsyncPipe, LucideAngularModule],
-template: ` <h1 class="text-4xl font-extrabold text-gray-800 mb-2"> 
-Dashboards 
-</h1> 
-<p class="text-xl text-gray-500 mb-8"> 
-Manage your dashboards and widgets. 
-</p> 
+  selector: "dashboards-list-page",
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AsyncPipe, LucideAngularModule],
+  template: ` <h1 class="text-4xl font-extrabold text-gray-800 mb-2">
+      Dashboards
+    </h1>
+    <p class="text-xl text-gray-500 mb-8">
+      Manage your dashboards and widgets.
+    </p>
 
-<div 
-class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8" 
-> 
-@for ( dashboard of dashboards$ | async; track dashboard.id; let last = 
-$last ) { 
-<a 
-href="/dashboards/{{ dashboard.id }}" 
-class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.02] cursor-pointer" 
-> 
-<div class="flex justify-between items-start mb-4"> 
-<i-lucide 
-name="layout-dashboard" 
-class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 rounded-lg" 
-</i-lucide> 
-<span 
-class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full" 
->{{ dashboard.isActive ? "Active" : "Draft" }}</span 
-> 
-</div> 
-<h2 class="text-2xl font-bold text-gray-800 mb-2"> 
-{{ dashboard.name }} 
-</h2> 
-<div 
-class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100" 
-> 
-<span>Widgets: {{ dashboard.widgetsCount }}</span> 
-<span 
-class="flex items-center text-pastel-blue hover:text-pastel-blue/80" 
-> 
-Open 
-<i-lucide name="arrow-right" class="w-4 h-4 ml-1"></i-lucide> 
-</span> 
-</div> 
-</a> 
-@if (last) { 
-<a 
-class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center" 
-href="/dashboards/new" 
-> 
-<i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide> 
-Create New Dashboard 
-</a> 
-} } @empty { 
-<div class="col-span-full text-center py-12 flex flex-col items-center"> 
-<div class="inline-block p-4 bg-gray-100 rounded-full mb-4"> 
-<i-lucide 
-name="layout-dashboard" 
-class="w-12 h-12 text-gray-400" 
-</i-lucide> 
-</div> 
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8"
+    >
+      @for ( dashboard of dashboards$ | async; track dashboard.id; let last =
+      $last ) {
+      <a
+        href="/dashboards/{{ dashboard.id }}"
+        class="bg-white p-6 rounded-2xl long-shadow transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+      >
+        <div class="flex justify-between items-start mb-4">
+          <i-lucide
+            name="layout-dashboard"
+            class="w-10 h-10 text-pastel-blue bg-pastel-blue/10 rounded-lg"
+          ></i-lucide>
+          <span
+            class="text-sm font-medium text-gray-500 px-3 py-1 bg-gray-100 rounded-full"
+            >{{ dashboard.isActive ? "Active" : "Draft" }}</span
+          >
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">
+          {{ dashboard.name }}
+        </h2>
+        <div
+          class="flex justify-between items-center text-sm font-medium text-gray-600 pt-2 border-t border-gray-100"
+        >
+          <span>Widgets: {{ dashboard.widgetsCount }}</span>
+          <span
+            class="flex items-center text-pastel-blue hover:text-pastel-blue/80"
+          >
+            Open
+            <i-lucide name="arrow-right" class="w-4 h-4 ml-1"></i-lucide>
+          </span>
+        </div>
+      </a>
+      @if (last) {
+      <a
+        class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer h-40 flex items-center justify-center"
+        href="/dashboards/new"
+      >
+        <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
+        Create New Dashboard
+      </a>
+      } } @empty {
+      <div class="col-span-full text-center py-12 flex flex-col items-center">
+        <div class="inline-block p-4 bg-gray-100 rounded-full mb-4">
+          <i-lucide
+            name="layout-dashboard"
+            class="w-12 h-12 text-gray-400"
+          ></i-lucide>
+        </div>
 
-<h3 class="text-2xl font-bold text-gray-700 mb-2">No dashboards yet</h3> 
-<p class="text-gray-500 max-w-md mx-auto mb-8"> 
-Get started by creating your first dashboard to organize and visualize 
-your data. 
-</p> 
+        <h3 class="text-2xl font-bold text-gray-700 mb-2">No dashboards yet</h3>
+        <p class="text-gray-500 max-w-md mx-auto mb-8">
+          Get started by creating your first dashboard to organize and visualize
+          your data.
+        </p>
 
-<a 
-class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer p-8 flex flex-col items-center justify-center" 
-href="/dashboards/new" 
-> 
-<i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide> 
-Create New Dashboard 
-</a> 
-</div> 
-} 
-</div>`,
+        <a
+          class="border-4 border-dashed border-gray-200 rounded-2xl transition-all duration-300 hover:border-pastel-blue/50 hover:bg-pastel-blue/5 cursor-pointer p-8 flex flex-col items-center justify-center"
+          href="/dashboards/new"
+        >
+          <i-lucide name="plus" class="w-6 h-6 mr-2"></i-lucide>
+          Create New Dashboard
+        </a>
+      </div>
+      }
+    </div>`,
 })
-export default class DashboardsListPageComponent { 
-private readonly dashboardsService = inject(DashboardsService); 
+export default class DashboardsListPageComponent {
+  private readonly dashboardsService = inject(DashboardsService);
 
-readonly dashboards$ = this.dashboardsService.list();
+  readonly dashboards$ = this.dashboardsService.list();
 }
 ```
 
@@ -270,43 +270,43 @@ Service example:
 [https://github.com/site15/my-dashboard/blob/main/web/src/app/services/dashboards.service.ts](https://github.com/site15/my-dashboard/blob/main/web/src/app/services/dashboards.service.ts)
 
 ```ts
-@Injectable({ 
-providedIn: "root",
+@Injectable({
+  providedIn: "root",
 })
-export class DashboardsService { 
-private trpc = injectTrpcClient(); 
+export class DashboardsService {
+  private trpc = injectTrpcClient();
 
-create(dashboard: CreateDashboardType) { 
-return this.trpc.dashboards.create.mutate( 
-Object.fromEntries( 
-Object.entries(dashboard).filter(([, value]) => value !== "") 
-) as CreateDashboardType 
-); 
-} 
+  create(dashboard: CreateDashboardType) {
+    return this.trpc.dashboards.create.mutate(
+      Object.fromEntries(
+        Object.entries(dashboard).filter(([, value]) => value !== "")
+      ) as CreateDashboardType
+    );
+  }
 
-read(id: string) { 
-return this.trpc.dashboards.read.query({ id }); 
-} 
+  read(id: string) {
+    return this.trpc.dashboards.read.query({ id });
+  }
 
-update(dashboard: UpdateDashboardType) { 
-return this.trpc.dashboards.update.mutate( 
-Object.fromEntries( 
-Object.entries(dashboard).filter(([, value]) => value !== "") 
-) as UpdateDashboardType 
-); 
-} 
+  update(dashboard: UpdateDashboardType) {
+    return this.trpc.dashboards.update.mutate(
+      Object.fromEntries(
+        Object.entries(dashboard).filter(([, value]) => value !== "")
+      ) as UpdateDashboardType
+    );
+  }
 
-delete(id: string) {
-return this.trpc.dashboards.delete.mutate({ id });
-}
+  delete(id: string) {
+    return this.trpc.dashboards.delete.mutate({ id });
+  }
 
-list() {
-return this.trpc.dashboards.list.query();
-}
+  list() {
+    return this.trpc.dashboards.list.query();
+  }
 
-generateQrCode(dashboardId: string) {
-return this.trpc.dashboards.generateQrCode.query({ dashboardId });
-}
+  generateQrCode(dashboardId: string) {
+    return this.trpc.dashboards.generateQrCode.query({ dashboardId });
+  }
 }
 ```
 
@@ -358,7 +358,7 @@ Click the "Sign Up" link, which will display the fields you need to fill out dur
 
 Fill in the "Email" and "Password" fields, then click "Sign Up."
 
-![Registration Page](images/image001.png)
+![Registration Page](images/image21.png)
 
 Registration Page
 
@@ -366,13 +366,13 @@ Registration Page
 
 After successful registration After registering, an email with a confirmation link will be sent to the email address you provided.
 
-![Email with email confirmation link](images/image003.png)
+![Email with email confirmation link](images/image25.png)
 
 Email with email confirmation link
 
 Click the link in the email, and you'll be redirected to the website, where you'll be automatically logged in and your profile will be displayed.Search for our dashboards.
 
-![Dashboard Page](images/image005.png)
+![Dashboard Page](images/image9.png)
 
 Dashboard Page
 
@@ -380,13 +380,13 @@ Dashboard Page
 
 If you've already registered, you'll need to enter your "Email" and "Password," then click "Sign In."
 
-![Login Page](images/image004.jpg)
+![Login Page](images/image32.png)
 
 Login Page
 
 After successful login, you'll be redirected to a page with a list of dashboards.
 
-![Dashboard Page](images/image005.png)
+![Dashboard Page](images/image9.png)
 
 Dashboard Page
 
@@ -394,13 +394,13 @@ Dashboard Page
 
 To create a new dashboard, click "Create New Dashboard," which will open a page with the dashboard's parameters.
 
-![Dashboard creation page](images/image006.jpg)
+![Dashboard creation page](images/image14.png)
 
 Dashboard creation page
 
 Enter a name and click "Create Dashboard", which will open the editing page for the created dashboard.
 
-![Dashboard editing page](images/image007.jpg)
+![Dashboard editing page](images/image28.png)
 
 Dashboard editing page
 
@@ -408,7 +408,7 @@ Dashboard editing page
 
 On the dashboard editing page, there are tabs at the bottom called "Widgets Grid" and "Widgets Preview". Click "Widgets Grid" to display the widget addition panel.
 
-![Widget panel](images/image008.jpg)
+![Widget panel](images/image17.png)
 
 Widget panel
 
@@ -418,25 +418,25 @@ Click the small "clock" button, and you'll be redirected to the widget setup and
 
 Enter a name for the clock widget and select the 24-hour clock format.
 
-![Clock widget add page](images/image009.jpg)
+![Clock widget add page](images/image26.png)
 
 Clock widget add page
 
 Click the "Add clock" button and add all the time zones we need.
 
-![Panel with new time zone clocks for the clock widget](images/image010.jpg)
+![Panel with new time zone clocks for the clock widget](images/image20.png)
 
 Panel with new time zone clocks for the clock widget
 
 After adding all the necessary time zone clocks, click the "Create Widget" button.
 
-![Button for adding widget to dashboard](images/image011.jpg)
+![Button for adding widget to dashboard](images/image24.png)
 
 Button for adding widget to dashboard
 
 After adding the widget, you are redirected to the dashboard editing page, where the newly added widget is visible.
 
-![Dashboard editing page with hourly widget](images/image012.png)
+![Dashboard editing page with hourly widget](images/image16.png)
 
 Dashboard editing page with hourly widget
 
@@ -444,13 +444,13 @@ Dashboard editing page with hourly widget
 
 The process for adding widgets is the same; different widgets may just have different options when creating them.
 
-![Habit widget adding page](images/image013.jpg)
+![Habit widget adding page](images/image2.png)
 
 Habit widget adding page
 
 After adding all the widgets, we can see them on the dashboard editing page.
 
-![Dashboard editing page with widget list](images/image013.jpg)
+![Dashboard editing page with widget list](images/image2.png)
 
 Dashboard editing page with widget list
 
@@ -458,7 +458,7 @@ Dashboard editing page with widget list
 
 To preview widgets as they will appear on a mobile device, activate the "Widgets Preview" tab on the dashboard editing page.
 
-![Widget Preview Panel](images/image014.jpg)
+![Widget Preview Panel](images/image13.png)
 
 Widget Preview Panel
 
@@ -466,19 +466,19 @@ Widgets not only display information, but can also be interacted with.
 
 Tapping the clock widget's dial opens a modal window for selecting the active time zone.
 
-![Clock widget modal window](images/image015.jpg)
+![Clock widget modal window](images/image11.png)
 
 Clock widget modal window
 
 The Habits widget also has a modal window where you can add or subtract from a habit counter.
 
-![Habits widget modal window](images/image016.jpg)
+![Habits widget modal window](images/image18.png)
 
 Habits widget modal window
 
 Each change to the habit counter is saved in the history, which can be viewed in this modal window.
 
-![Habit counter increase history](images/image017.jpg)
+![Habit counter increase history](images/image7.png)
 
 Habit counter increase history
 
@@ -486,13 +486,13 @@ Habit counter increase history
 
 On the dashboard editing page, there is a "Link Device" button. To link a mobile device, click it.
 
-![Dashboard editing page with the link device button](images/image018.jpg)
+![Dashboard editing page with the link device button](images/image29.png)
 
 Dashboard editing page with the link device button
 
 Clicking this button will open a page with a QR code.
 
-[Page with QR code for linking a device to the dashboard](images/image019.jpg)
+[Page with QR code for linking a device to the dashboard](images/image27.png)
 
 Page with QR code for linking a device to the dashboard
 
@@ -504,23 +504,23 @@ The current mobile app is not published in Android stores; you must download the
 
 On the website, on the login page and in the navigation menu, there is a link to download the latest version of the Android app.
 
-![Download link "Download Mobile App" among the links below](images/image020.jpg)
+![Download link "Download Mobile App" among the links below](images/image5.png)
 
 Download link "Download Mobile App" among the links below
 
-![Download link "Mobile App" in the left navigation panel](images/image021.jpg)
+![Download link "Mobile App" in the left navigation panel](images/image30.png)
 
 Download link "Mobile App" in the left navigation panel
 
 Since the APK file is not from official app stores, not all Android security systems allow its installation.
 
-![Application icon after installation](images/image022.jpg)
+![Application icon after installation](images/image8.png)
 
 Application icon after installation
 
 Launch the app—it is not yet linked to the dashboard, so the widgets are not yet displayed.
 
-![Empty widget page](images/image023.jpg)
+![Empty widget page](images/image6.png)
 
 Empty pageWidget Page
 
@@ -530,13 +530,13 @@ Click the "QR Code" tab at the bottom and you'll be taken to the QR code scannin
 
 Point the camera at the QR code you received on the website and link your phone to the dashboard.
 
-![Scan QR Code](images/image024.jpg)
+![Scan QR Code](images/image31.png)
 
 Scan QR Code
 
 After successful linking, you'll be redirected to the "Dashboard" page, where your widgets are displayed.
 
-![Widget Page](images/image025.jpg)
+![Widget Page](images/image3.png)
 
 Widget Page
 
@@ -544,7 +544,7 @@ Widget Page
 
 Clicking the clock face will open a modal window for setting the main clock, similar to the web version of the clock widget preview.
 
-![Clock modal](images/image026.jpg)
+![Clock modal](images/image23.png)
 
 Clock modal
 
@@ -552,7 +552,7 @@ Clock modal
 
 The habit modal allows you to increase or decrease the habit counter.
 
-![Clock modal](images/image027.jpg)
+![Clock modal](images/image22.png)
 
 Habit modal
 
@@ -560,19 +560,19 @@ Habit modal
 
 Dashboards support dark theme. You can enable it both on the website through the dashboard settings and in the mobile app on the settings page (the "Settings" button).
 
-![Settings page](images/image028.jpg)
+![Settings page](images/image4.png)
 
 Settings page
 
 After switching to dark mode ("Dark Theme"), tap "Save settings" and the app theme will change to dark.
 
-![Dark Settings Page](images/image029.jpg)
+![Dark Settings Page](images/image1.png)
 
 Dark Settings Page
 
 The widget page has also switched to dark mode, and the widgets themselves, along with modal windows, are displayed in dark mode.
 
-![Dark Widget Page](images/image030.jpg)
+![Dark Widget Page](images/image19.png)
 
 Dark Widget Page
 
@@ -580,11 +580,11 @@ Dark Widget Page
 
 If you rotate the phone horizontally, the bottom tab bar with app page switches is hidden, as are the native Android top and bottom bars.
 
-![Horizontal dark panel with widgets](images/image031.jpg)
+![Horizontal dark panel with widgets](images/image10.png)
 
 Horizontal dark panel with widgets
 
-![Real photo of device with dashboard](images/image032.jpg)
+![Real photo of device with dashboard](images/image15.png)
 
 Real photo of device with dashboard
 
@@ -594,7 +594,7 @@ When a device is linked to a dashboard, the previously linked device loses conne
 
 You can also unlink a device directly from the mobile app: on the settings page, click the "Unlink device" button.
 
-![Settings page with button](images/image033.jpg)
+![Settings page with button](images/image12.png)
 
 Settings page with a button to unlink a device from a dashboard
 
