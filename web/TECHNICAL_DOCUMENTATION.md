@@ -88,13 +88,16 @@ model User {
   anonymousId      String?
   telegramUserId   String?
   telegramUserData Json?
+  supabaseUserId   String?
+  supabaseUserData Json?
   isBlackTheme     Boolean?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @default(now())
   Session          Session[]
   Dashboard        Dashboard[]
 
-  @@unique([telegramUserId], map: "UQ_USER")
+  @@unique([telegramUserId], map: "UQ_USER_TELEGRAM")
+  @@unique([supabaseUserId], map: "UQ_USER_SUPABASE")
 }
 ```
 
@@ -204,9 +207,14 @@ model WidgetLog {
 ### Widget Routes
 - Widget management operations (partially implemented)
 
+### Releases Routes
+- `/releases/getMobileApkUrl` - Get mobile APK download URL from GitHub releases
+
 ## Widgets Implementation
 
-The project includes multiple widget implementations: Habits Tracking Widget, Clock Widget, Calendar Widget, and Counter Widget. Detailed documentation for widgets is available in the [Widgets Documentation](WIDGETS_DOCUMENTATION.md) and [Widgets Documentation (Russian)](WIDGETS_DOCUMENTATION_RU.md) files.
+The project includes multiple widget implementations: Habits Tracking Widget, Clock Widget, and Calendar Widget. Detailed documentation for widgets is available in the [Widgets Documentation](WIDGETS_DOCUMENTATION.md) and [Widgets Documentation (Russian)](WIDGETS_DOCUMENTATION_RU.md) files.
+
+The project also includes a release service that fetches mobile APK download URLs from GitHub releases. The service queries the GitHub API to find releases with names starting with 'mobile@' and retrieves the download URL for 'app-release-signed.apk' assets.
 
 ## Mobile Application Structure
 
@@ -361,13 +369,19 @@ If you encounter this error with a different domain, you can add it to the `allo
 8. Implement widget state management and logging
 9. Add offline caching for mobile widgets
 10. Implement user metrics and logging
-11. Prepare for MVP release
-5. Implement auto-refresh polling for real-time updates
-6. Add color theme support for widgets
-7. Implement widget state management and logging
-8. Add offline caching for mobile widgets
-9. Implement user metrics and logging
-10. Prepare for MVP release
+11. Implement auto-refresh polling for real-time updates
+12. Add color theme support for widgets
+13. Implement widget state management and logging
+14. Add offline caching for mobile widgets
+15. Implement user metrics and logging
+16. Prepare for MVP release
+17. Implement dynamic mobile APK download from GitHub releases
+18. Complete widget CRUD operations (COMPLETED)
+19. Complete mobile QR code scanning and device linking (COMPLETED)
+20. Complete widget components for mobile display (COMPLETED)
+21. Complete offline caching for mobile widgets (COMPLETED)
+22. Complete push notifications for mobile (COMPLETED)
+23. Complete analytics and metrics collection (COMPLETED)
 
 ## Community
 

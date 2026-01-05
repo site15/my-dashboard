@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of widgets in the "My Dashboard" project. Currently, one widget has been implemented - the Habits Tracking Widget, which allows users to track their daily habits and activities.
+This document describes the implementation of widgets in the "My Dashboard" project. Currently, multiple widgets have been implemented including the Habits Tracking Widget, Clock Widget, Calendar Widget, and Counter Widget, which allow users to track their daily habits, view time and date, and maintain counters with history tracking.
 
 ## Implemented Widgets
 

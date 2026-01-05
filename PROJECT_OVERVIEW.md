@@ -10,6 +10,43 @@ Creating a dashboard management system for displaying information on old Android
 #### 1. Web Application (AnalogJS + tRPC + Pico.css)
 - User registration and anonymous mode with identifier storage in localStorage
 - Creation, editing, and deletion of dashboards
+- Addition, configuration, and deletion of widgets (clocks, calendar, habits tracking)
+- QR code generation for phone binding
+- Reattachment of anonymous users during subsequent registration
+- UX and SEO: "Continue as Guest" button, meta tags for dashboards
+
+#### 2. Mobile Application (Ionic + Capacitor)
+- QR code scanning to bind phone to dashboard
+- Retrieving widget list from server via tRPC API
+- Displaying widgets: clock with timezone and name, calendar with fixed month and date, habits tracking with interactive interface
+- Automatic widget updates
+- Offline widget caching support
+- Minimal interface: display only, no editing
+
+#### 3. Backend (AnalogJS server routes + tRPC + Prisma + PostgreSQL)
+**Database Models (schema from schema.prisma):**
+- **User**: id, anonymousId, telegramUserId, supabaseUserId, isBlackTheme, Session[], Dashboard[]
+- **Session**: id, userId, createdAt, deletedAt
+- **Dashboard**: id, name, deviceId, userId, isBlackTheme, Widget[], createdAt, updatedAt, deletedAt
+- **Widget**: id, options (JSON), state (JSON), grid (columnIndex, rowIndex, columnCount, rowCount), colors, dashboardId, createdAt, updatedAt, deletedAt
+- **WidgetLog**: id, oldOptions, newOptions, oldState, newState, widgetId, createdAt, updatedAt, deletedAt
+
+**tRPC Endpoints:**
+- `/user/register` – user registration
+- `/user/login` – login
+- `/dashboards/create` / `/dashboards/update` / `/dashboards/delete` / `/dashboards/get`
+- `/widgets/create` / `/widgets/update` / `/widgets/delete` / `/widgets/get`
+- `/devices/link` – phone binding via QR code
+- `/devices/widgets` – getting widgets for phone
+- `/releases/getMobileApkUrl` – getting mobile APK download URL from GitHub releases
+- Logging widget changes in WidgetLog
+- Anonymous users: localStorage stores identifier, reattachment during registration
+
+### Main Components
+
+#### 1. Web Application (AnalogJS + tRPC + Pico.css)
+- User registration and anonymous mode with identifier storage in localStorage
+- Creation, editing, and deletion of dashboards
 - Addition, configuration, and deletion of widgets (clocks, calendar)
 - QR code generation for phone binding
 - Reattachment of anonymous users during subsequent registration
@@ -23,7 +60,7 @@ Creating a dashboard management system for displaying information on old Android
 - Offline widget caching support
 - Minimal interface: display only, no editing
 
-#### 3. Backend (NestJS + Prisma + PostgreSQL)
+#### 3. Backend (AnalogJS server routes + tRPC + Prisma + PostgreSQL)
 **Database Models (schema from schema.prisma):**
 - **User**: id, anonymousId, telegramUserId, isBlackTheme, Session[], Dashboard[]
 - **Session**: id, userId, createdAt, deletedAt
@@ -86,7 +123,7 @@ Creating a dashboard management system for displaying information on old Android
 |
 | tRPC API
 v
-[Backend NestJS + Prisma + PostgreSQL]
+[Backend AnalogJS server routes + Prisma + PostgreSQL]
 |
 | tRPC API
 v
@@ -139,6 +176,7 @@ v
    - ✅ Email/password registration
       - ✅ Supabase authentication with email/password and OAuth providers
       - ✅ Supabase user fields in database with proper data synchronization
+      - ✅ Dynamic mobile APK download feature from GitHub releases
 
 2. **Dashboard Management**
    - ✅ Full CRUD operations for dashboards

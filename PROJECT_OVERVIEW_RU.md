@@ -10,6 +10,43 @@
 #### 1. Веб-приложение (AnalogJS + tRPC + Pico.css)
 - Регистрация пользователя и анонимный режим с сохранением идентификатора в localStorage
 - Создание, редактирование и удаление дашбордов
+- Добавление, настройка и удаление виджетов (часы, календарь, отслеживание привычек)
+- Генерация QR-кода для привязки телефона
+- Перепривязка анонимных пользователей при последующей регистрации
+- UX и SEO: кнопка «Продолжить как гость», мета-теги для дашбордов
+
+#### 2. Мобильное приложение (Ionic + Capacitor)
+- Сканирование QR-кода для привязки телефона к дашборду
+- Получение списка виджетов с сервера через tRPC API
+- Отображение виджетов: часы с таймзоной и названием, календарь с фиксированным месяцем и датой, отслеживание привычек с интерактивным интерфейсом
+- Автоматическое обновление виджетов
+- Поддержка офлайн-кэша виджетов
+- Минимальный интерфейс: только отображение, без редактирования
+
+#### 3. Бэкенд (AnalogJS серверные маршруты + tRPC + Prisma + PostgreSQL)
+**Модели базы данных (схема из schema.prisma):**
+- **User**: id, anonymousId, telegramUserId, supabaseUserId, isBlackTheme, Session[], Dashboard[]
+- **Session**: id, userId, createdAt, deletedAt
+- **Dashboard**: id, name, deviceId, userId, isBlackTheme, Widget[], createdAt, updatedAt, deletedAt
+- **Widget**: id, options (JSON), state (JSON), grid (columnIndex, rowIndex, columnCount, rowCount), colors, dashboardId, createdAt, updatedAt, deletedAt
+- **WidgetLog**: id, oldOptions, newOptions, oldState, newState, widgetId, createdAt, updatedAt, deletedAt
+
+**Эндпоинты tRPC:**
+- `/user/register` – регистрация пользователя
+- `/user/login` – вход
+- `/dashboards/create` / `/dashboards/update` / `/dashboards/delete` / `/dashboards/get`
+- `/widgets/create` / `/widgets/update` / `/widgets/delete` / `/widgets/get`
+- `/devices/link` – привязка телефона через QR-код
+- `/devices/widgets` – получение виджетов для телефона
+- `/releases/getMobileApkUrl` – получение URL загрузки мобильного APK из релизов GitHub
+- Логирование изменений виджетов в WidgetLog
+- Анонимные пользователи: localStorage хранит идентификатор, перепривязка при регистрации
+
+### Основные компоненты
+
+#### 1. Веб-приложение (AnalogJS + tRPC + Pico.css)
+- Регистрация пользователя и анонимный режим с сохранением идентификатора в localStorage
+- Создание, редактирование и удаление дашбордов
 - Добавление, настройка и удаление виджетов (часы, календарь)
 - Генерация QR-кода для привязки телефона
 - Перепривязка анонимных пользователей при последующей регистрации
@@ -23,7 +60,7 @@
 - Поддержка офлайн-кэша виджетов
 - Минимальный интерфейс: только отображение, без редактирования
 
-#### 3. Бэкенд (NestJS + Prisma + PostgreSQL)
+#### 3. Бэкенд (AnalogJS серверные маршруты + tRPC + Prisma + PostgreSQL)
 **Модели базы данных (схема из schema.prisma):**
 - **User**: id, anonymousId, telegramUserId, isBlackTheme, Session[], Dashboard[]
 - **Session**: id, userId, createdAt, deletedAt
@@ -86,7 +123,7 @@
 |
 | tRPC API
 v
-[Бэкенд NestJS + Prisma + PostgreSQL]
+[Бэкенд AnalogJS серверные маршруты + Prisma + PostgreSQL]
 |
 | tRPC API
 v
@@ -139,6 +176,7 @@ v
    - ✅ Регистрация по email/password
    - ✅ Аутентификация через Supabase с email/password и OAuth провайдерами
    - ✅ Поля пользователей Supabase в базе данных с правильной синхронизацией данных
+   - ✅ Функция динамического получения и загрузки APK мобильного приложения из GitHub релизов
 
 2. **Управление дашбордами**
    - ✅ Полные операции CRUD для дашбордов
