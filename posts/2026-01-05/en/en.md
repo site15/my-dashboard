@@ -1,10 +1,12 @@
 # [2026-01-05] My Dashboard
 
-I built a small full-stack project: a web application using Analog and an Android client built with Ionic. Along the way, there were enough details and decisions that the post turned out longer than expected, so I decided to document everything in one place.
+I had several old Android devices lying around at home. They worked, but they hadn't been used for a long time and were just sitting around.
 
-## Idea
+I started thinking about how to use them. I wanted something simple and useful: displaying information and occasionally accepting data. Nothing complicated, just something that would actually be used. That's how the idea of ​​turning them into dashboards came about.
 
-At home, I have a few old Android devices that are no longer in use. Instead of leaving them unused, I decided to try turning them into dashboards for displaying information and handling simple input.
+Then I realized I needed a web component and a mobile app. I built a web app using Analog and an Android client using the Ionic Framework. The AI ​​assistant from Qoder actively assisted with the development—it significantly sped up the work and handled many of the tasks automatically.
+
+The project is still in progress, but I decided to write a post about it. Perhaps someone will find my work useful.
 
 ## Tech Stack
 
@@ -22,7 +24,9 @@ As a result, I switched stacks to more or less familiar technologies:
 - **web** — Analog (uses Angular and SSR rendering);
 - **server** — Analog + tRPC (since Analog uses tRPC as a server framework in its examples, I decided to keep it).
 
-Initially, I planned to write the bulk of the code manually and without neural networks, and then incorporate them during the UI design, theming, and layout stages. However, in practice, things turned out differently—about 80% of the code was written using neural networks.
+Initially, I planned to write the bulk of the code manually and without using neural networks, and then incorporate them during the UI design, theming, and layout stages.
+
+In the end, things turned out differently: about 70% of the code was written by the AI. The code was functional, but not perfect. That's fine for a first version—it's now an MVP, and it was more important for me to quickly implement the main features.
 
 ## Technical Specifications
 
