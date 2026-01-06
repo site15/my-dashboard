@@ -639,9 +639,17 @@ Done:
 
 To do:
 
-5. Describe the stubs as tasks and gradually implement them.
-6. Conduct a complete refactoring of the frontend and backend, as most of the code is written using a neural network.
-
+1. Describe stubs as tasks and gradually implement them.
+2. Conduct a complete refactoring of the frontend and backend, as most of the code is written using a neural network.
+3. Write a desktop version in Electron for Windows and Linux.
+4. Add offline support.
+5. Add real-time server interaction.
+6. Add the ability to connect widgets as YAML files.
+7. Add all widgets available on the website https://github.com/glanceapp/glance; perhaps it would be worthwhile to support their formats.
+8. Create and publish a Docker image for self-hosted installation.
+9. Add the ability to support new widget types at runtime without re-releasing the mobile app.
+10. Publish the shared mobile app in various app stores.
+11. Add support for Apple devices.
 ---
 
 ## Links
