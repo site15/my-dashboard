@@ -2,6 +2,7 @@ import { router } from '../trpc';
 import { authRouter } from './auth';
 import { dashboardsRouter } from './dashboards';
 import { deviceRouter } from './device';
+import { financeRouter } from './finance';
 import { telegramRouter } from './telegram';
 import { userStorageRouter } from './user-storage';
 import { userRouter } from './users';
@@ -17,6 +18,7 @@ export const appRouter = router({
   userStorage: userStorageRouter,
   device: deviceRouter,
   releases: releasesRouter,
+  finance: financeRouter,
 });
 
 // export type definition of API

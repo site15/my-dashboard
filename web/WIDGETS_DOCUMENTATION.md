@@ -178,7 +178,164 @@ interface CalendarWidgetOptions {
 }
 ```
 
+### Currency Charts Widget
 
+The Currency Charts Widget displays interactive financial charts for cryptocurrency and forex pairs using **real-time data from Yahoo Finance API** with Chart.js professional visualization.
+
+#### Widget Features:
+
+1. **Dual View System**:
+   - **Dashboard Panel**: Shows configurable number of charts (default: 3)
+   - **Modal View**: Displays all configured currency pairs in detail
+   - Click maximize button to view all charts
+
+2. **Multiple Currency Support**:
+   - **Cryptocurrency**: BTC/USD, ETH/USD, BNB/USD, ADA/USD, SOL/USD, XRP/USD, DOT/USD, DOGE/USD, AVAX/USD, MATIC/USD
+   - **Forex**: EUR/USD, GBP/USD, USD/JPY, USD/CAD, AUD/USD, USD/CHF, NZD/USD, USD/SGD
+   - Custom display names for each pair
+
+3. **Chart Features**:
+   - Professional Chart.js implementation
+   - Point styling with circular markers and white borders
+   - Green/red color coding based on price movement
+   - Interactive tooltips showing exact prices
+   - Smooth curved lines (tension: 0.4)
+   - Responsive design for all screen sizes
+
+4. **Real-time Data Features**:
+   - **Yahoo Finance API Integration**: Fetches live market data
+   - **Automatic Symbol Conversion**: Converts BTC/USD → BTC-USD, EUR/USD → EURUSD=X
+   - **30-second Updates**: Automatic periodic data refresh
+   - **Smart Fallback**: Uses mock data when API is unavailable
+   - **Error Handling**: Graceful degradation on API failures
+
+5. **Configuration Options**:
+   - Chart time periods: 1h, 4h, 1d, 1w, 1m
+   - Dashboard charts limit (1-6 charts)
+   - Volume bars toggle
+   - Custom widget name
+   - Individual pair display names
+
+#### Technical Implementation:
+
+##### Implementation Files:
+- `web/src/server/widgets/currency-widget.ts` - Main widget class with Zod schemas and Chart.js integration
+- `web/src/server/widgets/currency-widget.utils.ts` - Client-side utilities and window functions
+- `web/src/server/services/yahoo-finance-api.ts` - Yahoo Finance API service for real-time data
+
+##### Data Structure:
+```typescript
+interface CurrencyPair {
+  symbol: string;
+  name: string;
+  displayName?: string;
+}
+
+interface CurrencyWidgetOptions {
+  type: 'currency';
+  name: string;
+  currencyPairs: CurrencyPair[];
+  chartPeriod: '1h' | '4h' | '1d' | '1w' | '1m';
+  maxDashboardCharts: number;
+}
+```
+
+##### Main Functions:
+- `showCurrencyModal(modalId)` - Display detailed charts modal
+- `hideCurrencyModal(modalId)` - Hide charts modal
+- `updateCurrencyCharts(widgetId)` - Refresh chart data
+
+#### System Integration:
+
+The widget integrates with the general widget system and uses:
+- Chart.js v4.5.1 for professional chart rendering
+- Zod schemas for data validation
+- Formly for widget configuration form
+- Lucide Icons for UI elements
+- Tailwind CSS for styling
+- **Yahoo Finance API** for real-time market data
+- **Rate limiting**: 50 requests per minute per user/session
+- **Rate limiting implementation**: Uses sliding window algorithm with in-memory store
+- **Identification priority**: Session ID → x-session-id header → IP address → 'unknown'
+- **Error handling**: Returns TOO_MANY_REQUESTS TRPC error with retry information
+- **Automatic cleanup**: Expired rate limit entries cleaned up every minute
+- Periodic data updates (every 30 seconds)
+- Smart fallback to mock data on API failures
+- Point styling according to Chart.js official samples
+
+#### Widget Configuration Example:
+
+```json
+{
+  "type": "currency",
+  "name": "Market Overview",
+  "chartPeriod": "1d",
+  "maxDashboardCharts": 3,
+  "currencyPairs": [
+    {
+      "symbol": "BTC/USD",
+      "name": "Bitcoin to US Dollar",
+      "displayName": "Bitcoin Price"
+    },
+    {
+      "symbol": "ETH/USD", 
+      "name": "Ethereum to US Dollar",
+      "displayName": "Ethereum Price"
+    }
+  ]
+}
+```
+
+
+
+## Finance API
+
+The Finance API provides real-time financial data through TRPC endpoints with built-in rate limiting protection.
+
+### API Endpoints
+
+#### `finance.getCurrencyData`
+- **Purpose**: Fetch currency data for multiple symbols
+- **Input**: Array of symbols, period, optional interval
+- **Output**: Array of currency data with chart information
+- **Rate Limited**: Yes (50 requests/minute)
+
+#### `finance.getSingleCurrencyData`
+- **Purpose**: Fetch data for a single currency pair
+- **Input**: Symbol, period, optional interval
+- **Output**: Detailed currency data for one pair
+- **Rate Limited**: Yes (50 requests/minute)
+
+### Rate Limiting Details
+
+- **Algorithm**: Sliding window with 1-minute intervals
+- **Limit**: 50 requests per minute per user/session
+- **Identification**: Session ID → x-session-id header → IP address
+- **Error Response**: `TOO_MANY_REQUESTS` with retry time information
+- **Storage**: In-memory Map with automatic cleanup
+
+### Implementation Files
+
+- `web/src/server/trpc/routers/finance.ts` - Main finance router with rate limiting
+- `web/src/server/services/yahoo-finance-api.ts` - Yahoo Finance data fetching service
+- `web/src/server/middleware/rate-limit.ts` - Generic rate limiting utilities
+
+### Error Handling
+
+When rate limits are exceeded, clients receive:
+```json
+{
+  "code": "TOO_MANY_REQUESTS",
+  "message": "Rate limit exceeded. Maximum 50 requests per minute allowed. Try again in X seconds."
+}
+```
+
+### Best Practices
+
+1. Cache responses when possible to reduce API calls
+2. Implement exponential backoff for retry logic
+3. Monitor rate limit headers in responses
+4. Handle rate limit errors gracefully in client applications
 
 ## Widgets Development Roadmap
 
