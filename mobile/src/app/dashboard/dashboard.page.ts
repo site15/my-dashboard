@@ -144,6 +144,7 @@ export class DashboardPage {
           dashboardInfo.widgets.map((widget) => {
             const renderer = WIDGETS_RENDERERS[widget.type];
             if (renderer) {
+              renderer.destroy?.(widget as any);
               return renderer
                 .render(widget as any, {
                   static: false,

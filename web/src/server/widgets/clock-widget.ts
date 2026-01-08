@@ -4,7 +4,11 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { of, tap } from 'rxjs';
 import { z } from 'zod';
 
-import { getClockName, linkFunctionsToWindow } from './clock-widget.utils';
+import {
+  addClockWidget,
+  getClockName,
+  linkFunctionsToWindow,
+} from './clock-widget.utils';
 import { WINDOW } from '../../app/utils/window';
 import {
   WidgetRender,
@@ -173,6 +177,10 @@ function getDigitalTime(
 export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
   private inited: Record<string, boolean> = {};
 
+  destroy(widget: WidgetRenderType<ClockWidgetType>): void {
+    this.inited[widget.id] = false;
+  }
+
   init(
     widget: WidgetRenderType<ClockWidgetType>,
     options?: WidgetRenderInitFunctionOptions
@@ -186,17 +194,7 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
     }
     this.inited[widget.id] = true;
 
-    WINDOW?.initializeClockWidget?.(
-      widget.id,
-      widget.options?.timezones?.map((tz: ClockWidgetTimezoneType) => {
-        return {
-          name: tz.name,
-          timezone: tz.timezone,
-        };
-      }) || [],
-      widget.options?.hourFormat === HourFormat['12h'],
-      options?.static || false
-    );
+    WINDOW?.initializeClockWidget?.(widget.id);
 
     console.log('Initialized clock widget');
   }
@@ -308,7 +306,17 @@ export class ClockWidgetRender implements WidgetRender<ClockWidgetType> {
 <!-- END Widget 1 -->
 `;
     };
-
+    addClockWidget(
+      widget.id,
+      widget.options?.timezones?.map((tz: ClockWidgetTimezoneType) => {
+        return {
+          name: tz.name,
+          timezone: tz.timezone,
+        };
+      }) || [],
+      widget.options?.hourFormat === HourFormat['12h'],
+      options?.static || false
+    );
     // For client-side, we still need to update the clocks periodically
     return of(render()).pipe(
       tap(() => setTimeout(() => this.init(widget, options)))

@@ -88,7 +88,7 @@ export class SupabaseAuthService {
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: process.env.MY_DASHBOARD_API_URL || 'http://localhost:5173',
+        redirectTo: process.env['MY_DASHBOARD_API_URL'] || 'http://localhost:5173',
       },
     });
 
@@ -126,7 +126,8 @@ export class SupabaseAuthService {
     type: 'signup' | 'recovery' | 'invite' | 'magiclink',
     email?: string
   ) {
-    let verifyParams;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let verifyParams: any;
 
     if (type === 'signup' || type === 'magiclink') {
       // For signup and magiclink, we need the email

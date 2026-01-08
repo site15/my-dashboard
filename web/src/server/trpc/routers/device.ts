@@ -163,7 +163,7 @@ export const deviceRouter = router({
         isActive: true,
       },
       include: {
-        Widget: true,
+        Widget: { where: { deletedAt: null } },
       },
     });
 
@@ -211,7 +211,7 @@ export const deviceRouter = router({
       const currentDashboard = await prisma.dashboard.findFirst({
         where: { deviceId: ctx.deviceId, userId: ctx.user.id, isActive: true },
         include: {
-          Widget: true,
+          Widget: { where: { deletedAt: null } },
         },
       });
 

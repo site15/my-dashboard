@@ -62,7 +62,7 @@ export const dashboardsRouter = router({
         })
         .then(async result => {
           const widgetsCount = await prisma.widget.count({
-            where: { dashboardId: result.id },
+            where: { dashboardId: result.id, deletedAt: null },
           });
           return {
             ...result,
@@ -92,7 +92,7 @@ export const dashboardsRouter = router({
         })
         .then(async result => {
           const widgetsCount = await prisma.widget.count({
-            where: { dashboardId: result.id },
+            where: { dashboardId: result.id, deletedAt: null },
           });
           return {
             ...result,
@@ -138,7 +138,10 @@ export const dashboardsRouter = router({
         const widgetsCountByDashboardId = await prisma.widget.groupBy({
           by: ['dashboardId'],
           _count: true,
-          where: { dashboardId: { in: items.map(item => item.id) } },
+          where: {
+            dashboardId: { in: items.map(item => item.id) },
+            deletedAt: null,
+          },
         });
         return items.map(item => ({
           ...item,

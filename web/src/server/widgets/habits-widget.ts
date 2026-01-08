@@ -248,6 +248,10 @@ export class HabitsWidgetRender
     return widget;
   }
 
+  destroy(widget: WidgetRenderType<HabitsWidgetType>): void {
+    this.inited[widget.id] = false;
+  }
+
   init(
     widget: WidgetRenderType<HabitsWidgetType>,
     options?: WidgetRenderInitFunctionOptions
@@ -255,6 +259,7 @@ export class HabitsWidgetRender
     linkFunctionsToWindow();
 
     if (this.inited[widget.id]) {
+      console.log('Habits widget already initialized');
       return;
     }
     this.inited[widget.id] = true;
@@ -406,6 +411,8 @@ export class HabitsWidgetRender
       );
     }
 
-    return of(render()).pipe(tap(() => this.init(widget, options)));
+    return of(render()).pipe(
+      tap(() => setTimeout(() => this.init(widget, options)))
+    );
   }
 }

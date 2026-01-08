@@ -133,6 +133,10 @@ function generateWeekdayHeaders(firstDayOfWeek: string): string {
 export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
   private inited: Record<string, boolean> = {};
 
+  destroy(widget: WidgetRenderType<CalendarWidgetType>): void {
+    this.inited[widget.id] = false;
+  }
+
   init(
     widget: WidgetRenderType<CalendarWidgetType>,
     options?: WidgetRenderInitFunctionOptions
@@ -140,6 +144,7 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
     linkFunctionsToWindow();
 
     if (this.inited[widget.id]) {
+      console.log(`[CalendarWidget] Widget ${widget.id} already initialized`);
       return;
     }
     this.inited[widget.id] = true;
@@ -221,6 +226,8 @@ export class CalendarWidgetRender implements WidgetRender<CalendarWidgetType> {
     `;
     };
 
-    return of(render()).pipe(tap(() => this.init(widget, options)));
+    return of(render()).pipe(
+      tap(() => setTimeout(() => this.init(widget, options)))
+    );
   }
 }

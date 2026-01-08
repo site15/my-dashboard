@@ -7,9 +7,7 @@
 
 import { createIcons, icons } from 'lucide';
 
-import { ClockWidgetType, HourFormat } from './clock-widget';
 import { WINDOW } from '../../app/utils/window';
-import { WidgetRenderType } from '../types/WidgetSchema';
 import {
   addClass,
   appendChild,
@@ -31,6 +29,7 @@ const timeZoneClocks: Record<
 const timeZoneClockHour12: Record<string, boolean> = {};
 
 const clockUpdateInterval: Record<string, NodeJS.Timeout | null> = {};
+const timeZoneClockStaticMode: Record<string, boolean> = {};
 
 // Type definitions
 interface ClockConfig {
@@ -44,15 +43,19 @@ interface ClockConfig {
  * @param clocks - Array of clock configurations
  * @param scope - Document or element scope for DOM operations
  */
-function initializeClockWidget(
+export function initializeClockWidget(widgetId: string): void {
+  setupClockInterval(widgetId);
+}
+
+export function addClockWidget(
   widgetId: string,
   clocks: ClockConfig[],
   hour12: boolean,
-  staticMode: boolean,
-  scope: Document | HTMLElement = document
+  staticMode: boolean
 ): void {
   timeZoneClocks[widgetId] = [];
   timeZoneClockHour12[widgetId] = hour12;
+  timeZoneClockStaticMode[widgetId] = staticMode;
 
   for (let i = 0; i < clocks.length; i++) {
     timeZoneClocks[widgetId].push({
@@ -61,8 +64,6 @@ function initializeClockWidget(
       color: getColorForClock(i),
     });
   }
-
-  setupClockInterval(widgetId, true, staticMode, scope);
 }
 
 /**
@@ -298,21 +299,17 @@ function rotateClocks(
  * @param shouldStart - Whether to start or stop the interval
  * @param scope - Document or element scope for DOM operations
  */
-function setupClockInterval(
-  widgetId: string,
-  shouldStart: boolean,
-  staticMode: boolean,
-  scope: Document | HTMLElement = document
-): void {
-  if (clockUpdateInterval[widgetId]) {
-    clearInterval(clockUpdateInterval[widgetId]);
-    clockUpdateInterval[widgetId] = null;
-  }
-  if (shouldStart) {
-    updateClocksUI(widgetId, scope);
-    if (!staticMode) {
+function setupClockInterval(widgetId: string): void {
+  if (timeZoneClocks[widgetId]) {
+    if (clockUpdateInterval[widgetId]) {
+      clearInterval(clockUpdateInterval[widgetId]);
+      clockUpdateInterval[widgetId] = null;
+    }
+
+    updateClocksUI(widgetId);
+    if (!timeZoneClockStaticMode[widgetId]) {
       clockUpdateInterval[widgetId] = setInterval(
-        () => updateClocksUI(widgetId, scope),
+        () => updateClocksUI(widgetId),
         1000
       );
     }

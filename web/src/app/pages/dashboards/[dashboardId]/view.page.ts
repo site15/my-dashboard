@@ -82,6 +82,7 @@ export default class DashboardsViewPageComponent {
           result.widgets.map(widget => {
             const renderer = WIDGETS_RENDERERS[widget.type];
             if (renderer) {
+              renderer.destroy?.(widget);
               return renderer
                 .render(widget, {
                   static: false,

@@ -101,6 +101,7 @@ export interface WidgetRenderType<T, S = any> extends WidgetType {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface WidgetRender<T, S = any> {
+  destroy?(widget: WidgetRenderType<T, S>): void;
   init?(
     widget: WidgetRenderType<T, S>,
     options?: WidgetRenderInitFunctionOptions

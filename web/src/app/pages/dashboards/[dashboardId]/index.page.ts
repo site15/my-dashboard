@@ -34,6 +34,7 @@ import {
 import { ErrorHandlerService } from '../../../services/error-handler.service';
 import { FormHandlerService } from '../../../services/form-handler.service';
 import { WidgetsService } from '../../../services/widgets.service';
+import { WINDOW } from '../../../utils/window';
 
 export const routeMeta: RouteMeta = {
   canActivate: [ShowNavGuard],
@@ -125,7 +126,7 @@ export const routeMeta: RouteMeta = {
       <div class="mb-6 border-b border-gray-200">
         <nav class="flex space-x-8">
           <button
-            (click)="activeTab = 'grid'"
+            (click)="setActiveTab('grid')"
             [class.border-pastel-blue]="activeTab === 'grid'"
             [class.text-pastel-blue]="activeTab === 'grid'"
             class="py-4 px-1 border-b-2 font-medium text-sm transition-colors"
@@ -133,7 +134,7 @@ export const routeMeta: RouteMeta = {
             Widgets Grid
           </button>
           <button
-            (click)="activeTab = 'preview'"
+            (click)="setActiveTab('preview')"
             [class.border-pastel-blue]="activeTab === 'preview'"
             [class.text-pastel-blue]="activeTab === 'preview'"
             class="py-4 px-1 border-b-2 font-medium text-sm transition-colors"
@@ -339,6 +340,8 @@ export default class DashboardsEditPageComponent {
   };
   formFields$ = this.formHandlerService.createFormFieldsSubject();
   widgetTypes = Object.keys(WIDGETS_RENDERERS);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  widgets: any[] = [];
 
   readonly dashboardAndWidgets$ = this.route.paramMap.pipe(
     map(params => params.get('dashboardId')),
@@ -363,11 +366,13 @@ export default class DashboardsEditPageComponent {
     mergeMap(result => {
       // When dashboard and widgets data loads, render all widgets for preview
       if (result && result.widgets.length) {
+        this.widgets = result.widgets;
         // Render each widget and store the HTML
         return forkJoin(
           result.widgets.map(widget => {
             const renderer = WIDGETS_RENDERERS[widget.type];
             if (renderer) {
+              renderer.destroy?.(widget);
               return renderer
                 .render(widget, {
                   static: false,
@@ -419,6 +424,27 @@ export default class DashboardsEditPageComponent {
       baseFields: DASHBOARD_FORMLY_FIELDS,
       clientError: options?.clientError,
       mapFields: mapFormlyTypes,
+    });
+  }
+
+  setActiveTab(tab: 'grid' | 'preview') {
+    this.activeTab = tab;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!isSSR) {
+          Object.entries(WINDOW || {}).forEach(([key, value]) => {
+            if (key.startsWith('initialize') && key.endsWith('Widget')) {
+              this.widgets.forEach(widget => {
+                if (typeof value === 'function') {
+                  value(widget.id);
+                }
+              });
+            }
+          });
+          createIcons({ icons });
+        }
+      });
     });
   }
 

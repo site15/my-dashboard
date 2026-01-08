@@ -63,6 +63,7 @@ export const widgetsRouter = router({
       return (await prisma.widget.findFirstOrThrow({
         where: {
           id: input.id,
+          deletedAt: null,
         },
       })) satisfies WidgetType;
     }),
@@ -79,7 +80,7 @@ export const widgetsRouter = router({
       return prisma.$transaction(async trx => {
         const oldWidget = await trx.widget.findFirstOrThrow({
           select: { type: true, state: true, options: true },
-          where: { id: input.id },
+          where: { id: input.id, deletedAt: null },
         });
         const newWidget = await trx.widget.update({
           data: {
@@ -150,7 +151,7 @@ export const widgetsRouter = router({
       return prisma.$transaction(async trx => {
         const oldWidget = await trx.widget.findFirstOrThrow({
           select: { state: true, options: true },
-          where: { id: input.id },
+          where: { id: input.id, deletedAt: null },
         });
         const newWidget = await trx.widget.update({
           select: { state: true, options: true },
